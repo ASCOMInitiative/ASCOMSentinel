@@ -1,12 +1,15 @@
 ﻿using ASCOM.Common.Interfaces;
 using ASCOM.Tools;
 using static ObsMan.Globals;
+using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
 namespace ObsMan
 {
     public class Logger : TraceLogger, ITraceLogger, IDisposable
     {
         private bool debug;
+
+        #region Initialisers
 
         static Logger()
         {
@@ -24,6 +27,10 @@ namespace ObsMan
             base.IdentifierWidth = TEST_NAME_WIDTH;
         }
 
+        #endregion
+
+        #region Event handlers
+
         /// <summary>
         ///  Event fired when the message log changes.
         /// </summary>
@@ -33,6 +40,10 @@ namespace ObsMan
         /// Event fired when the status message changes.
         /// </summary>
         public event EventHandler<MessageEventArgs>? StatusChanged;
+
+        #endregion
+
+        #region Public methods
 
         /// <summary>
         /// Flag indicating whether debug messages should be included in the log.
@@ -63,73 +74,38 @@ namespace ObsMan
         /// <param name="id"></param>
         /// <param name="logLevel"></param>
         /// <param name="message"></param>
-        public void LogMessage(string id, MessageLevel logLevel, string message, bool logToScreen = true)
+        public void LogMessage(string id, LogLevel logLevel, string message, bool logToScreen = true)
         {
-            string screenMessage, messageLevel;
-
-            // Ignore debug messages when not in Debug mode
-            if ((logLevel == MessageLevel.Debug) & !Debug) return;
-
-
-            // Format the message level string
-            switch (logLevel)
+            try
             {
-                case MessageLevel.Debug:
-                case MessageLevel.Info:
-                case MessageLevel.OK:
-                case MessageLevel.Issue:
-                case MessageLevel.Error:
-                    {
-                        messageLevel = logLevel.ToString().ToUpperInvariant().PadRight(MESSAGE_LEVEL_WIDTH);
-                        break;
-                    }
+                // Write the message to the console
+                Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {logLevel.ToString().PadRight(11)} {message}");
 
-                case MessageLevel.TestOnly:
-                case MessageLevel.TestAndMessage:
-                    {
-                        messageLevel = "".PadRight(MESSAGE_LEVEL_WIDTH);
-                        break;
-                    }
-                default:
-                    {
-                        throw new ASCOM.InvalidValueException($"LogMsg - Unknown message level: {logLevel}.");
-                    }
+                // Write the message to the log file
+                base.LogMessage(id, message);
+
+                // Raise the MessaegLogChanged event to Write the message to the screen if required
+                if (logToScreen)
+                    OnMessageLogChanged(message);
+
             }
-
-            // Format the screen message to be consistent with the messages in the log file 
-            switch (logLevel)
+            catch (Exception ex)
             {
-                case MessageLevel.TestOnly:
-                    {
-                        screenMessage = id;
-                        break;
-                    }
-                default:
-                    {
-                        screenMessage = $"{id,-TEST_NAME_WIDTH} {messageLevel} {message}";
-                        break;
-                    }
+                Console.WriteLine($"Logger.LogMessage Exception: {ex.Message}\r\n{ex}");
             }
-
-            // Write the message to the console
-            Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {id,-TEST_NAME_WIDTH} {messageLevel,MESSAGE_LEVEL_WIDTH} {message}");
-
-            // Write the message to the log file
-            base.LogMessage(id, $"{messageLevel,MESSAGE_LEVEL_WIDTH} {message}");
-
-            // Raise the MessaegLogChanged event to Write the message to the screen if required
-            if (logToScreen)
-                OnMessageLogChanged(screenMessage);
         }
 
-        private void OnMessageLogChanged(string message)
+        public new void LogMessage(string method, string message)
         {
-            MessageEventArgs eventArgs = new()
-            {
-                Message = $"{DateTime.Now:HH:mm:ss.fff} {message}"
-            };
+            // Write the message to the console
+            Console.WriteLine($"{method}{(string.IsNullOrEmpty(method) ? "" : " ")}{message}");
 
-            MessageLogChanged?.Invoke(this, eventArgs);
+            // Write the message to the log file
+            base.LogMessage(method, message);
+
+            // Raise the MessaegLogChanged event to Write the message to the screen
+            OnMessageLogChanged($"{method} {message}");
+
         }
 
         /// <summary>
@@ -154,17 +130,21 @@ namespace ObsMan
             }
         }
 
-        public new void LogMessage(string method, string message)
+        #endregion
+
+        #region Support code
+
+        private void OnMessageLogChanged(string message)
         {
-            // Write the message to the console
-            Console.WriteLine($"{method}{(string.IsNullOrEmpty(method) ? "" : " ")}{message}");
+            MessageEventArgs eventArgs = new()
+            {
+                Message = $"{DateTime.Now:HH:mm:ss.fff} {message}"
+            };
 
-            // Write the message to the log file
-            base.LogMessage(method, message);
-
-            // Raise the MessaegLogChanged event to Write the message to the screen
-            OnMessageLogChanged($"{method} {message}");
-
+            MessageLogChanged?.Invoke(this, eventArgs);
         }
+
+        #endregion
+
     }
 }

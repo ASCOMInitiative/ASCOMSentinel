@@ -2,9 +2,13 @@
 
 <PageTitle>Weather forecast</PageTitle>
 
+@using ASCOM.Common
 @using ObsMan.Data
 @inject WeatherForecastService ForecastService
 @inject Settings settings;
+@inject Logger logger;
+@using LogLevel = ASCOM.Common.Interfaces.LogLevel;
+
 
 <h1>Weather forecast</h1>
 
@@ -47,12 +51,15 @@ else
     protected override async Task OnInitializedAsync()
     {
         forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+        logger.Debug = true;
     }
 
     private async Task SaveSettings()
     {
+        logger.LogMessage("DaveSettingsPage", LogLevel.Information, "About to set Trace On");
         settings.TraceOn = !settings.TraceOn;
         settings.Save();
+        logger.LogMessage("DaveSettingsPage", LogLevel.Debug, "Trace Set On!!");
     }
 
 }
