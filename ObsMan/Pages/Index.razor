@@ -1,9 +1,32 @@
 ﻿@page "/"
 
+@inject Settings settings;
+@inject Logger logger;
+@using LogLevel = ASCOM.Common.Interfaces.LogLevel;
+
 <PageTitle>Index</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+Trace on: @settings.TraceOn
+
+<button @onclick="SaveSettings">Save settings</button>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        logger.Debug = true;
+    }
+
+    private async Task SaveSettings()
+    {
+        logger.LogMessage("DaveSettingsPage", LogLevel.Information, "About to set Trace On");
+        settings.TraceOn = !settings.TraceOn;
+        settings.Save();
+        logger.LogMessage("DaveSettingsPage", LogLevel.Debug, "Trace Set On!!");
+    }
+
+}
