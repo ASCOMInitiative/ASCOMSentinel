@@ -1,0 +1,20 @@
+﻿@page "/observingconditionsconfiguration"
+
+@inject Settings settings;
+@inject Logger logger;
+@using LogLevel = ASCOM.Common.Interfaces.LogLevel;
+
+<PageTitle>Observing Conditions Configuration</PageTitle>
+
+<h1>Observing Conditions Configuration</h1>
+
+Welcome to your new app.
+
+Trace on: @settings.TraceOn
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+}

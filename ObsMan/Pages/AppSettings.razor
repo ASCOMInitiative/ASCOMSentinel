@@ -1,0 +1,35 @@
+﻿@page "/appsettings"
+
+@inject Settings settings;
+@inject Logger logger;
+@using LogLevel = ASCOM.Common.Interfaces.LogLevel;
+
+
+<PageTitle>Application Settings</PageTitle>
+
+<h1>Settings</h1>
+<p>
+    Trace value: @settings.TraceOn
+</p>
+<p>
+    <button @onclick="SaveSettings">Save settings</button>
+</p>
+@code {
+    bool showValue = true;
+    double value = 100;
+    IEnumerable<GaugeTickPosition> tickPositions = Enum.GetValues(typeof(GaugeTickPosition)).Cast<GaugeTickPosition>();
+    GaugeTickPosition tickPosition = GaugeTickPosition.Inside;
+
+    protected override async Task OnInitializedAsync()
+    {
+        logger.Debug = true;
+    }
+
+    private async Task SaveSettings()
+    {
+        logger.LogMessage("DaveSettingsPage", LogLevel.Information, "About to invert Trace value");
+        settings.TraceOn = !settings.TraceOn;
+        settings.Save();
+        logger.LogMessage("DaveSettingsPage", LogLevel.Debug, $"Trace Set {settings.TraceOn}!!");
+    }
+}

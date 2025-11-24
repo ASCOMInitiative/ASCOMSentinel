@@ -1,0 +1,20 @@
+﻿@page "/help"
+
+@inject Settings settings;
+@inject Logger logger;
+@using LogLevel = ASCOM.Common.Interfaces.LogLevel;
+
+<PageTitle>Help1</PageTitle>
+
+<h1>Help</h1>
+
+Welcome to your new app.
+
+Trace on: @settings.TraceOn
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+}
