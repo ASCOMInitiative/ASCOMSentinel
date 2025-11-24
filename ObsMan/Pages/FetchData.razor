@@ -4,6 +4,7 @@
 
 @using ObsMan.Data
 @inject WeatherForecastService ForecastService
+@inject Settings settings;
 
 <h1>Weather forecast</h1>
 
@@ -32,10 +33,12 @@ else
                     <td>@forecast.TemperatureC</td>
                     <td>@forecast.TemperatureF</td>
                     <td>@forecast.Summary</td>
+                    <td>Trace on: @settings.TraceOn</td>
                 </tr>
             }
         </tbody>
     </table>
+    <button @onclick="SaveSettings">Save settings</button>
 }
 
 @code {
@@ -45,4 +48,11 @@ else
     {
         forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
     }
+
+    private async Task SaveSettings()
+    {
+        settings.TraceOn = !settings.TraceOn;
+        settings.Save();
+    }
+
 }

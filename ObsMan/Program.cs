@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using ObsMan;
 using ObsMan.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddSingleton<Logger>();
+
+// Add a Settings singleton that  requires a logger instance as a parameter
+builder.Services.AddSingleton<Settings>(provider =>
+{
+    Logger  localSetup = provider.GetRequiredService<Logger>();
+    return new Settings(localSetup);
+});
 
 var app = builder.Build();
 
