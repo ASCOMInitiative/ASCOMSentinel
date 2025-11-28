@@ -1,7 +1,11 @@
 ﻿@page "/"
 
+@using ObsMan.Components
+
 @inject Settings settings;
 @inject Logger logger;
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
 @using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
 <PageTitle>Observatory Manager</PageTitle>
@@ -16,34 +20,88 @@ Trace on: @settings.TraceOn
     <RadzenButton Click="@SaveSettings" Text="Save Settings"></RadzenButton>
 </div>
 
+
+
+
+
+
+<p>Current window width: @ViewportWidth x @ViewportHeight px</p>
+
+
+
+
+
+
+<RadzenMediaQuery Query="(max-width: 1330px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials2, matches)) />
+<RadzenMediaQuery Query="(min-width: 1331px) and (max-width: 1650px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials3, matches)) />
+<RadzenMediaQuery Query="(min-width: 1651px) and (max-width: 1975px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials4, matches)) />
+<RadzenMediaQuery Query="(min-width: 1976px) and (max-width: 2300px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials5, matches)) />
+<RadzenMediaQuery Query="(min-width: 2301px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials6, matches)) />
+
+
 <div>
-    <RadzenRadialGauge Style="width: 100%; height: 250px;">
-        <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step="20" Min="0" Max="120" TickPosition=@tickPosition>
-            <RadzenRadialGaugeScalePointer Value=@value Length="0.6" ShowValue=@showValue>
-                <Template Context="pointer">
-                    <RadzenStack AlignItems="AlignItems.Center" Gap="0" class="rz-mt-4">
-                        <RadzenText TextStyle="TextStyle.Body1" class="rz-m-0"><strong>@pointer.Value</strong></RadzenText>
-                        <RadzenText TextStyle="TextStyle.Caption">m/h</RadzenText>
-                    </RadzenStack>
-                </Template>
-            </RadzenRadialGaugeScalePointer>
-            <RadzenRadialGaugeScaleRange From="0" To="20" Fill="green" />
-            <RadzenRadialGaugeScaleRange From="20" To="40" Fill="orange" />
-            <RadzenRadialGaugeScaleRange From="40" To="120" Fill="red" />
-        </RadzenRadialGaugeScale>
-    </RadzenRadialGauge>
+    <Gauge Legend="Wind Speed (mi/h)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
+    <Gauge Legend="Wind Gust (mi/h)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value="300" />
+    @if (currentWindowSize == WindowSize.Dials2)
+    {
+        <br />
+    }
+    <Compass Value="137.0" />
+    @if (currentWindowSize == WindowSize.Dials3)
+    {
+        <br />
+    }
+    <Gauge Legend="Rain Rate (mm/h)" MinValue="0" MaxValue="10" OrangeGreenTransition="1" RedOrangeTransition="5" Value="0" />
+    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
+    {
+        <br />
+    }
+    <Gauge Legend="Sky Brightness (Lux)" MinValue="-20" MaxValue="0" OrangeGreenTransition="-15" RedOrangeTransition="-5" Value="-12" />
+    @if (currentWindowSize == WindowSize.Dials5)
+    {
+        <br />
+    }
+    <Gauge Legend="Sky Quality (mag/arcsec2)" MinValue="0" MaxValue="100" OrangeGreenTransition="50" RedOrangeTransition="20" Value="30" Reverse=true />
+    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials3) | (currentWindowSize == WindowSize.Dials6))
+    {
+        <br />
+    }
+    <Gauge Legend="FWHM (arc-sec)" MinValue="0" MaxValue="5" OrangeGreenTransition="3" RedOrangeTransition="4" Value="2.5" />
+    <Gauge Legend="Sky Temperature (C)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
+    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
+    {
+        <br />
+    }
+    <Gauge Legend="Dew Point (C)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
+    @if (currentWindowSize == WindowSize.Dials3)
+    {
+        <br />
+    }
+    <Gauge Legend="Pressure (hPa)" MinValue="950" MaxValue="1050" OrangeGreenTransition="1060" RedOrangeTransition="1060" Value="991" />
+    @if (currentWindowSize == WindowSize.Dials5)
+    {
+        <br />
+    }
+    <Gauge Legend="Temperature (C)" MinValue="-50.0" MaxValue="50.0" OrangeGreenTransition="10.0" RedOrangeTransition="25.0" Value="-3.0" />
+    <Gauge Legend="Humidity (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value="50" />
 </div>
 
 @code {
+
+    enum WindowSize
+    {
+        Dials2,
+        Dials3,
+        Dials4,
+        Dials5,
+        Dials6
+    }
+
+    WindowSize currentWindowSize = WindowSize.Dials6;
+
     bool showValue = true;
     double value = 100;
     GaugeTickPosition tickPosition = GaugeTickPosition.Inside;
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        logger.Debug = true;
-    }
 
     private async Task SaveSettings()
     {
@@ -52,5 +110,58 @@ Trace on: @settings.TraceOn
         settings.Save();
         logger.LogMessage("DaveSettingsPage", LogLevel.Debug, $"Trace Set {settings.TraceOn}!!");
     }
+
+    void WindowWidthChanged(WindowSize windowSize, bool matches)
+    {
+        if (matches)
+        {
+            currentWindowSize = windowSize;
+            StateHasChanged();
+        }
+        else
+        {
+        }
+    }
+
+    string maxLengthValue = "";
+    int maxLength = 5;
+
+
+    DotNetObjectReference<Index> objRef;
+    public int ViewportWidth { get; set; }
+    public int ViewportHeight { get; set; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("window.registerViewportChangeCallback", objRef);
+            // Also get initial width
+           ViewportWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
+            ViewportHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public void OnResize(int width, int height)
+    {
+        if (ViewportWidth == width && ViewportHeight == height) return;
+        ViewportWidth = width;
+        ViewportHeight = height;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (objRef != null)
+        {
+            await JSRuntime.InvokeVoidAsync("window.unregisterViewportChangeCallback", objRef); // Optional: add unregister JS
+            objRef.Dispose();
+        }
+    }
+
 
 }

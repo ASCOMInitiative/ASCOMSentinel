@@ -1,0 +1,50 @@
+﻿@namespace ObsMan.Components
+<span>
+    <RadzenRadialGauge Style="width: 320px; height: 320px;">
+        <RadzenRadialGaugeScale StartAngle="0" EndAngle="360" Min="0" Max="360" Step="45" TickPosition="GaugeTickPosition.Inside" Formatter="@FormatCompassLabel" MinorStep="22.5" MinorTickLength=9 TickLength=13>
+            <RadzenRadialGaugeScalePointer Value=@Value Length="0.7" ShowValue=true>
+                <Template Context="pointer">
+                    <RadzenStack AlignItems="AlignItems.Center" Gap="0" class="rz-mt-4">
+                        <RadzenText TextStyle="TextStyle.Body1" class="rz-m-0"><strong>@pointer.Value</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Caption" TextAlign="TextAlign.Center"><strong>Wind Direction</strong></RadzenText>
+                    </RadzenStack>
+                </Template>
+            </RadzenRadialGaugeScalePointer>
+            <RadzenRadialGaugeScaleRange From=0 To=360 Fill="green" />
+        </RadzenRadialGaugeScale>
+    </RadzenRadialGauge>
+</span>
+
+@code {
+
+    //            <RadzenRadialGaugeScalePointer Value="@CurrentHeading" Fill="red" Length="0.8" />
+
+    [Parameter]
+    public double Value { get; set; } = 0;
+
+    private string FormatCompassLabel(double value)
+    {
+        switch (value)
+        {
+            case 0:
+            case 360:
+                return "N";
+            case 45:
+                return "NE";
+            case 90:
+                return "E";
+            case 135:
+                return "SE";
+            case 180:
+                return "S";
+            case 225:
+                return "SW";
+            case 270:
+                return "W";
+            case 315:
+                return "NW";
+            default:
+                return "";
+        }
+    }
+}

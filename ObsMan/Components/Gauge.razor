@@ -1,0 +1,74 @@
+﻿@namespace ObsMan.Components
+<span>
+    <RadzenRadialGauge Style="width: 320px; height: 320px;">
+        <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step=@Step Min=@MinValue Max=@AbsoluteMaxValue TickPosition=GaugeTickPosition.Inside MinorStep="@MinorStep" MinorTickLength=9 TickLength=13>
+            <RadzenRadialGaugeScalePointer Value=@Value Length="0.7" ShowValue=true>
+                <Template Context="pointer">
+                    <RadzenStack AlignItems="AlignItems.Center" Gap="0" class="rz-mt-4">
+                        <RadzenText TextStyle="TextStyle.Body1" class="rz-m-0"><strong>@pointer.Value</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Caption" TextAlign="TextAlign.Center"><strong>@Legend</strong></RadzenText>
+                    </RadzenStack>
+                </Template>
+            </RadzenRadialGaugeScalePointer>
+            @if (Reverse)
+            {
+                <RadzenRadialGaugeScaleRange From=@MinValue To=@RedOrangeTransition Fill="red" />
+                <RadzenRadialGaugeScaleRange From=@RedOrangeTransition To=@OrangeGreenTransition Fill="orange" />
+                <RadzenRadialGaugeScaleRange From=OrangeGreenTransition To=@AbsoluteMaxValue Fill="green" />
+            }
+            else
+            {
+                <RadzenRadialGaugeScaleRange From="@MinValue" To=@OrangeGreenTransition Fill="green" />
+                <RadzenRadialGaugeScaleRange From=@OrangeGreenTransition To=@RedOrangeTransition Fill="orange" />
+                <RadzenRadialGaugeScaleRange From=@RedOrangeTransition To=@AbsoluteMaxValue Fill="red" />
+            }
+        </RadzenRadialGaugeScale>
+    </RadzenRadialGauge>
+</span>
+@code
+{
+    [Parameter]
+    public bool Reverse { get; set; } = false;
+
+    [Parameter]
+    public double MinValue { get; set; } = 0;
+
+    [Parameter]
+    public double MaxValue { get; set; } = 50;
+
+    [Parameter]
+    public double Value { get; set; } = 0;
+
+    [Parameter]
+    public string Legend { get; set; } = "Not set";
+
+    [Parameter]
+    public double OrangeGreenTransition { get; set; } = 0;
+
+    [Parameter]
+    public double RedOrangeTransition { get; set; } = 0;
+
+    private double AbsoluteMaxValue
+    {
+        get
+        {
+            return Math.Max(MaxValue, Value);
+        }
+    }
+
+    private double Step
+    {
+        get
+        {
+            return Math.Max(1, (AbsoluteMaxValue - MinValue) / 10);
+        }
+    }
+
+    private double MinorStep
+    {
+        get
+        {
+            return Math.Max(0.1, Step / 5);
+        }
+    }
+}
