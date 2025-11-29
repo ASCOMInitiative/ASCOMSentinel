@@ -1,5 +1,6 @@
 ﻿using ASCOM.Common.Interfaces;
 using ASCOM.Tools;
+using System.Reflection.Metadata.Ecma335;
 using static ObsMan.Globals;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
@@ -8,6 +9,8 @@ namespace ObsMan
     public class Logger : TraceLogger, ITraceLogger, IDisposable
     {
         private bool debug;
+
+        private static Logger loggerInstance;
 
         #region Initialisers
 
@@ -21,13 +24,23 @@ namespace ObsMan
         public Logger() : base("", "", LOG_FILENAME, true)
         {
             this.debug = true;
+            loggerInstance = this;
         }
         public Logger(string logFileName, string logFilePath, string loggerName, bool enabled) : base(logFileName, logFilePath, loggerName, enabled)
         {
             base.IdentifierWidth = TEST_NAME_WIDTH;
+            loggerInstance = this;
         }
 
         #endregion
+
+        public static Logger LoggerInstance
+        {
+            get
+            {
+                return loggerInstance;
+            }
+        }
 
         #region Event handlers
 

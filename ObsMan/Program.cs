@@ -1,3 +1,4 @@
+using ASCOM.Common;
 using ObsMan;
 using Radzen;
 

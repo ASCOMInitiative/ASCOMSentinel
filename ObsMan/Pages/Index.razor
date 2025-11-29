@@ -1,12 +1,11 @@
 ﻿@page "/"
 
-@using ObsMan.Components
-
 @inject Settings settings;
 @inject Logger logger;
 @inject IJSRuntime JSRuntime
-@implements IAsyncDisposable
+
 @using LogLevel = ASCOM.Common.Interfaces.LogLevel;
+@using ObsMan.Components
 
 <PageTitle>Observatory Manager</PageTitle>
 
@@ -20,24 +19,11 @@ Trace on: @settings.TraceOn
     <RadzenButton Click="@SaveSettings" Text="Save Settings"></RadzenButton>
 </div>
 
-
-
-
-
-
-<p>Current window width: @ViewportWidth x @ViewportHeight px</p>
-
-
-
-
-
-
 <RadzenMediaQuery Query="(max-width: 1330px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials2, matches)) />
 <RadzenMediaQuery Query="(min-width: 1331px) and (max-width: 1650px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials3, matches)) />
 <RadzenMediaQuery Query="(min-width: 1651px) and (max-width: 1975px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials4, matches)) />
 <RadzenMediaQuery Query="(min-width: 1976px) and (max-width: 2300px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials5, matches)) />
 <RadzenMediaQuery Query="(min-width: 2301px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials6, matches)) />
-
 
 <div>
     <Gauge Legend="Wind Speed (mi/h)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
@@ -125,43 +111,5 @@ Trace on: @settings.TraceOn
 
     string maxLengthValue = "";
     int maxLength = 5;
-
-
-    DotNetObjectReference<Index> objRef;
-    public int ViewportWidth { get; set; }
-    public int ViewportHeight { get; set; }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
-
-        if (firstRender)
-        {
-            objRef = DotNetObjectReference.Create(this);
-            await JSRuntime.InvokeVoidAsync("window.registerViewportChangeCallback", objRef);
-            // Also get initial width
-           ViewportWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
-            ViewportHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
-            StateHasChanged();
-        }
-    }
-
-    [JSInvokable]
-    public void OnResize(int width, int height)
-    {
-        if (ViewportWidth == width && ViewportHeight == height) return;
-        ViewportWidth = width;
-        ViewportHeight = height;
-        StateHasChanged();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (objRef != null)
-        {
-            await JSRuntime.InvokeVoidAsync("window.unregisterViewportChangeCallback", objRef); // Optional: add unregister JS
-            objRef.Dispose();
-        }
-    }
-
 
 }
