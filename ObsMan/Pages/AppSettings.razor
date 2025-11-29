@@ -15,21 +15,17 @@
     <button @onclick="SaveSettings">Save settings</button>
 </p>
 @code {
-    bool showValue = true;
-    double value = 100;
     IEnumerable<GaugeTickPosition> tickPositions = Enum.GetValues(typeof(GaugeTickPosition)).Cast<GaugeTickPosition>();
-    GaugeTickPosition tickPosition = GaugeTickPosition.Inside;
 
     protected override async Task OnInitializedAsync()
     {
-        logger.Debug = true;
     }
 
     private async Task SaveSettings()
     {
-        logger.LogMessage("DaveSettingsPage", LogLevel.Information, "About to invert Trace value");
+        logger.LogMessage("SaveSettingsPage", LogLevel.Information, "About to invert Trace value");
         settings.TraceOn = !settings.TraceOn;
         settings.Save();
-        logger.LogMessage("DaveSettingsPage", LogLevel.Debug, $"Trace Set {settings.TraceOn}!!");
+        logger.LogMessage("SaveSettingsPage", LogLevel.Debug, $"Trace Set {settings.TraceOn}!!");
     }
 }

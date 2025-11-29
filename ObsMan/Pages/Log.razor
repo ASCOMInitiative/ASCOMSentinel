@@ -1,51 +1,55 @@
 ﻿@page "/log"
 @inject Logger logger;
+@inject State state;
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable
 
 <h4>Observatory Manager Log</h4>
-<div style="height:100%;min-height:100%;%">
+<div style="height:100%;min-height:100%;">
     <RadzenTextArea Id="ObsManLog" Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%;'
-                    Name="_conformState.ScreenLog" @bind-Value=@Globals.applicationLog Rows="@screenLogRows" Cols="250" ReadOnly=true />
+                    Name="_conformState.ScreenLog" @bind-Value=@state.ApplicationLog Rows="@(state.LastNumberOfLogLines == 0?20:state.LastNumberOfLogLines)" Cols="250" ReadOnly=true />
 </div>
-<!-- Rows="@screenLogRows"  -->
+
 @code
 {
-    int screenLogRows = 10;
     DotNetObjectReference<Log>? objRef;
-
-    public int LogWidth { get; set; }
-    public int LogHeight { get; set; }
 
     protected override async void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
+            logger.MessageLogChanged += OnLogChanged;
+
             // Subscribe to the OnResized event. This will do work when the browser is resized.
             objRef = DotNetObjectReference.Create(this);
-            logger.LogMessage("Log.OnAfterRender", $"About to register windows resize callbacks...");
             await JSRuntime.InvokeVoidAsync("window.registerViewportChangeCallback", objRef);
-            logger.LogMessage("Log.OnAfterRender", $"Registered windows resize callbacks OK");
-            // Scroll the log window to the bottom of its contents.
-            // try
-            // {
-            //     await JSRuntime.InvokeVoidAsync("setScrollTop", "ConformLog", _conformState.ConformLogScrollTop.ToString());
-            // }
-            // catch (Exception ex)
-            // {
-            //     Console.WriteLine($"OnInitialized-setScrollTop: {ex}");
-            // }
 
-            // Also get initial width
-            LogWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
-            LogHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
-            OnResize(LogWidth, LogHeight);
+            // Get the current window size and re-size to this
+            int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
+            int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
+            OnResize(logWidth, logHeight);
             StateHasChanged();
 
+            // Scroll the log window to the bottom of its contents.
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("setScrollTop", "ObsManLog", state.TopOfVisibleLog.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnInitialized-setScrollTop: {ex}");
+            }
         }
     }
 
-    #region Log textarea - resize support
+    #region Log resize support
+
+    private void OnLogChanged(object? sender, MessageEventArgs e)
+    {
+        // Log has changed - refresh the screen
+        InvokeAsync(StateHasChanged);
+    }
+
 
     // This method will be called when the window resizes.
     // It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
@@ -54,29 +58,30 @@
     {
         try
         {
-            logger.LogMessage("screenLogRows", $"WindowResized - Received - x: {width}, y: {height}");
-            LogWidth = width;
-            LogHeight = height;
+            // Calculate the number of rows that will fit in the available height
+            int screenLogRows = Convert.ToInt32(height / 18.0) - 8;
 
-            screenLogRows = Convert.ToInt32(height / 18.0) - 8;
-            logger.LogMessage("screenLogRows", $"WindowResized - Setting rows to {screenLogRows}");
+            // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
+            state.LastNumberOfLogLines = screenLogRows;
 
-            // string browser = "";
-            // browser = await JSRuntime.InvokeAsync<string>(identifier: "IdentifyBrowser");
+            // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
+            await InvokeAsync(StateHasChanged);
 
-            // if (browser.Contains("Firefox", StringComparison.InvariantCultureIgnoreCase)) screenLogRows -= 1;
+            // Scroll to the bottom of the window and return the current window 'top' value.
+            int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
 
-            //_conformLogger.LogMessage("Set_conformState.ScreenLogRows", MessageLevel.Debug, $"Window width: {window.Width}, Window.height: {window.Height}, LogTop: {result.Top}, LogHeight: {result.Height}, _conformState.ScreenLogRows: {_conformState.ScreenLogRows}, Browser: {browser}");
-            await InvokeAsync(StateHasChanged); // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
-
+            // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
+            state.TopOfVisibleLog = top;
         }
         catch (Exception ex)
         {
-            logger.LogMessage("Set_conformState.ScreenLogRows", $"Exception: \r\n{ex}");
+            logger.LogMessage("Set_conformState.ScreenLogRows", ASCOM.Common.Interfaces.LogLevel.Error, $"Exception: \r\n{ex}");
         }
     }
 
     #endregion
+
+    #region Dispose pattern
 
     public async ValueTask DisposeAsync()
     {
@@ -87,5 +92,5 @@
         }
     }
 
-
+    #endregion
 }

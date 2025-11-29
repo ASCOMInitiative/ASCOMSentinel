@@ -85,10 +85,6 @@ Trace on: @settings.TraceOn
 
     WindowSize currentWindowSize = WindowSize.Dials6;
 
-    bool showValue = true;
-    double value = 100;
-    GaugeTickPosition tickPosition = GaugeTickPosition.Inside;
-
     private async Task SaveSettings()
     {
         logger.LogMessage("DaveSettingsPage", LogLevel.Information, "About to invert Trace value");
@@ -108,8 +104,4 @@ Trace on: @settings.TraceOn
         {
         }
     }
-
-    string maxLengthValue = "";
-    int maxLength = 5;
-
 }

@@ -52,14 +52,6 @@
         return rect;
     };
 
-    // Return size information for the browser window
-    GetBoundingWindowRect = () => {
-        return new DOMRect(0,
-            0,
-            window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
-            window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight);
-    }
-
     // Scroll to the bottom of the page
     function ScrollToBottom(elementId) {
         let top = document.getElementById(elementId).scrollHeight;
@@ -79,7 +71,8 @@
         };
     }
 
-    // Set element.top for a scrollable element
+    // Set element.top for a scroll-able element. 
+    // When an element is scrolled, this is the offset of the top of the visible scrolled region from the absolute top of the element (which is now invisible because it is scrolled above the visible top of the element.)
     function setScrollTop(elementId, scrollTop) {
         let element = document.getElementById(elementId);
         element.scrollTop = scrollTop;

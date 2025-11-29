@@ -1,4 +1,5 @@
 using ASCOM.Common;
+using Microsoft.Extensions.DependencyInjection;
 using ObsMan;
 using Radzen;
 
@@ -11,13 +12,16 @@ builder.Services.AddServerSideBlazor();
 // Add Radzen components
 builder.Services.AddRadzenComponents();
 
+// Add a StateService singleton to hold application state
+builder.Services.AddSingleton<State>();
+
+// Add a Logger singleton
 builder.Services.AddSingleton<Logger>();
 
 // Add a Settings singleton that  requires a logger instance as a parameter
 builder.Services.AddSingleton<Settings>(provider =>
 {
-    Logger  localSetup = provider.GetRequiredService<Logger>();
-    return new Settings(localSetup);
+    return new Settings("");
 });
 
 var app = builder.Build();

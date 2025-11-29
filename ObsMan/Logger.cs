@@ -1,17 +1,21 @@
 ﻿using ASCOM.Common.Interfaces;
 using ASCOM.Tools;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.CompilerServices;
 using static ObsMan.Globals;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
 namespace ObsMan
 {
+    /// <summary>
+    /// Initializes a new instance of the Logger class using the specified state service.
+    /// </summary>
+    /// <param name="state">The StateService instance that provides access to application state information for logging purposes. Cannot be
+    /// null.</param>
     public class Logger : TraceLogger, ITraceLogger, IDisposable
     {
-        private bool debug;
-
-        private static Logger loggerInstance;
-
+        State state;
+        Settings settings;
         #region Initialisers
 
         static Logger()
@@ -19,28 +23,18 @@ namespace ObsMan
             // Ensure that text output always used UTF8 regardless of the setting of the parent application.
             // Without this change, piping output to another process can result in translation of single Unicode characters into multiple ASCII characters.
             Console.OutputEncoding = System.Text.Encoding.UTF8;
+
         }
 
-        public Logger() : base("", "", LOG_FILENAME, true)
+        public Logger(State state, Settings settings) : base("", "", LOG_FILENAME, true)
         {
-            this.debug = true;
-            loggerInstance = this;
+            this.state = state;
+            this.settings = settings;
+            SetMinimumLoggingLevel(settings.LogLevel);
         }
-        public Logger(string logFileName, string logFilePath, string loggerName, bool enabled) : base(logFileName, logFilePath, loggerName, enabled)
-        {
-            base.IdentifierWidth = TEST_NAME_WIDTH;
-            loggerInstance = this;
-        }
+
 
         #endregion
-
-        public static Logger LoggerInstance
-        {
-            get
-            {
-                return loggerInstance;
-            }
-        }
 
         #region Event handlers
 
@@ -49,37 +43,9 @@ namespace ObsMan
         /// </summary>
         public event EventHandler<MessageEventArgs>? MessageLogChanged;
 
-        /// <summary>
-        /// Event fired when the status message changes.
-        /// </summary>
-        public event EventHandler<MessageEventArgs>? StatusChanged;
-
         #endregion
 
         #region Public methods
-
-        /// <summary>
-        /// Flag indicating whether debug messages should be included in the log.
-        /// </summary>
-        public bool Debug
-        {
-            get
-            {
-                return debug;
-            }
-            set
-            {
-                debug = value;
-                if (value)
-                {
-                    base.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Debug);
-                }
-                else
-                {
-                    base.SetMinimumLoggingLevel(ASCOM.Common.Interfaces.LogLevel.Information);
-                }
-            }
-        }
 
         /// <summary>
         /// Log a message on the screen, console and log file
@@ -91,16 +57,25 @@ namespace ObsMan
         {
             try
             {
+                string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel.ToString().PadRight(11)} {message}";
                 // Write the message to the console
-                Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {logLevel.ToString().PadRight(11)} {message}");
+                Console.WriteLine(formattedMessage);
 
                 // Write the message to the log file
                 base.LogMessage(id, message);
 
                 // Raise the MessaegLogChanged event to Write the message to the screen if required
-                if (logToScreen)
-                    OnMessageLogChanged(message);
+                if (logToScreen) // Log to screen is enabled
+                {
+                    // Check if the message should be show
+                    if (logLevel <= settings.LogLevel) // Message level is within or above the current log level
+                    {
+                        // Raise the MessaegLogChanged event to Write the message to the screen
+                        state.ApplicationLog = state.ApplicationLog + $"\r\n{formattedMessage}";
 
+                        OnMessageLogChanged(formattedMessage);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -110,36 +85,16 @@ namespace ObsMan
 
         public new void LogMessage(string method, string message)
         {
-            // Write the message to the console
-            Console.WriteLine($"{method}{(string.IsNullOrEmpty(method) ? "" : " ")}{message}");
-
-            // Write the message to the log file
-            base.LogMessage(method, message);
-
-            // Raise the MessaegLogChanged event to Write the message to the screen
-            OnMessageLogChanged($"{method} {message}");
-
-        }
-
-        /// <summary>
-        /// Raises an event notifying that the status message has changed
-        /// </summary>
-        /// <param name="status">new status message.</param>
-        /// <remarks>
-        /// This is part of ConformLogger for convenience because the logger is used everywhere in the application and already supports the LogMessageChanged event.
-        /// </remarks>
-        public void SetStatusMessage(string status)
-        {
-            MessageEventArgs eventArgs = new()
+            lock (this)
             {
-                Message = status
-            };
+                // Write the message to the console
+                Console.WriteLine($"{method}{(string.IsNullOrEmpty(method) ? "" : " ")}{message}");
 
-            EventHandler<MessageEventArgs>? messageEventHandler = StatusChanged;
+                // Write the message to the log file
+                base.LogMessage(method, message);
 
-            if (messageEventHandler is not null)
-            {
-                messageEventHandler(this, eventArgs);
+
+                OnMessageLogChanged($"{method} {message}");
             }
         }
 
