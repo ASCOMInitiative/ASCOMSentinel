@@ -243,7 +243,14 @@ namespace ObsMan
 
         public string Location { get; set; } = "My Observatory";
 
-        public int ApplicationIpPort { get; set; } = 32324;
+        public int ApplicationIpPort { get; set; } = Globals.DEFAULT_ALPACA_PORT;
+
+        public string UniqueIdSafetyMonitor { get; set; } = Guid.NewGuid().ToString();
+        public string UniqueIdSwitch { get; set; } = Guid.NewGuid().ToString();
+
+        public string UniqueIdObservingConditions { get; set; } = Guid.NewGuid().ToString();
+
+        public bool FirstUse { get; set; } = true;
 
         #endregion
 

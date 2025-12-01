@@ -1,18 +1,23 @@
 ﻿@page "/"
-@inject Logger logger;
 @inject State state;
+@inject Logger logger;
 @inject IJSRuntime JSRuntime
+@inject Settings settings
 
 <!-- Start the Alpaca responder when the page loads -->
 @inject AlpacaResponder _alpacaResponder
 
 @implements IAsyncDisposable
-
-<h4>Observatory Manager</h4>
+<h1>Observatory Manager</h1>
+<div>
+    @settings.Status
+    <RadzenButton Click="@Connect" Text="Connect" Style="margin-left:30px" />
+    <p />
+</div>
 
 <div style="height:100%;min-height:100%;">
     <RadzenTextArea Id="ObsManLog" Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%;'
-                    Name="_conformState.ScreenLog" @bind-Value=@state.ApplicationLog Rows="@(state.LastNumberOfLogLines == 0?20:state.LastNumberOfLogLines)" Cols="250" ReadOnly=true />
+                    Name="_conformState.ScreenLog" @bind-Value=@ApplicationLog Rows="@LastnumberOfLogLines()" Cols="250" ReadOnly=true />
 </div>
 
 @code
@@ -47,7 +52,31 @@
         }
     }
 
-    #region Log resize support
+    private async Task Connect()
+    {
+        logger.LogMessage("DaveSettingsPage", "About to invert Trace value");
+        settings.TraceOn = !settings.TraceOn;
+        settings.Save();
+        logger.LogMessage("DaveSettingsPage", $"Trace Set {settings.TraceOn}!!");
+    }
+
+    private int LastnumberOfLogLines()
+    {
+        return state.LastNumberOfLogLines == 0 ? 20 : state.LastNumberOfLogLines;
+    }
+
+    private string ApplicationLog
+    {
+        get
+        {
+            return state.ApplicationLog.ToString();
+        }
+        set
+        {
+            // Do nothing - required for two-way binding
+        }
+    }
+
 
     private void OnLogChanged(object? sender, MessageEventArgs e)
     {
@@ -55,6 +84,7 @@
         InvokeAsync(StateHasChanged);
     }
 
+    #region Log resize support
 
     // This method will be called when the window resizes.
     // It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)

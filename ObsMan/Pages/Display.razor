@@ -11,14 +11,6 @@
 
 <h1>Observatory Manager</h1>
 
-Welcome to your new app.
-
-Trace on: @settings.TraceOn
-
-<div>
-    <RadzenButton Click="@SaveSettings" Text="Save Settings"></RadzenButton>
-</div>
-
 <RadzenMediaQuery Query="(max-width: 1330px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials2, matches)) />
 <RadzenMediaQuery Query="(min-width: 1331px) and (max-width: 1650px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials3, matches)) />
 <RadzenMediaQuery Query="(min-width: 1651px) and (max-width: 1975px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials4, matches)) />
@@ -84,14 +76,6 @@ Trace on: @settings.TraceOn
     }
 
     WindowSize currentWindowSize = WindowSize.Dials6;
-
-    private async Task SaveSettings()
-    {
-        logger.LogMessage("DaveSettingsPage", LogLevel.Information, "About to invert Trace value");
-        settings.TraceOn = !settings.TraceOn;
-        settings.Save();
-        logger.LogMessage("DaveSettingsPage", $"Trace Set {settings.TraceOn}!!");
-    }
 
     void WindowWidthChanged(WindowSize windowSize, bool matches)
     {

@@ -1,4 +1,5 @@
 ﻿using ASCOM.Alpaca.Discovery;
+using ASCOM.Common;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 namespace ObsMan
 {
@@ -8,9 +9,9 @@ namespace ObsMan
         {
             logger.LogMessage("AlpacaResponder", "Init");
 
-            logger.LogMessage("StartResponder", LogLevel.Debug, "About to start responder...");
+            logger.LogDebug("StartResponder", "About to start responder...");
             Responder responder = new (settings.ApplicationIpPort);
-            logger.LogMessage("StartResponder", LogLevel.Information, $"Started Alpaca Responder, reporting port: {settings.ApplicationIpPort}");
+            logger.LogMessage("StartResponder", $"Started Alpaca Responder, reporting port: {settings.ApplicationIpPort}");
         }
     }
 }

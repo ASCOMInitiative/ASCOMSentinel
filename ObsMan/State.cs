@@ -1,21 +1,44 @@
-﻿namespace ObsMan
+﻿using System.Text;
+
+namespace ObsMan
 {
     public class State
     {
-        static uint serverTransactionId = 0;
+        #region Variables and initialisers
+
+        private static uint serverTransactionId = 0;
+
         public State() { }
 
+        #endregion
+
+        #region public properties
+
+        /// <summary>
+        /// Gets or sets the index of the first visible log entry in the log view.
+        /// </summary>
         public int TopOfVisibleLog { get; set; } = 0;
 
+        /// <summary>
+        /// Gets the number of lines in the screen log when last updated
+        /// </summary>
         public int LastNumberOfLogLines { get; set; } = 0;
 
-        public string ApplicationLog { get; set; } = $"{Globals.WELCOME_MESSAGE}\r\n";
+        public StringBuilder ApplicationLog { get; set; } = new StringBuilder(Globals.MAXIMUM_LOG_SIZE_CHARACTERS, Globals.MAXIMUM_LOG_SIZE_CHARACTERS).Append($"{Globals.WELCOME_MESSAGE}\r\n");
+
+        public bool Connected { get; set; } = false;
+
+        #endregion
+
+        #region Public functions
 
         public uint GetServerTransactionId()
         {
             serverTransactionId++;
             return serverTransactionId;
         }
+
+        #endregion
 
         #region Test values
 
