@@ -8,5 +8,7 @@
         internal const string SETTINGS_FILENAME = "obsman.settings"; // Settings file name
         internal const string LOG_FILENAME = "obsman.log"; // Log file name
         internal const string WELCOME_MESSAGE = "Welcome to Observatory Manager!"; // Welcome message
+        internal const string MANUFACTURER_NAME = "Peter Simpson"; // Manufacturer name 
+        internal const string MANUFACTURER_VERSION = "0.0.1"; // Manufacturer version
     }
 }

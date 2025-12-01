@@ -237,7 +237,13 @@ namespace ObsMan
 
         public bool TraceOn { get; set; } = false;
 
-        public LogLevel LogLevel { get; set; } = LogLevel.Information;
+        public LogLevel LogLevel { get; set; } = LogLevel.Debug;
+
+        public string ServerName { get; set; } = "Observatory Manager";
+
+        public string Location { get; set; } = "My Observatory";
+
+        public int ApplicationIpPort { get; set; } = 32324;
 
         #endregion
 

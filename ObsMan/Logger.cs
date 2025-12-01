@@ -1,5 +1,7 @@
 ﻿using ASCOM.Common.Interfaces;
 using ASCOM.Tools;
+using Microsoft.Extensions.Logging;
+using System.Drawing;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using static ObsMan.Globals;
@@ -12,7 +14,7 @@ namespace ObsMan
     /// </summary>
     /// <param name="state">The StateService instance that provides access to application state information for logging purposes. Cannot be
     /// null.</param>
-    public class Logger : TraceLogger, ITraceLogger, IDisposable
+    public class Logger : TraceLogger, ITraceLogger, ASCOM.Common.Interfaces.ILogger, IDisposable
     {
         State state;
         Settings settings;
@@ -31,6 +33,7 @@ namespace ObsMan
             this.state = state;
             this.settings = settings;
             SetMinimumLoggingLevel(settings.LogLevel);
+            LogMessage("Logger", LogLevel.Information, "Logger initialized");
         }
 
 
@@ -48,32 +51,61 @@ namespace ObsMan
         #region Public methods
 
         /// <summary>
-        /// Log a message on the screen, console and log file
+        /// Log a message on the screen, console and log file of the specified type: debug, information etc.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="logLevel"></param>
-        /// <param name="message"></param>
-        public void LogMessage(string id, LogLevel logLevel, string message, bool logToScreen = true)
+        /// <param name="method">Current method name</param>
+        /// <param name="message">Message to log</param>
+        /// <param name="logLevel">Importance - debug, information etc.</param>
+        public void LogMessage(string method, LogLevel logLevel, string message, bool logToScreen = true)
         {
             try
             {
-                string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel.ToString().PadRight(11)} {message}";
-                // Write the message to the console
-                Console.WriteLine(formattedMessage);
-
-                // Write the message to the log file
-                base.LogMessage(id, message);
-
-                // Raise the MessaegLogChanged event to Write the message to the screen if required
-                if (logToScreen) // Log to screen is enabled
+                // Check if the message should be logged based on the current log level setting
+                if (logLevel >= settings.LogLevel) // Message level is within or above the current log level
                 {
-                    // Check if the message should be show
-                    if (logLevel <= settings.LogLevel) // Message level is within or above the current log level
+                    // Lock this method to prevent multiple threads writing to the log at the same time
+                    lock (this)
                     {
-                        // Raise the MessaegLogChanged event to Write the message to the screen
-                        state.ApplicationLog = state.ApplicationLog + $"\r\n{formattedMessage}";
+                        string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel.ToString().PadRight(11)} {message}";
 
-                        OnMessageLogChanged(formattedMessage);
+                        // Write the message to the console and color appropriately
+                        Console.Write($"{DateTime.Now:HH:mm:ss.fff} ");
+                        var originalColour = Console.ForegroundColor;
+
+                        // Select an appropriate colour for the log level
+                        switch (logLevel)
+                        {
+                            case LogLevel.Debug:
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                                break;
+                            case LogLevel.Information:
+                                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                                break;
+                            case LogLevel.Warning:
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                break;
+                            case LogLevel.Error:
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                break;
+                            default:
+                                Console.ForegroundColor = ConsoleColor.White;
+                                break;
+                        }
+
+                        Console.Write($"{logLevel.ToString().PadRight(11)} ");
+                        Console.ForegroundColor = originalColour;
+                        Console.WriteLine(message);
+
+                        // Write the message to the log file
+                        base.LogMessage(method, message);
+
+                        // Raise the MessaegLogChanged event to Write the message to the screen if required
+                        if (logToScreen) // Log to screen is enabled
+                        {
+                            // Update the screen log and raise the MessaegLogChanged event to write the message to the screen
+                            state.ApplicationLog = state.ApplicationLog + $"\r\n{formattedMessage}";
+                            OnMessageLogChanged(formattedMessage);
+                        }
                     }
                 }
             }
@@ -83,25 +115,44 @@ namespace ObsMan
             }
         }
 
+        /// <summary>
+        /// Log an information message on the screen, console and log file
+        /// </summary>
+        /// <param name="method">Current method name</param>
+        /// <param name="message">Message to log</param>
         public new void LogMessage(string method, string message)
         {
-            lock (this)
-            {
-                // Write the message to the console
-                Console.WriteLine($"{method}{(string.IsNullOrEmpty(method) ? "" : " ")}{message}");
+            LogMessage(method, LogLevel.Information, message);
+        }
 
-                // Write the message to the log file
-                base.LogMessage(method, message);
+        /// <summary>
+        /// Log a debug message on the screen, console and log file
+        /// </summary>
+        /// <param name="method">Current method name</param>
+        /// <param name="message">Message to log</param>
+        public void LogDebug(string method, string message)
+        {
+            LogMessage(method, LogLevel.Debug, message);
+        }
 
-
-                OnMessageLogChanged($"{method} {message}");
-            }
+        /// <summary>
+        /// Log an error message on the screen, console and log file
+        /// </summary>
+        /// <param name="method">Current method name</param>
+        /// <param name="message">Message to log</param>
+        public void LogError(string method, string message)
+        {
+            LogMessage(method, LogLevel.Error, message);
         }
 
         #endregion
 
         #region Support code
 
+        /// <summary>
+        /// Raises the MessageLogChanged event to notify subscribers that a new message has been added to the message log.
+        /// </summary>
+        /// <param name="message">The message text to include in the event notification. Cannot be null.</param>
         private void OnMessageLogChanged(string message)
         {
             MessageEventArgs eventArgs = new()

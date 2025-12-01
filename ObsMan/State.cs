@@ -2,6 +2,7 @@
 {
     public class State
     {
+        static uint serverTransactionId = 0;
         public State() { }
 
         public int TopOfVisibleLog { get; set; } = 0;
@@ -9,6 +10,12 @@
         public int LastNumberOfLogLines { get; set; } = 0;
 
         public string ApplicationLog { get; set; } = $"{Globals.WELCOME_MESSAGE}\r\n";
+
+        public uint GetServerTransactionId()
+        {
+            serverTransactionId++;
+            return serverTransactionId;
+        }
 
         #region Test values
 

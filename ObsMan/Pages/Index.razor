@@ -1,107 +1,101 @@
 ﻿@page "/"
-
-@inject Settings settings;
 @inject Logger logger;
+@inject State state;
 @inject IJSRuntime JSRuntime
 
-@using LogLevel = ASCOM.Common.Interfaces.LogLevel;
-@using ObsMan.Components
+<!-- Start the Alpaca responder when the page loads -->
+@inject AlpacaResponder _alpacaResponder
 
-<PageTitle>Observatory Manager</PageTitle>
+@implements IAsyncDisposable
 
-<h1>Observatory Manager</h1>
+<h4>Observatory Manager</h4>
 
-Welcome to your new app.
-
-Trace on: @settings.TraceOn
-
-<div>
-    <RadzenButton Click="@SaveSettings" Text="Save Settings"></RadzenButton>
+<div style="height:100%;min-height:100%;">
+    <RadzenTextArea Id="ObsManLog" Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%;'
+                    Name="_conformState.ScreenLog" @bind-Value=@state.ApplicationLog Rows="@(state.LastNumberOfLogLines == 0?20:state.LastNumberOfLogLines)" Cols="250" ReadOnly=true />
 </div>
 
-<RadzenMediaQuery Query="(max-width: 1330px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials2, matches)) />
-<RadzenMediaQuery Query="(min-width: 1331px) and (max-width: 1650px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials3, matches)) />
-<RadzenMediaQuery Query="(min-width: 1651px) and (max-width: 1975px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials4, matches)) />
-<RadzenMediaQuery Query="(min-width: 1976px) and (max-width: 2300px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials5, matches)) />
-<RadzenMediaQuery Query="(min-width: 2301px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials6, matches)) />
+@code
+{
+    DotNetObjectReference<Index>? objRef;
 
-<div>
-    <Gauge Legend="Wind Speed (mi/h)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
-    <Gauge Legend="Wind Gust (mi/h)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value="300" />
-    @if (currentWindowSize == WindowSize.Dials2)
+    protected override async void OnAfterRender(bool firstRender)
     {
-        <br />
-    }
-    <Compass Value="137.0" />
-    @if (currentWindowSize == WindowSize.Dials3)
-    {
-        <br />
-    }
-    <Gauge Legend="Rain Rate (mm/h)" MinValue="0" MaxValue="10" OrangeGreenTransition="1" RedOrangeTransition="5" Value="0" />
-    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
-    {
-        <br />
-    }
-    <Gauge Legend="Sky Brightness (Lux)" MinValue="-20" MaxValue="0" OrangeGreenTransition="-15" RedOrangeTransition="-5" Value="-12" />
-    @if (currentWindowSize == WindowSize.Dials5)
-    {
-        <br />
-    }
-    <Gauge Legend="Sky Quality (mag/arcsec2)" MinValue="0" MaxValue="100" OrangeGreenTransition="50" RedOrangeTransition="20" Value="30" Reverse=true />
-    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials3) | (currentWindowSize == WindowSize.Dials6))
-    {
-        <br />
-    }
-    <Gauge Legend="FWHM (arc-sec)" MinValue="0" MaxValue="5" OrangeGreenTransition="3" RedOrangeTransition="4" Value="2.5" />
-    <Gauge Legend="Sky Temperature (C)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
-    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
-    {
-        <br />
-    }
-    <Gauge Legend="Dew Point (C)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
-    @if (currentWindowSize == WindowSize.Dials3)
-    {
-        <br />
-    }
-    <Gauge Legend="Pressure (hPa)" MinValue="950" MaxValue="1050" OrangeGreenTransition="1060" RedOrangeTransition="1060" Value="991" />
-    @if (currentWindowSize == WindowSize.Dials5)
-    {
-        <br />
-    }
-    <Gauge Legend="Temperature (C)" MinValue="-50.0" MaxValue="50.0" OrangeGreenTransition="10.0" RedOrangeTransition="25.0" Value="-3.0" />
-    <Gauge Legend="Humidity (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value="50" />
-</div>
-
-@code {
-
-    enum WindowSize
-    {
-        Dials2,
-        Dials3,
-        Dials4,
-        Dials5,
-        Dials6
-    }
-
-    WindowSize currentWindowSize = WindowSize.Dials6;
-
-    private async Task SaveSettings()
-    {
-        logger.LogMessage("DaveSettingsPage", LogLevel.Information, "About to invert Trace value");
-        settings.TraceOn = !settings.TraceOn;
-        settings.Save();
-        logger.LogMessage("DaveSettingsPage", LogLevel.Debug, $"Trace Set {settings.TraceOn}!!");
-    }
-
-    void WindowWidthChanged(WindowSize windowSize, bool matches)
-    {
-        if (matches)
+        if (firstRender)
         {
-            currentWindowSize = windowSize;
+            logger.MessageLogChanged += OnLogChanged;
+
+            // Subscribe to the OnResized event. This will do work when the browser is resized.
+            objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("window.registerViewportChangeCallback", objRef);
+
+            // Get the current window size and re-size to this
+            int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
+            int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
+            OnResize(logWidth, logHeight);
             StateHasChanged();
-        }
-        else
-        {
+
+            // Scroll the log window to the bottom of its contents.
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("setScrollTop", "ObsManLog", state.TopOfVisibleLog.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OnInitialized-setScrollTop: {ex}");
+            }
         }
     }
+
+    #region Log resize support
+
+    private void OnLogChanged(object? sender, MessageEventArgs e)
+    {
+        // Log has changed - refresh the screen
+        InvokeAsync(StateHasChanged);
+    }
+
+
+    // This method will be called when the window resizes.
+    // It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
+    [JSInvokable]
+    public async void OnResize(int width, int height)
+    {
+        try
+        {
+            // Calculate the number of rows that will fit in the available height
+            int screenLogRows = Convert.ToInt32(height / 18.0) - 8;
+
+            // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
+            state.LastNumberOfLogLines = screenLogRows;
+
+            // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
+            await InvokeAsync(StateHasChanged);
+
+            // Scroll to the bottom of the window and return the current window 'top' value.
+            int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+
+            // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
+            state.TopOfVisibleLog = top;
+        }
+        catch (Exception ex)
+        {
+            logger.LogMessage("Set_conformState.ScreenLogRows", ASCOM.Common.Interfaces.LogLevel.Error, $"Exception: \r\n{ex}");
+        }
+    }
+
+    #endregion
+
+    #region Dispose pattern
+
+    public async ValueTask DisposeAsync()
+    {
+        if (objRef != null)
+        {
+            await JSRuntime.InvokeVoidAsync("window.unregisterViewportChangeCallback", objRef); // Optional: add unregister JS
+            objRef.Dispose();
+        }
+    }
+
+    #endregion
 }

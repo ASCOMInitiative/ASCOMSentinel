@@ -1,0 +1,107 @@
+﻿@page "/display"
+
+@inject Settings settings
+@inject Logger logger
+@inject IJSRuntime JSRuntime
+
+@using LogLevel = ASCOM.Common.Interfaces.LogLevel;
+@using ObsMan.Components
+
+<PageTitle>Observatory Manager Log</PageTitle>
+
+<h1>Observatory Manager</h1>
+
+Welcome to your new app.
+
+Trace on: @settings.TraceOn
+
+<div>
+    <RadzenButton Click="@SaveSettings" Text="Save Settings"></RadzenButton>
+</div>
+
+<RadzenMediaQuery Query="(max-width: 1330px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials2, matches)) />
+<RadzenMediaQuery Query="(min-width: 1331px) and (max-width: 1650px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials3, matches)) />
+<RadzenMediaQuery Query="(min-width: 1651px) and (max-width: 1975px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials4, matches)) />
+<RadzenMediaQuery Query="(min-width: 1976px) and (max-width: 2300px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials5, matches)) />
+<RadzenMediaQuery Query="(min-width: 2301px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials6, matches)) />
+
+<div>
+    <Gauge Legend="Wind Speed (mi/h)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
+    <Gauge Legend="Wind Gust (mi/h)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value="300" />
+    @if (currentWindowSize == WindowSize.Dials2)
+    {
+        <br />
+    }
+    <Compass Value="137.0" />
+    @if (currentWindowSize == WindowSize.Dials3)
+    {
+        <br />
+    }
+    <Gauge Legend="Rain Rate (mm/h)" MinValue="0" MaxValue="10" OrangeGreenTransition="1" RedOrangeTransition="5" Value="0" />
+    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
+    {
+        <br />
+    }
+    <Gauge Legend="Sky Brightness (Lux)" MinValue="-20" MaxValue="0" OrangeGreenTransition="-15" RedOrangeTransition="-5" Value="-12" />
+    @if (currentWindowSize == WindowSize.Dials5)
+    {
+        <br />
+    }
+    <Gauge Legend="Sky Quality (mag/arcsec2)" MinValue="0" MaxValue="100" OrangeGreenTransition="50" RedOrangeTransition="20" Value="30" Reverse=true />
+    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials3) | (currentWindowSize == WindowSize.Dials6))
+    {
+        <br />
+    }
+    <Gauge Legend="FWHM (arc-sec)" MinValue="0" MaxValue="5" OrangeGreenTransition="3" RedOrangeTransition="4" Value="2.5" />
+    <Gauge Legend="Sky Temperature (C)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
+    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
+    {
+        <br />
+    }
+    <Gauge Legend="Dew Point (C)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value="7" />
+    @if (currentWindowSize == WindowSize.Dials3)
+    {
+        <br />
+    }
+    <Gauge Legend="Pressure (hPa)" MinValue="950" MaxValue="1050" OrangeGreenTransition="1060" RedOrangeTransition="1060" Value="991" />
+    @if (currentWindowSize == WindowSize.Dials5)
+    {
+        <br />
+    }
+    <Gauge Legend="Temperature (C)" MinValue="-50.0" MaxValue="50.0" OrangeGreenTransition="10.0" RedOrangeTransition="25.0" Value="-3.0" />
+    <Gauge Legend="Humidity (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value="50" />
+</div>
+
+@code {
+
+    enum WindowSize
+    {
+        Dials2,
+        Dials3,
+        Dials4,
+        Dials5,
+        Dials6
+    }
+
+    WindowSize currentWindowSize = WindowSize.Dials6;
+
+    private async Task SaveSettings()
+    {
+        logger.LogMessage("DaveSettingsPage", LogLevel.Information, "About to invert Trace value");
+        settings.TraceOn = !settings.TraceOn;
+        settings.Save();
+        logger.LogMessage("DaveSettingsPage", $"Trace Set {settings.TraceOn}!!");
+    }
+
+    void WindowWidthChanged(WindowSize windowSize, bool matches)
+    {
+        if (matches)
+        {
+            currentWindowSize = windowSize;
+            StateHasChanged();
+        }
+        else
+        {
+        }
+    }
+}
