@@ -16,7 +16,7 @@
 
 <div style="height:100%;min-height:100%;">
     <RadzenTextArea Id="ObsManLog" Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%;'
-                    Name="_conformState.ScreenLog" @bind-Value=@ApplicationLog Rows="@LastnumberOfLogLines()" Cols="250" ReadOnly=true />
+                    Name="ObsManLog" @bind-Value=@ApplicationLog Rows="@LastnumberOfLogLines()" Cols="250" ReadOnly=true />
 </div>
 
 @code
@@ -53,10 +53,12 @@
 
     private async Task Connect()
     {
-        logger.LogMessage("SaveSettingsPage", "About to invert Trace value");
+        logger.LogMessage("Connect", "About to invert Trace value");
         settings.TraceOn = !settings.TraceOn;
         settings.Save();
-        logger.LogMessage("SaveSettingsPage", $"Trace Set {settings.TraceOn}!!");
+        logger.LogDebug("Connect", $"Spurious debug message!");
+        logger.LogError("Connect", $"Spurious error message!");
+        logger.LogMessage("Connect", $"Trace Set {settings.TraceOn}!!");
     }
 
     private int LastnumberOfLogLines()
@@ -108,7 +110,7 @@
         }
         catch (Exception ex)
         {
-            logger.LogMessage("Set_conformState.ScreenLogRows", ASCOM.Common.Interfaces.LogLevel.Error, $"Exception: \r\n{ex}");
+            logger.LogError("OnResize", $"Exception: \r\n{ex}");
         }
     }
 

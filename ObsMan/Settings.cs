@@ -96,7 +96,7 @@ namespace ObsMan
                                     // De-serialise the settings string into a Settings object
                                     Settings settings = JsonSerializer.Deserialize<Settings>(serialisedSettingsString, jsonSerialisationOptions) ?? new Settings();
 
-                                    // Test whether the retrieved settings match the requirements of this version of ConformU
+                                    // Test whether the retrieved settings match the requirements of this version of Observatory Manager
                                     if (settings.SettingsCompatibilityVersion == Settings.SETTINGS_COMPATIBILTY_VERSION) // Version numbers match so all is well
                                     {
                                         Status = $"Settings read OK.";
@@ -141,7 +141,7 @@ namespace ObsMan
                                         }
                                         catch (Exception ex2)
                                         {
-                                            LogMessage("LoadSettings", LogLevel.Error, $"Error persisting new Conform settings file: {ex2}");
+                                            LogMessage("LoadSettings", LogLevel.Error, $"Error persisting new settings file: {ex2}");
                                             Status = $"The current settings version:{originalSettingsCompatibilityVersion} does not match the required version: {Settings.SETTINGS_COMPATIBILTY_VERSION} but the new settings could not be saved: {ex2.Message}.";
                                         }
                                     }
@@ -149,7 +149,7 @@ namespace ObsMan
                                 catch (JsonException ex1)
                                 {
                                     // There was an exception when parsing the settings file so report it and set default values
-                                    LogMessage("LoadSettings", LogLevel.Error, $"Error de-serialising Conform settings file: {ex1}");
+                                    LogMessage("LoadSettings", LogLevel.Error, $"Error de-serialising settings file: {ex1}");
                                     Status = $"There was an error de-serialising the settings file and application default settings are in effect.\r\n\r\nPlease correct the error in the file or use the \"Reset to Defaults\" button on the Settings page to save new values.\r\n\r\nJSON parser error message:\r\n{ex1.Message}";
                                 }
                                 catch (Exception ex1)
@@ -177,8 +177,8 @@ namespace ObsMan
                                 }
                                 catch (Exception ex2)
                                 {
-                                    LogMessage("LoadSettings", LogLevel.Error, $"An unsupported settings version was found: {settingsFileVersion} but an error occurred when saving new Conform settings: {ex2}");
-                                    Status = $"$\"An unsupported settings version was found: {settingsFileVersion} but an error occurred when saving new Conform settings: {ex2.Message}.";
+                                    LogMessage("LoadSettings", LogLevel.Error, $"An unsupported settings version was found: {settingsFileVersion} but an error occurred when saving new settings: {ex2}");
+                                    Status = $"$\"An unsupported settings version was found: {settingsFileVersion} but an error occurred when saving new settings: {ex2.Message}.";
                                 }
                                 break;
                         }

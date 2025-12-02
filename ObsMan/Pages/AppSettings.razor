@@ -23,9 +23,9 @@
 
     private async Task SaveSettings()
     {
-        logger.LogMessage("SaveSettingsPage", LogLevel.Information, "About to invert Trace value");
+        logger.LogMessage("SaveSettingsPage", "About to invert Trace value");
         settings.TraceOn = !settings.TraceOn;
         settings.Save();
-        logger.LogMessage("SaveSettingsPage", LogLevel.Debug, $"Trace Set {settings.TraceOn}!!");
+        logger.LogDebug("SaveSettingsPage", $"Trace Set {settings.TraceOn}!!");
     }
 }

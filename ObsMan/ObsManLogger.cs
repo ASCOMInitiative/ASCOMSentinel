@@ -32,7 +32,6 @@ namespace ObsMan
 
         #endregion
 
-
         void ILogger.Log(LogLevel level, string message)
         {
             base.LogMessage(level.ToString(), message);
