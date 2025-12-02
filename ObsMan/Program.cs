@@ -1,6 +1,7 @@
 using ASCOM.Alpaca;
 using ASCOM.Common;
 using ASCOM.Tools;
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.Logging;
 using Radzen;
 using System.Diagnostics;
@@ -196,6 +197,9 @@ namespace ObsMan
             {
                 return settings;
             });
+
+            // Add event handler to detect when the browser closes
+            builder.Services.AddSingleton<CircuitHandler, CircuitHandlerService>();
 
 
 
