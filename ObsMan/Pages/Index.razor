@@ -1,13 +1,12 @@
 ﻿@page "/"
+
 @inject State state;
-@inject Logger logger;
+@inject ObsManLogger logger;
 @inject IJSRuntime JSRuntime
 @inject Settings settings
 
-<!-- Start the Alpaca responder when the page loads -->
-@inject AlpacaResponder _alpacaResponder
-
 @implements IAsyncDisposable
+
 <h1>Observatory Manager</h1>
 <div>
     @settings.Status
@@ -54,10 +53,10 @@
 
     private async Task Connect()
     {
-        logger.LogMessage("DaveSettingsPage", "About to invert Trace value");
+        logger.LogMessage("SaveSettingsPage", "About to invert Trace value");
         settings.TraceOn = !settings.TraceOn;
         settings.Save();
-        logger.LogMessage("DaveSettingsPage", $"Trace Set {settings.TraceOn}!!");
+        logger.LogMessage("SaveSettingsPage", $"Trace Set {settings.TraceOn}!!");
     }
 
     private int LastnumberOfLogLines()
@@ -80,7 +79,6 @@
 
     private void OnLogChanged(object? sender, MessageEventArgs e)
     {
-        // Log has changed - refresh the screen
         InvokeAsync(StateHasChanged);
     }
 
@@ -94,7 +92,7 @@
         try
         {
             // Calculate the number of rows that will fit in the available height
-            int screenLogRows = Convert.ToInt32(height / 18.0) - 8;
+            int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
 
             // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
             state.LastNumberOfLogLines = screenLogRows;

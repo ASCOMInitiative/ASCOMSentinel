@@ -1,8 +1,8 @@
-﻿using ASCOM.Common.DeviceInterfaces;
-using System.Text;
-
-namespace ObsMan
+﻿namespace ObsMan
 {
+    using ASCOM.Common.DeviceInterfaces;
+    using System.Text;
+
     public class State
     {
         #region Variables and initialisers

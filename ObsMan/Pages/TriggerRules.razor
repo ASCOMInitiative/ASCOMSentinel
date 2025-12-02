@@ -1,17 +1,15 @@
-﻿@page "/help"
+﻿@page "/triggerrules"
 @namespace ObsMan
 
 @inject Settings settings;
 @inject ObsManLogger logger;
 @using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
-<PageTitle>Help1</PageTitle>
+<PageTitle>Safety Monitor Trigger Rules</PageTitle>
 
-<h1>Help</h1>
+<h1>Safety Monitor Trigger Rules</h1>
 
-Welcome to your new app.
-
-Trace on: @settings.TraceOn
+Trace on: @settings.TraceOn @settings.LogLevel
 
 @code {
 

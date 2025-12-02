@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@namespace ObsMan
+
+<div class="top-row ps-3 navbar navbar-dark" style="width:800px">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Observatory Manager</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -7,40 +9,57 @@
     </div>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu" >
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span>Home
+                <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="display">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Display
+            <NavLink class="nav-link" href="/display" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Display
+            </NavLink>
+        </div>
+        @foreach (var device in ASCOM.Alpaca.DeviceManager.ObservingConditions)
+        {
+            string path = $"/setup/v1/ObservingConditions/{device.Key}/setup";
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="@path" Match="NavLinkMatch.All">
+                    <span class="oi oi-cloudy" aria-hidden="true"></span> Composite ObservingConditions Setup
+                </NavLink>
+            </div>
+        }
+        @foreach (var device in ASCOM.Alpaca.DeviceManager.Switches)
+        {
+            string path = $"/setup/v1/switch/{device.Key}/setup";
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="@path" Match="NavLinkMatch.All">
+                    <span class="oi oi-circle-check" aria-hidden="true"></span> Composite Switch Setup
+                </NavLink>
+            </div>
+        }
+        @foreach (var device in ASCOM.Alpaca.DeviceManager.SafetyMonitors)
+        {
+            string path = $"/setup/v1/SafetyMonitor/{device.Key}/setup";
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="@path" Match="NavLinkMatch.All">
+                    <span class="oi oi-ban" aria-hidden="true"></span> Composite SafetyMonitor Setup
+                </NavLink>
+            </div>
+        }
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/triggerrules" Match="NavLinkMatch.All">
+                <span class="oi oi-cog" aria-hidden="true"></span> Safety Monitor Trigger Rules
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="observingconditionsconfiguration">
-                <span class="oi oi-list-rich" aria-hidden="true" ></span> Observing Conditions Setup
+            <NavLink class="nav-link" href="/setup" Match="NavLinkMatch.All">
+                <span class="oi oi-cog" aria-hidden="true"></span> Application Settings
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="safetymonitorconfiguration">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Safety Monitor Setup
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="appsettings">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Application Settings
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="help">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Safety Monitor 
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="help">
+            <NavLink class="nav-link" href="/help">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Help
             </NavLink>
         </div>

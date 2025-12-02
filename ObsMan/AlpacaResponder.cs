@@ -6,7 +6,7 @@ namespace ObsMan
     public class AlpacaResponder
     {
         private static Responder? responder;
-        public AlpacaResponder(Logger logger, Settings settings)
+        public AlpacaResponder(ObsManLogger logger, Settings settings)
         {
             logger.LogMessage("AlpacaResponder", "Init");
 
