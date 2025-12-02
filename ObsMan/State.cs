@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using ASCOM.Common.DeviceInterfaces;
+using System.Text;
 
 namespace ObsMan
 {
@@ -27,6 +28,12 @@ namespace ObsMan
         public StringBuilder ApplicationLog { get; set; } = new StringBuilder(Globals.MAXIMUM_LOG_SIZE_CHARACTERS, Globals.MAXIMUM_LOG_SIZE_CHARACTERS).Append($"{Globals.WELCOME_MESSAGE}\r\n");
 
         public bool Connected { get; set; } = false;
+
+        public Dictionary<int, ISafetyMonitorV3> SafetyMonitorDevices { get; set; } = [];
+
+        public Dictionary<int, IObservingConditionsV2> ObservingConditionsDevices { get; set; } = [];
+
+        public Dictionary<int, ISwitchV3> SwitchDevices { get; set; } = [];
 
         #endregion
 

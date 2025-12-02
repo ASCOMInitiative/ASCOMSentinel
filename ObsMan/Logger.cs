@@ -16,8 +16,9 @@ namespace ObsMan
     /// null.</param>
     public class Logger : TraceLogger, ITraceLogger, ASCOM.Common.Interfaces.ILogger, IDisposable
     {
-        State state;
-        Settings settings;
+        readonly State state;
+        readonly Settings settings;
+
         #region Initialisers
 
         static Logger()
@@ -66,7 +67,7 @@ namespace ObsMan
                     // Lock this method to prevent multiple threads writing to the log at the same time
                     lock (this)
                     {
-                        string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel.ToString().PadRight(13)} {message}";
+                        string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel,-13} {message}";
 
                         // Write the message to the console and color appropriately
                         Console.Write($"{DateTime.Now:HH:mm:ss.fff} ");
@@ -92,7 +93,7 @@ namespace ObsMan
                                 break;
                         }
 
-                        Console.Write($"{logLevel.ToString().PadRight(11)} ");
+                        Console.Write($"{logLevel,-13} ");
                         Console.ForegroundColor = originalColour;
                         Console.WriteLine(message);
 
@@ -174,7 +175,6 @@ namespace ObsMan
             {
                 Message = $"{DateTime.Now:HH:mm:ss.fff} {message}"
             };
-
             MessageLogChanged?.Invoke(this, eventArgs);
         }
 
