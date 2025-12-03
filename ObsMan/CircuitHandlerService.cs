@@ -10,7 +10,7 @@ namespace ObsMan
 {
     public class CircuitHandlerService : CircuitHandler
     {
-        private readonly IHostApplicationLifetime lifetime = null; // This is required if the StopApplication method is used.
+        private readonly IHostApplicationLifetime lifetime; // This is required if the StopApplication method is used.
         private readonly ILogger<CircuitHandlerService> logger;
         private readonly object connectionsLockObject = new();
 

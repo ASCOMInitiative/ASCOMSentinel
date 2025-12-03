@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using ASCOM.Tools;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
 namespace ObsMan
@@ -9,7 +11,7 @@ namespace ObsMan
     {
         #region Constants and variables
 
-        private readonly bool INCLUDE_IN_LOG = false;
+        private static LogLevel LOGGING_LEVEL = LogLevel.Information;
 
         private const int SETTINGS_COMPATIBILTY_VERSION = 1; // Current settings file version number
 
@@ -38,7 +40,7 @@ namespace ObsMan
 
         public Settings()
         {
-            LogMessage("", LogLevel.Debug, "Settings () Initiator");
+            LogMessage(LogLevel.Debug, "Settings () Initiator");
             Status = "Default settings in use.";
         }
 
@@ -48,7 +50,7 @@ namespace ObsMan
         /// <param name="logger">Data logger instance.</param>
         public Settings(string configurationFile)
         {
-            LogMessage("", LogLevel.Debug, "Settings (string configurationFile) Initiator");
+            LogMessage(LogLevel.Debug, "Settings (string configurationFile) Initiator");
             try
             {
                 // Get the full settings file name including path
@@ -56,34 +58,33 @@ namespace ObsMan
                 {
                     string folderName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Globals.APPLICATION_FOLDER_NAME);
                     SettingsFileName = Path.Combine(folderName, Globals.SETTINGS_FILENAME);
-                    LogMessage("LoadSettings", LogLevel.Debug, $"Settings folder: {folderName}, Settings file: {SettingsFileName}");
                 }
                 else // An override settings file has been supplied so use it instead of the default settings file
                 {
                     SettingsFileName = configurationFile;
-                    LogMessage("LoadSettings", LogLevel.Debug, $"Settings file: {SettingsFileName}");
                 }
+                LogMessage(LogLevel.Information, $"Loading settings from file: {SettingsFileName}");
 
                 // Load the values in the settings file if it exists
                 if (File.Exists(SettingsFileName)) // Settings file exists
                 {
                     // Read the file contents into a string
-                    LogMessage("LoadSettings", LogLevel.Debug, "File exists, about to read it...");
+                    LogMessage(LogLevel.Debug, "File exists, about to read it...");
                     string serialisedSettingsString = File.ReadAllText(SettingsFileName);
-                    LogMessage("LoadSettings", LogLevel.Debug, $"Serialised settings:\r\n{serialisedSettingsString}");
+                    LogMessage(LogLevel.Debug, $"Serialised settings:\r\n{serialisedSettingsString}");
 
                     // Make a basic check to see if this file is a beta / pre-release version that doesn't have a version number. If so replace with a new version
-                    LogMessage("LoadSettings", LogLevel.Debug, $"Found compatibility version element...");
+                    LogMessage(LogLevel.Debug, $"Found compatibility version element...");
                     // Try to read in the settings version number from the settings file
                     try
                     {
                         // Get the settings version number by parsing the settings string
-                        LogMessage("LoadSettings", LogLevel.Debug, $"About to parse settings string");
+                        LogMessage(LogLevel.Debug, $"About to parse settings string");
                         using (JsonDocument appSettingsDocument = JsonDocument.Parse(serialisedSettingsString, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip }))
                         {
-                            LogMessage("LoadSettings", LogLevel.Debug, $"About to get settings version");
+                            LogMessage(LogLevel.Debug, $"About to get settings version");
                             settingsFileVersion = appSettingsDocument.RootElement.GetProperty(nameof(SettingsCompatibilityVersion)).GetInt32();
-                            LogMessage("LoadSettings", LogLevel.Debug, $"Found settings version: {settingsFileVersion}");
+                            LogMessage(LogLevel.Debug, $"Found settings version: {settingsFileVersion}");
                         }
 
                         // Handle different file versions
@@ -100,6 +101,7 @@ namespace ObsMan
                                     if (settings.SettingsCompatibilityVersion == Settings.SETTINGS_COMPATIBILTY_VERSION) // Version numbers match so all is well
                                     {
                                         Status = $"Settings read OK.";
+                                        LogMessage(LogLevel.Information, $"Settings read OK");
 
                                         // Load the retrieved settings into this instance
                                         PropertyInfo[] properties = settings.GetType().GetProperties(); // Get a list of public properties in this class
@@ -108,7 +110,7 @@ namespace ObsMan
                                             string name = property.Name;
                                             object value = property.GetValue(settings) ?? "Null value";
 
-                                            LogMessage("LoadSettings", LogLevel.Debug, $"Settings is loading property: {name} = {value}");
+                                            LogMessage(LogLevel.Debug, $"Settings is loading property: {name} = {value}");
 
                                             // Try to set the property but ignore bad values, which will take the property's default value instead
                                             try
@@ -138,23 +140,25 @@ namespace ObsMan
                                             ResetToDefaults();
 
                                             Status = $"The current settings version: {originalSettingsCompatibilityVersion} does not match the required version: {Settings.SETTINGS_COMPATIBILTY_VERSION}. Application settings have been reset to default values and the original settings file renamed to {badVersionSettingsFileName}.";
+                                            LogMessage(LogLevel.Warning, $"The current settings version: {originalSettingsCompatibilityVersion} does not match the required version: {Settings.SETTINGS_COMPATIBILTY_VERSION}.");
+                                            LogMessage(LogLevel.Warning, $"Application settings have been reset to default values and the original settings file renamed to {badVersionSettingsFileName}.");
                                         }
-                                        catch (Exception ex2)
+                                        catch (Exception ex)
                                         {
-                                            LogMessage("LoadSettings", LogLevel.Error, $"Error persisting new settings file: {ex2}");
-                                            Status = $"The current settings version:{originalSettingsCompatibilityVersion} does not match the required version: {Settings.SETTINGS_COMPATIBILTY_VERSION} but the new settings could not be saved: {ex2.Message}.";
+                                            LogMessage(LogLevel.Error, $"Error persisting new settings file: {ex.Message}\r\n{ex}");
+                                            Status = $"The current settings version:{originalSettingsCompatibilityVersion} does not match the required version: {Settings.SETTINGS_COMPATIBILTY_VERSION} but the new settings could not be saved: {ex.Message}.";
                                         }
                                     }
                                 }
-                                catch (JsonException ex1)
+                                catch (JsonException ex)
                                 {
                                     // There was an exception when parsing the settings file so report it and set default values
-                                    LogMessage("LoadSettings", LogLevel.Error, $"Error de-serialising settings file: {ex1}");
-                                    Status = $"There was an error de-serialising the settings file and application default settings are in effect.\r\n\r\nPlease correct the error in the file or use the \"Reset to Defaults\" button on the Settings page to save new values.\r\n\r\nJSON parser error message:\r\n{ex1.Message}";
+                                    LogMessage(LogLevel.Error, $"Error de-serialising settings file: {ex.Message}\r\n{ex}");
+                                    Status = $"There was an error de-serialising the settings file and application default settings are in effect.\r\n\r\nPlease correct the error in the file or use the \"Reset to Defaults\" button on the Settings page to save new values.\r\n\r\nJSON parser error message:\r\n{ex.Message}";
                                 }
-                                catch (Exception ex1)
+                                catch (Exception ex)
                                 {
-                                    LogMessage("LoadSettings", LogLevel.Error, ex1.ToString());
+                                    LogMessage(LogLevel.Error, ex.ToString());
                                     Status = $"Exception reading the settings file, default values are in effect.";
                                 }
                                 break;
@@ -174,10 +178,12 @@ namespace ObsMan
                                     ResetToDefaults();
 
                                     Status = $"An unsupported settings version was found: {settingsFileVersion}. Settings have been reset to defaults and the original settings file has been renamed to {badVersionSettingsFileName}.";
+                                    LogMessage(LogLevel.Warning, $"An unsupported settings version was found: {settingsFileVersion}.");
+                                    LogMessage(LogLevel.Warning, $"Application settings have been reset to default values and the original settings file renamed to {badVersionSettingsFileName}.");
                                 }
                                 catch (Exception ex2)
                                 {
-                                    LogMessage("LoadSettings", LogLevel.Error, $"An unsupported settings version was found: {settingsFileVersion} but an error occurred when saving new settings: {ex2}");
+                                    LogMessage(LogLevel.Error, $"An unsupported settings version was found: {settingsFileVersion} but an error occurred when saving new settings: {ex2}");
                                     Status = $"$\"An unsupported settings version was found: {settingsFileVersion} but an error occurred when saving new settings: {ex2.Message}.";
                                 }
                                 break;
@@ -186,25 +192,25 @@ namespace ObsMan
                     catch (JsonException ex)
                     {
                         // There was an exception when parsing the settings file so report it and use default values
-                        LogMessage("LoadSettings", LogLevel.Error, $"Error getting settings file version from settings file: {ex}");
+                        LogMessage(LogLevel.Error, $"Error getting settings file version from settings file: {ex.Message}\r\n{ex}");
                         Status = $"An error occurred when reading the settings file version and application default settings are in effect.\r\n\r\nPlease correct the error in the file or use the \"Reset to Defaults\" button on the Settings page to create a new settings file.\r\n\r\nJSON parser error message:\r\n{ex.Message}";
                     }
                     catch (Exception ex)
                     {
-                        LogMessage("LoadSettings", LogLevel.Error, $"Exception parsing the settings file: {ex}");
+                        LogMessage(LogLevel.Error, $"Exception parsing the settings file: {ex.Message}\r\n{ex}");
                         Status = $"Exception parsing the settings file: {ex.Message}";
                     }
                 }
                 else // Settings file does not exist
                 {
-                    LogMessage("LoadSettings", LogLevel.Debug, $"Configuration file does not exist, initialising new file: {SettingsFileName}");
+                    LogMessage(LogLevel.Information, $"Settings file does not exist, initialising new file: {SettingsFileName}");
                     ResetToDefaults();
                     Status = $"First time use - configuration set to default values.";
                 }
             }
             catch (Exception ex)
             {
-                LogMessage("LoadSettings", LogLevel.Error, ex.ToString());
+                LogMessage(LogLevel.Error, $"Load settings exception: {ex.Message}\r\n{ex}");
                 Status = $"Unexpected exception reading the settings file, default values are in use.";
             }
         }
@@ -215,7 +221,7 @@ namespace ObsMan
             {
                 if (disposing)
                 {
-                    LogMessage("Dispose", LogLevel.Debug, "LoadSettings.Dispose()...");
+                    LogMessage(LogLevel.Debug, "LoadSettings.Dispose()...");
                 }
 
                 disposedValue = true;
@@ -271,7 +277,7 @@ namespace ObsMan
             }
             catch (Exception ex)
             {
-                LogMessage("Reset", LogLevel.Error, $"Exception during Reset: {ex}");
+                LogMessage(LogLevel.Error, $"ResetToDefaults - Exception during Reset: {ex.Message}\r\n{ex}");
                 throw;
             }
         }
@@ -281,7 +287,7 @@ namespace ObsMan
         /// </summary>
         public void Save()
         {
-            LogMessage("Save", LogLevel.Debug, "Saving settings to settings file");
+            LogMessage(LogLevel.Debug, "Saving settings to settings file");
             PersistSettings();
             Status = $"Settings saved at {DateTime.Now:HH:mm:ss}.";
 
@@ -289,9 +295,9 @@ namespace ObsMan
             if (ConfigurationChanged is not null)
             {
                 EventArgs args = new();
-                LogMessage("Save", LogLevel.Debug, "About to call configuration changed event handler");
+                LogMessage(LogLevel.Debug, "Save settings - About to call configuration changed event handler");
                 ConfigurationChanged(this, args);
-                LogMessage("Save", LogLevel.Debug, "Returned from configuration changed event handler");
+                LogMessage(LogLevel.Debug, "Save settings - Returned from configuration changed event handler");
             }
         }
 
@@ -318,11 +324,47 @@ namespace ObsMan
 
         #region Support code
 
-        private void LogMessage(string method, LogLevel logLevel, string message)
+        public void LogMessage(LogLevel logLevel, string message)
         {
-            if (INCLUDE_IN_LOG)
+            try
             {
-                Console.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {logLevel,-11} {method} {message}");
+                // Check if the message should be logged based on the current log level setting
+                if (logLevel >= LOGGING_LEVEL) // Message level is within or above the current log level
+                {
+                    string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel,-13} {message}";
+
+                    // Write the message to the console and color appropriately
+                    Console.Write($"{DateTime.Now:HH:mm:ss.fff} ");
+                    var originalColour = Console.ForegroundColor;
+
+                    // Select an appropriate colour for the log level
+                    switch (logLevel)
+                    {
+                        case LogLevel.Debug:
+                            Console.ForegroundColor = ConsoleColor.Blue;
+                            break;
+                        case LogLevel.Information:
+                            Console.ForegroundColor = ConsoleColor.DarkGreen;
+                            break;
+                        case LogLevel.Warning:
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            break;
+                        case LogLevel.Error:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            break;
+                        default:
+                            Console.ForegroundColor = ConsoleColor.White;
+                            break;
+                    }
+
+                    Console.Write($"{logLevel,-13} ");
+                    Console.ForegroundColor = originalColour;
+                    Console.WriteLine(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Logger.LogMessage Exception: {ex.Message}\r\n{ex}");
             }
         }
 
@@ -333,11 +375,11 @@ namespace ObsMan
                 // Set the version number of this settings file
                 SettingsCompatibilityVersion = Settings.SETTINGS_COMPATIBILTY_VERSION;
 
-                LogMessage("PersistSettings", LogLevel.Debug, $"Settings file: {SettingsFileName}");
+                LogMessage(LogLevel.Debug, $"PersistSettings - Settings file: {SettingsFileName}");
 
                 // Create serialised settings string containing current settings values
                 string serialisedSettingsString = JsonSerializer.Serialize<Settings>(this, jsonSerialisationOptions);
-                LogMessage("PersistSettings", LogLevel.Debug, $"Serialised settings:\r\n{serialisedSettingsString}");
+                LogMessage(LogLevel.Debug, $"PersistSettings - Serialised settings:\r\n{serialisedSettingsString}");
 
                 // Create the settings folder if it doesn't exist
                 Directory.CreateDirectory(Path.GetDirectoryName(SettingsFileName) ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Globals.APPLICATION_FOLDER_NAME));
@@ -347,9 +389,8 @@ namespace ObsMan
             }
             catch (Exception ex)
             {
-                LogMessage("PersistSettings", LogLevel.Debug, ex.ToString());
+                LogMessage(LogLevel.Error, $"PersistSettings exception: {ex.Message}\r\n{ex}");
             }
-
         }
 
         #endregion

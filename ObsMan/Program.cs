@@ -45,8 +45,8 @@ namespace ObsMan
             //You can add custom Command Line arguments here
             #region Startup and Logging
 
-            logger.LogInformation($"{ServerName} version {ServerVersion}");
-            logger.LogInformation($"Running on: {RuntimeInformation.OSDescription}.");
+            logger.LogMessage("",$"{ServerName} version {ServerVersion}");
+            logger.LogMessage("",$"Running on: {RuntimeInformation.OSDescription}.");
 
             //If already running start browser
             try
@@ -57,7 +57,7 @@ namespace ObsMan
                     var con1 = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Where(con => con.LocalEndPoint.Port == ServerSettings.ServerPort);
                     if (IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Any(con => con.LocalEndPoint.Port == ServerSettings.ServerPort && (con.State == TcpState.Listen || con.State == TcpState.Established)))
                     {
-                        logger.LogInformation("Detected driver port already open, starting web browser on IP and Port. If this fails something else is using the port");
+                        logger.LogMessage("","Detected driver port already open, starting web browser on IP and Port. If this fails something else is using the port");
                         StartBrowser(ServerSettings.ServerPort);
                         return;
                     }
@@ -69,7 +69,7 @@ namespace ObsMan
                     {
                         if (Process.GetProcessesByName(entryAssembly.Location).Length > 1)
                         {
-                            logger.LogInformation("Detected driver already running, starting web browser on IP and Port");
+                            logger.LogMessage("", "Detected driver already running, starting web browser on IP and Port");
                             StartBrowser(ServerSettings.ServerPort);
                             return;
                         }
@@ -85,7 +85,7 @@ namespace ObsMan
             //Reset all stored settings if requested
             if (args?.Any(str => str.Contains("--reset")) ?? false)
             {
-                logger.LogInformation("Reseting Settings");
+                logger.LogMessage("", "Reseting Settings");
                 ServerSettings.Reset();
 
                 //If you have any device settings you should reset them as well or add a specific reset command.
@@ -96,9 +96,9 @@ namespace ObsMan
             //Turn off Authentication. Once off the user can change the password and re-enable authentication
             if (args?.Any(str => str.Contains("--reset-auth")) ?? false)
             {
-                logger.LogInformation("Turning off Authentication to allow password reset.");
+                logger.LogMessage("", "Turning off Authentication to allow password reset.");
                 ServerSettings.UseAuth = false;
-                logger.LogInformation("Authentication off, you can change the password and then re-enable Authentication.");
+                logger.LogMessage("", "Authentication off, you can change the password and then re-enable Authentication.");
             }
 
             if (args?.Any(str => str.Contains("--local-address")) ?? false)
@@ -110,7 +110,7 @@ namespace ObsMan
             {
                 args ??= [];
 
-                logger.LogInformation("No startup url args detected, binding to saved server settings.");
+                logger.LogMessage("", "No startup url args detected, binding to saved server settings.");
 
                 var temparray = new string[args.Length + 1];
 
@@ -130,7 +130,7 @@ namespace ObsMan
 
                 startupURLArg += ":" + ServerSettings.ServerPort;
 
-                logger.LogInformation("Startup URL args: " + startupURLArg);
+                logger.LogMessage("", "Startup URL args: " + startupURLArg);
 
                 temparray[args.Length] = startupURLArg;
 
