@@ -2,6 +2,13 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: white;
+}
+
+/* Force the page background opaque white */
+body {
+    background-image: none !important;
+    background-color: #ffffff !important; /* Or any other solid color, e.g., #f0f0f0 */
 }
 
 h1:focus {

@@ -1,0 +1,20 @@
+﻿@namespace ObsMan.Components
+<div>
+    <span style="text-align:right; display:inline-block; width:30px; margin:0; text-align:center;">@ID</span>
+    <span style="display:inline-block; width:300px; margin:0; text-align:center;">@Property</span>
+    <RadzenDropDown @bind-Value=@value Data=@companyNames Style="margin-top:20px;margin-left:0px; margin-right:0; width: 400px; text-align:center;" Name="DropDownBindValue" />
+    <RadzenDropDown @bind-Value=@value Data=@companyNames Style="margin-top:20px;margin-left:0px; margin-right:0; width: 100px; text-align:center;" Name="DropDownBindValue" />
+    <RadzenDropDown @bind-Value=@value Data=@companyNames Style="margin-top:20px;margin-left:0px; margin-right:0; width: 400px; text-align:center;" Name="DropDownBindValue" />
+</div>
+
+@code {
+    IEnumerable<string> companyNames = new List<string>() { "Name 1", "Name 2", "Name 3" };
+
+    string value = "";
+
+    [Parameter]
+    public int ID { get; set; } = 0;
+
+    [Parameter]
+    public string Property { get; set; } = "Not set";
+}

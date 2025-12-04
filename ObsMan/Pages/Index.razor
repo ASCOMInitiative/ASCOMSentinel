@@ -9,13 +9,12 @@
 
 <h1>Observatory Manager</h1>
 <div>
-    @settings.Status
-    <RadzenButton Click="@Connect" Text="Connect" Style="margin-left:30px" />
+    <RadzenButton Click="@Connect" Text="Connect" Style="margin-left:30px;border-radius:20px; margin-right:30px" /> @settings.Status
     <p />
 </div>
 
 <div style="height:100%;min-height:100%;">
-    <RadzenTextArea Id="ObsManLog" Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%;'
+    <RadzenTextArea Id="ObsManLog" Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%; '
                     Name="ObsManLog" @bind-Value=@ApplicationLog Rows="@LastnumberOfLogLines()" Cols="250" ReadOnly=true />
 </div>
 
@@ -122,7 +121,7 @@
     {
         if (objRef != null)
         {
-            await JSRuntime.InvokeVoidAsync("window.unregisterViewportChangeCallback", objRef); // Optional: add unregister JS
+            await JSRuntime.InvokeVoidAsync("window.unregisterViewportChangeCallback"); // Optional: add unregister JS
             objRef.Dispose();
         }
     }

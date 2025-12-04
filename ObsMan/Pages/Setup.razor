@@ -1,0 +1,115 @@
+﻿@page "/setup"
+@page "/setup/v1/ObservingConditions/0/setup";
+@page "/setup/v1/SafetyMonitor/0/setup";
+@page "/setup/v1/Switch/0/setup";
+
+@namespace ObsMan
+
+
+@inject Settings settings;
+@inject ObsManLogger logger;
+@using LogLevel = ASCOM.Common.Interfaces.LogLevel;
+@using ObsMan.Components
+
+<PageTitle>Application Setup</PageTitle>
+
+<h1>Application Setup</h1>
+
+<ObsManButton Click="@UpdateDeviceList" Text="Update Device List" />
+<ObsManButton Click="@UpdateDeviceList" Text="Connect to Devices" />
+Trace on: @settings.TraceOn
+
+
+<RadzenTabs Change=@OnTabChange style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
+    <Tabs>
+
+        @*Conform configuration*@
+        <RadzenTabsItem Text="Observing Conditions">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Device Selection</h4>
+
+                    <span style="display:inline-block; width:30px; text-align:center;">ID</span>
+                    <span style="display:inline-block; width:300px; text-align:center;">ObservingConditions Property</span>
+                    <span style="display:inline-block; width:400px; text-align:center;">Selected Device</span>
+                    <span style="display:inline-block; width:100px; text-align:center;">Switch number</span>
+                    <span style="display:inline-block; width:400px; text-align:center;">Description</span>
+
+                    <DeviceSelection ID=1 Property="RainRate"/>
+                    <DeviceSelection ID=2 Property="WindGust" />
+                    <DeviceSelection ID=3 Property="WindDirection" />
+                    <DeviceSelection ID=4 Property="SkyFWHM" />
+                    <DeviceSelection ID=5 Property="Temperature" />
+                    <DeviceSelection ID=15 Property="Temperature" />
+                    <DeviceSelection ID=25 Property="Temperature" />
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Conform2">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                </RadzenCard>
+
+                <RadzenCard Style="margin-bottom:20px;margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Operation</h4>
+                    <div class="row" style="margin-top:12px; margin-left:4px;">
+                    </div>
+                    <div class="row" style="margin-top:12px; margin-left:4px;">
+                    </div>
+                    <div class="row" style="margin-top:14px; margin-left:4px;">
+                    </div>
+                    <div class="row" style="margin-top:14px; margin-left:4px;">
+                    </div>
+
+                </RadzenCard>
+
+                <RadzenCard Style="margin-bottom:20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Additional Tracing</h4>
+                    <div class="row" style="margin-top:14px; margin-left:4px;">
+                        <RadzenLabel Text="Trace discovery" Component="CHKTRACEDISCOVERY" Style="margin-left: 5px;" />
+                    </div>
+                    <div class="row" style="margin-top:14px; margin-left:4px;">
+                        <RadzenLabel Text="Trace Alpaca calls" Component="CHKTRACEALPACA" Style="margin-left: 5px;" />
+                    </div>
+                </RadzenCard>
+
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Conform3">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
+
+
+    </Tabs>
+</RadzenTabs>
+
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private async Task UpdateDeviceList()
+    {
+        logger.LogMessage("Connect", "About to invert Trace value");
+        settings.TraceOn = !settings.TraceOn;
+        settings.Save();
+        logger.LogDebug("Connect", $"Spurious debug message!");
+        logger.LogError("Connect", $"Spurious error message!");
+        logger.LogMessage("Connect", $"Trace Set {settings.TraceOn}!!");
+    }
+
+    private async void OnTabChange()
+    {
+
+    }
+}

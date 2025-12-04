@@ -1,0 +1,37 @@
+﻿@namespace ObsMan.Components
+<RadzenButton Click="@Click" Text="@Text" Style="margin-left:30px; margin-right:30px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Info" />
+
+@code {
+
+    [Parameter]
+    public string Text { get; set; } = "No text parameter!!";
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> Click { get; set; } // same
+
+    private string FormatCompassLabel(double value)
+    {
+        switch (value)
+        {
+            case 0:
+            case 360:
+                return "N";
+            case 45:
+                return "NE";
+            case 90:
+                return "E";
+            case 135:
+                return "SE";
+            case 180:
+                return "S";
+            case 225:
+                return "SW";
+            case 270:
+                return "W";
+            case 315:
+                return "NW";
+            default:
+                return "";
+        }
+    }
+}
