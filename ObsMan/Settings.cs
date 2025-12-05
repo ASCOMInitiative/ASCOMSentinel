@@ -239,6 +239,8 @@ namespace ObsMan
 
         #region Public persisted properties
 
+        public bool TraceAlpacaDiscovery = false;
+
         public int SettingsCompatibilityVersion { get; set; } = SETTINGS_COMPATIBILTY_VERSION;
 
         public bool TraceOn { get; set; } = false;

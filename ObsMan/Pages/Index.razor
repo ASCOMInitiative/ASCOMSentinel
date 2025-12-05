@@ -30,12 +30,12 @@
 
             // Subscribe to the OnResized event. This will do work when the browser is resized.
             objRef = DotNetObjectReference.Create(this);
-            await JSRuntime.InvokeVoidAsync("window.registerViewportChangeCallback", objRef);
+            await JSRuntime.InvokeVoidAsync("window.registerIndexViewportChangeCallback", objRef);
 
             // Get the current window size and re-size to this
             int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
-            OnResize(logWidth, logHeight);
+            OnResizeIndex(logWidth, logHeight);
             StateHasChanged();
 
             // Scroll the log window to the bottom of its contents.
@@ -88,7 +88,7 @@
     // This method will be called when the window resizes.
     // It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
     [JSInvokable]
-    public async void OnResize(int width, int height)
+    public async void OnResizeIndex(int width, int height)
     {
         try
         {
@@ -121,7 +121,7 @@
     {
         if (objRef != null)
         {
-            await JSRuntime.InvokeVoidAsync("window.unregisterViewportChangeCallback"); // Optional: add unregister JS
+            await JSRuntime.InvokeVoidAsync("window.unregisterIndexViewportChangeCallback"); // Optional: add unregister JS
             objRef.Dispose();
         }
     }

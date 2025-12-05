@@ -13,5 +13,7 @@
         internal const int DEFAULT_ALPACA_PORT = 32324; // Default Alpaca port
         internal const int MAXIMUM_LOG_SIZE_CHARACTERS = 100000; // Maximum log file size in characters before truncation
         internal const int LOG_TRUNCATION_CHARACTERS = 5000; // The number of characters by which to truncate the screen log when required.
+        internal const bool ALPACA_SEARCH_STRICT_CASING = false;
+        internal const string USER_AGENT_PRODUCT_NAME = "ObservatoryManager";
     }
 }

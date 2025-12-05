@@ -5,11 +5,19 @@
 
 @namespace ObsMan
 
+@implements IAsyncDisposable
 
 @inject Settings settings;
 @inject ObsManLogger logger;
+@inject IJSRuntime JSRuntime
+@inject State state;
+
+@using ASCOM.Alpaca.Discovery
+@using ASCOM.Com
+@using ASCOM.Common
 @using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 @using ObsMan.Components
+@using System.Reflection
 
 <PageTitle>Application Setup</PageTitle>
 
@@ -24,61 +32,28 @@ Trace on: @settings.TraceOn
     <Tabs>
 
         @*Conform configuration*@
-        <RadzenTabsItem Text="Observing Conditions">
+        <RadzenTabsItem Text="Composite Observing Conditions Device">
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Device Selection</h4>
 
-                    <span style="display:inline-block; width:30px; text-align:center;">ID</span>
-                    <span style="display:inline-block; width:300px; text-align:center;">ObservingConditions Property</span>
-                    <span style="display:inline-block; width:400px; text-align:center;">Selected Device</span>
-                    <span style="display:inline-block; width:100px; text-align:center;">Switch number</span>
-                    <span style="display:inline-block; width:400px; text-align:center;">Description</span>
+                    <span style="display:inline-block; width:30px; text-align:center; margin:0"><b>ID</b></span>
+                    <span style="display:inline-block; width:150px; text-align:center; margin:0"><b>Property</b></span>
+                    <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Served from Device</b></span>
+                    <span style="display:inline-block; width:50px; text-align:center; margin:0"><b>Switch number</b></span>
+                    <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Description</b></span>
 
-                    <DeviceSelection ID=1 Property="RainRate"/>
-                    <DeviceSelection ID=2 Property="WindGust" />
-                    <DeviceSelection ID=3 Property="WindDirection" />
-                    <DeviceSelection ID=4 Property="SkyFWHM" />
-                    <DeviceSelection ID=5 Property="Temperature" />
-                    <DeviceSelection ID=15 Property="Temperature" />
-                    <DeviceSelection ID=25 Property="Temperature" />
+                    <DeviceSelection ID=1 Property="Rain Rate" AscomDevices=@ObservingConditionsDevices />
+                    <DeviceSelection ID=2 Property="Wind Gust" />
+                    <DeviceSelection ID=3 Property="Wind Direction" />
+                    <DeviceSelection ID=4 Property="Star FWHM" />
+                    <DeviceSelection ID=5 Property="Sky Temperature" />
+                    <DeviceSelection ID=15 Property="Sky Brightness" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
 
-        <RadzenTabsItem Text="Conform2">
-            <div class="row" style="margin-top: 10px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
-                </RadzenCard>
-
-                <RadzenCard Style="margin-bottom:20px;margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Operation</h4>
-                    <div class="row" style="margin-top:12px; margin-left:4px;">
-                    </div>
-                    <div class="row" style="margin-top:12px; margin-left:4px;">
-                    </div>
-                    <div class="row" style="margin-top:14px; margin-left:4px;">
-                    </div>
-                    <div class="row" style="margin-top:14px; margin-left:4px;">
-                    </div>
-
-                </RadzenCard>
-
-                <RadzenCard Style="margin-bottom:20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Additional Tracing</h4>
-                    <div class="row" style="margin-top:14px; margin-left:4px;">
-                        <RadzenLabel Text="Trace discovery" Component="CHKTRACEDISCOVERY" Style="margin-left: 5px;" />
-                    </div>
-                    <div class="row" style="margin-top:14px; margin-left:4px;">
-                        <RadzenLabel Text="Trace Alpaca calls" Component="CHKTRACEALPACA" Style="margin-left: 5px;" />
-                    </div>
-                </RadzenCard>
-
-            </div>
-        </RadzenTabsItem>
-
-        <RadzenTabsItem Text="Conform3">
+        <RadzenTabsItem Text="Composite Switch Device">
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
@@ -86,6 +61,21 @@ Trace on: @settings.TraceOn
             </div>
         </RadzenTabsItem>
 
+        <RadzenTabsItem Text="Composite Safety Monitor Device">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Safety Monitor Rules">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
 
     </Tabs>
 </RadzenTabs>
@@ -93,9 +83,35 @@ Trace on: @settings.TraceOn
 
 
 @code {
+    AlpacaDiscovery? discovery;
+    DotNetObjectReference<Setup>? objRef;
+
+    private int WindowWidth { get; set; } = 1280;
 
     protected override async Task OnInitializedAsync()
     {
+        discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.TraceAlpacaDiscovery ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
+            (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
+        discovery.AlpacaDevicesUpdated += AlpacaDeviceDiscovered;
+        discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
+        discovery.StartDiscovery();
+
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Subscribe to the OnResized event. This will do work when the browser is resized.
+            objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("window.registerSetupViewportChangeCallback", objRef);
+
+            // Get the current window size and re-size to this
+            int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
+            int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
+            OnResizeSetup(logWidth, logHeight);
+            StateHasChanged();
+        }
     }
 
     private async Task UpdateDeviceList()
@@ -112,4 +128,125 @@ Trace on: @settings.TraceOn
     {
 
     }
+
+    private List<AscomDevice> ObservingConditionsDevices { get; set; } = new();
+    private List<AscomDevice> SwitchDevices { get; set; } = new();
+    private List<AscomDevice> SafetyMonitorDevices { get; set; } = new();
+
+    private async void AlpacaDiscoveryCompleted(object? caller, EventArgs args)
+    {
+        ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
+        ObservingConditionsDevices = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
+
+        logger.LogDebug("AlpacaDiscoveryCompleted", $"AlpacaDiscoveryCompleted - Found {ObservingConditionsDevices.Count} devices");
+        SwitchDevices = discovery.GetAscomDevices(DeviceTypes.Switch);
+        SafetyMonitorDevices = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
+
+        foreach (AscomDevice device in discovery.GetAscomDevices(null))
+        {
+            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found Alpaca device: {device.AscomDeviceType} {device.AscomDeviceName}");
+        }
+
+        List<ASCOMRegistration> drivers = Profile.GetDrivers(DeviceTypes.Switch);
+        foreach (ASCOMRegistration driver in drivers)
+        {
+            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM Switch device: {driver.Name} ({driver.ProgID})");
+        }
+
+        drivers = Profile.GetDrivers(DeviceTypes.ObservingConditions);
+        foreach (ASCOMRegistration driver in drivers)
+        {
+            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
+        }
+
+        drivers = Profile.GetDrivers(DeviceTypes.SafetyMonitor);
+        foreach (ASCOMRegistration driver in drivers)
+        {
+            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM SafetyMonitor device: {driver.Name} ({driver.ProgID})");
+        }
+
+        await InvokeAsync(StateHasChanged);
+
+        // alpacaDiscoveryProgress += $"Discovery complete!";
+        // ResizeStatusArea();
+        // ascomDevices = new();
+        // foreach (AscomDevice device in discovery.GetAscomDevices(Enum.Parse<DeviceTypes>(selectedDeviceTypeString)))
+        // {
+        //     ascomDevices.Add(new AlpacaDeviceListItem($"{device.AscomDeviceName} ({device.IpAddress})", device));
+
+        //     Make this device the current device in the UI list if it is an Alpaca device and the device name, IP address and IP port all match the currently selected device values.
+        //     if (
+        //         (configuration.Settings.DeviceTechnology == DeviceTechnology.Alpaca) &
+        //         (device.AscomDeviceName == configuration.Settings.AlpacaDevice.AscomDeviceName) &
+        //         (device.IpAddress == configuration.Settings.AlpacaDevice.IpAddress) &
+        //         (device.IpPort == configuration.Settings.AlpacaDevice.IpPort)
+        //         ) ascomDevice = device;
+        // }
+        // discoveryInProgress = false;
+        // configuration.Settings.OperationInProgress = false;
+        // state.RaiseUiHasChangedEvent();
+
+        // ascomDevices.Sort((a, b) => a.DisplayName.CompareTo(b.DisplayName));
+
+        // await InvokeAsync(StateHasChanged);
+    }
+
+    // This method will be called when the window resizes.
+    // It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
+    [JSInvokable]
+    public async void OnResizeSetup(int width, int height)
+    {
+        try
+        {
+            // Calculate the number of rows that will fit in the available height
+            int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
+            logger.LogDebug("OnResizeSetup", $"Window size: {width} x {height}");
+            WindowWidth = width;
+            state.WindowWidth = width;
+
+            // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
+            //state.LastNumberOfLogLines = screenLogRows;
+
+            // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("OnResize", $"Exception: \r\n{ex}");
+        }
+    }
+
+
+
+    public async ValueTask DisposeAsync()
+    {
+        if (objRef != null)
+        {
+            await JSRuntime.InvokeVoidAsync("window.unregisterSetupViewportChangeCallback"); // Optional: add unregister JS
+            objRef.Dispose();
+        }
+    }
+
+    private async void AlpacaDeviceDiscovered(object? caller, EventArgs args)
+    {
+        ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
+
+        List<AscomDevice> newDevices = discovery.GetAscomDevices(null);
+
+        foreach (AscomDevice device in newDevices)
+        {
+            string deviceKey = $"{device.AscomDeviceName} {device.IpAddress} {device.IpPort}";
+            // if (!discoveredAlpacaDevices.Contains<string>(deviceKey))
+            // {
+            //     discoveredAlpacaDevices.Add(deviceKey);
+            //     alpacaDiscoveryProgress += $"{deviceKey}\r\n";
+            //     ResizeStatusArea();
+            // }
+        }
+        logger.LogDebug("AlpacaDeviceDiscovered", $"Found {newDevices.Count} devices.");
+
+        // await InvokeAsync(StateHasChanged);
+    }
+
+
 }

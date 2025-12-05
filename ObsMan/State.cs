@@ -16,6 +16,11 @@
         #region public properties
 
         /// <summary>
+        /// Current width of the view port window
+        /// </summary>
+        public int WindowWidth { get; set { field = value; RaiseChangeEvent(nameof(WindowWidth)); } } = 1280;
+
+        /// <summary>
         /// Gets or sets the index of the first visible log entry in the log view.
         /// </summary>
         public int TopOfVisibleLog { get; set; } = 0;
@@ -29,7 +34,7 @@
 
         public bool Connected { get; set; } = false;
 
-        public Dictionary<int, ISafetyMonitorV3> SafetyMonitorDevices { get; set; } = [];
+        public Dictionary<int, ISafetyMonitorV3> SafetyMonitorDevices { get; set { RaiseChangeEvent(nameof(SafetyMonitorDevices)); } } = [];
 
         public Dictionary<int, IObservingConditionsV2> ObservingConditionsDevices { get; set; } = [];
 
@@ -92,5 +97,17 @@
         //    ;
 
         #endregion
+
+        private void RaiseChangeEvent(string memberName)
+        {
+            if (OnConfigurationChanged is not null)
+            {
+                EventArgs args = new();
+                OnConfigurationChanged(this, args);
+            }
+        }
+
+        public event EventHandler OnConfigurationChanged;
+
     }
 }
