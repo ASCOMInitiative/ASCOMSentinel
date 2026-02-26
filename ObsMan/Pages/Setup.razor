@@ -516,10 +516,10 @@
 
     private LogLevel SrvLoggingLevel
     {
-        get => settings.LoggingLevel;
+        get => settings.LogLevel;
         set
         {
-            settings.LoggingLevel = value;
+            settings.LogLevel = value;
             Program.logger?.SetMinimumLoggingLevel(value);
             settings.Save();
         }

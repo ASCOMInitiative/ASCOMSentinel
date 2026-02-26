@@ -270,7 +270,6 @@ namespace ObsMan
         public bool UseAuth { get; set; } = false;
         public string UserName { get; set; } = "User";
         public string Password { get; set; } = string.Empty;
-        public LogLevel LoggingLevel { get; set; } = LogLevel.Information;
 
         #endregion
 
