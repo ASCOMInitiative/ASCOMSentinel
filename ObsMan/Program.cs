@@ -236,16 +236,14 @@ namespace ObsMan
 
             app.MapFallbackToPage("/_Host");
 
-            if (settings.AutoStartBrowser)
+            // Start the browser.
+            try
             {
-                try
-                {
-                    StartBrowser(settings.ServerPort);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex.Message);
-                }
+                StartBrowser(settings.ServerPort);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex.Message);
             }
 
             #endregion Finish Building and Start server

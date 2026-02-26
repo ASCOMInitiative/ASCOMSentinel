@@ -249,23 +249,16 @@ namespace ObsMan
 
         public string Location { get; set; } = "My Observatory";
 
-        public int ApplicationIpPort { get; set; } = Globals.DEFAULT_ALPACA_PORT;
-
         public string UniqueIdSafetyMonitor { get; set; } = Guid.NewGuid().ToString();
         public string UniqueIdSwitch { get; set; } = Guid.NewGuid().ToString();
 
         public string UniqueIdObservingConditions { get; set; } = Guid.NewGuid().ToString();
 
-        public bool FirstUse { get; set; } = true;
-
-        public bool AutoStartBrowser { get; set; } = true;
         public ushort ServerPort { get; set; } = (ushort)Globals.DEFAULT_ALPACA_PORT;
         public bool AllowRemoteAccess { get; set; } = true;
         public bool AllowDiscovery { get; set; } = true;
         public bool LocalRespondOnlyToLocalHost { get; set; } = true;
         public bool PreventRemoteDisconnects { get; set; } = false;
-        public bool RunSwagger { get; set; } = true;
-        public bool AllowImageBytesDownload { get; set; } = true;
         public bool RunInStrictAlpacaMode { get; set; } = true;
         public bool UseAuth { get; set; } = false;
         public string UserName { get; set; } = "User";

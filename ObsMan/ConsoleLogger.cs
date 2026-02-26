@@ -14,12 +14,14 @@ namespace ObsMan
             _minLevel = minLevel;
         }
 
-        public IDisposable BeginScope<TState>(TState state) => NullScope.Instance;
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull
+        {
+            return NullScope.Instance;
+        }
 
         public bool IsEnabled(LogLevel logLevel) => logLevel >= _minLevel;
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
-                               Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter) 
         {
             if (!IsEnabled(logLevel))
                 return;
@@ -55,9 +57,6 @@ namespace ObsMan
             Console.Write($"{levelString,-13} ");
             Console.ForegroundColor = originalColour;
             Console.WriteLine(message);
-
-
-
 
             if (exception != null)
             {

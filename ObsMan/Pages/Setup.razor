@@ -107,10 +107,6 @@
                                     <input type="number" @bind="SrvServerPort" min="1" max="65535" style="width:20ch;">
                                 </div>
                                 <div style="margin-bottom: 10px">
-                                    <label>Open Browser on Start:</label>
-                                    <input type="checkbox" @bind="SrvStartBrowser">
-                                </div>
-                                <div style="margin-bottom: 10px">
                                     <label>Require Strict API Compliance:</label>
                                     <input type="checkbox" @bind="SrvStrictAPIMode">
                                 </div>
@@ -201,10 +197,6 @@
 
                                 <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">OpenAPI / Swagger</h4>
                                 <p>The OpenAPI / Swagger integration allows for the Alpaca API documentation to be shown by this server. It also allows calls to be made directly in the browser. Note that this will apply on the next time this driver runs.</p>
-                                <div style="margin-bottom: 10px">
-                                    <label>Run OpenAPI:</label>
-                                    <input type="checkbox" @bind="SrvRunSwagger">
-                                </div>
 
                                 <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Shutdown Driver</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
@@ -427,12 +419,6 @@
         }
     }
 
-    private bool SrvStartBrowser
-    {
-        get => settings.AutoStartBrowser;
-        set { settings.AutoStartBrowser = value; settings.Save(); }
-    }
-
     private bool SrvStrictAPIMode
     {
         get => settings.RunInStrictAlpacaMode;
@@ -523,12 +509,6 @@
             Program.logger?.SetMinimumLoggingLevel(value);
             settings.Save();
         }
-    }
-
-    private bool SrvRunSwagger
-    {
-        get => settings.RunSwagger;
-        set { settings.RunSwagger = value; settings.Save(); }
     }
 
     private bool SrvEnableShutdown { get; set; } = false;

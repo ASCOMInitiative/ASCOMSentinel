@@ -16,7 +16,7 @@ namespace ObsMan
 
         public string Location => Program.settings.Location;
 
-        public bool AllowImageBytesDownload => Program.settings.AllowImageBytesDownload;
+        public bool AllowImageBytesDownload => false;
 
         public bool AllowDiscovery => Program.settings.AllowDiscovery;
 
@@ -26,6 +26,6 @@ namespace ObsMan
 
         public bool LocalRespondOnlyToLocalHost => Program.settings.LocalRespondOnlyToLocalHost;
 
-        public bool RunSwagger => Program.settings.RunSwagger;
+        public bool RunSwagger => false;
     }
 }

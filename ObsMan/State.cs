@@ -107,7 +107,7 @@
             }
         }
 
-        public event EventHandler OnConfigurationChanged;
+        public event EventHandler? OnConfigurationChanged;
 
     }
 }
