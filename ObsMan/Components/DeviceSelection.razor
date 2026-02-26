@@ -1,39 +1,36 @@
 ﻿@namespace ObsMan.Components
 @using ASCOM.Alpaca.Discovery
+@using ASCOM.Com
 
 @inject ObsManLogger logger
 
 <div>
-    <span style="text-align:right; display:inline-block; width:30px; margin:0px; text-align:center;">@ID</span>
-    <span style="display:inline-block; width:150px; margin:0px; text-align:center;">@Property</span>
-    <RadzenDropDown @bind-Value=@value Data=@GetDeviceNames() Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 400px; text-align:center;" Name="DropDownBindValue" />
+    <span style="display:inline-block; width:150px; margin:0px; text-align:left;">@PropertyName</span>
+    <RadzenDropDown @bind-Value=@value Data=@GetDeviceNames() Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 600px; text-align:left;" Name="DropDownBindValue" />
     <RadzenNumeric @bind-Value=@switchNumber InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" Style="width:50px; margin:0px" Min=0 TextAlign="TextAlign.Center" />
     <RadzenTextArea @bind-Value=@SomeValue
                     Rows="1"
-                    ReadOnly="true" gr
+                    ReadOnly="true"
                     Style="max-width:400px; min-width:400px;vertical-align:bottom; resize:none" />
 </div>
 
 @code {
-    IEnumerable<string> companyNames = new List<string>() { "Name 1", "Name 2", "Name 3" };
-
     string value = "";
-    string someValue = "Some value asd asd as da sd as da sd a sd as da sd a sd as d asd a sd a sd as d asd a sd as d";
-    string maxLengthValue = "";
-    int maxLength = 5;
+    private string DeviceNamevalue = "";
     int switchNumber = 0;
 
     [Parameter]
-    public int ID { get; set; } = 0;
+    public IEnumerable<AscomDevice> AlpacaDevices { get { logger.LogDebug("", $"AlpacaDevices Get {field.Count()}"); return field; } set { field = value; logger.LogDebug("", $"AlpacaDevices Set {field.Count()}"); } } = new List<AscomDevice>();
 
     [Parameter]
-    public IEnumerable<AscomDevice> AscomDevices { get { logger.LogDebug("", $"ASCOMDevices Get {field.Count()}"); return field; } set { field = value; logger.LogDebug("", $"ASCOMDevices Set {field.Count()}"); } } = new List<AscomDevice>() { new AscomDevice() };
-
+    public IEnumerable<ASCOMRegistration> ComDevices { get { logger.LogDebug("", $"ComDevices Get {field.Count()}"); return field; } set { field = value; logger.LogDebug("", $"ComDevices Set {field.Count()}"); } } = new List<ASCOMRegistration>();
     [Parameter]
     public string Property { get; set; } = "Not set";
 
-    static int valueIndex;
+    [Parameter]
+    public PropertyName PropertyName { get; set; }
 
+    static int valueIndex;
     string SomeValue
     {
         get
@@ -44,8 +41,8 @@
             switch (valueIndex)
             {
                 case 0: return "Short string";
-                case 1: return "Long string - Some value asd asd as da sd as da sd a sd as da sd a sd as d asd a sd a sd as d asd a sd as d";
-                case 2: return "Very long string - Some value asd asd as da sd as da sd a sd as da sd a sd as d asd a sd a sd as d asd a sd as dSome value asd asd as da sd as ";
+                case 1: return "Long string - Some value asd a";
+                case 2: return "Very long string - Some value asd asd as da";
             }
             return "Default string";
         }
@@ -57,11 +54,17 @@
     {
         List<String> deviceNames = new();
 
-        logger.LogDebug("", $"GetDeviceNames - Found {AscomDevices.Count()} devices.");
-        foreach (AscomDevice device in AscomDevices)
+        logger.LogDebug("", $"GetDeviceNames - Found {AlpacaDevices.Count()} devices.");
+        foreach (AscomDevice device in AlpacaDevices)
         {
             logger.LogDebug("", $"GetDeviceNames - {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-            deviceNames.Add(device.AscomDeviceName);
+            deviceNames.Add($"{device.AscomDeviceName} ({device.HostName}:{device.IpPort})");
+        }
+
+        foreach (ASCOMRegistration device in ComDevices)
+        {
+            logger.LogDebug("", $"GetDeviceNames - {device.Name}, {device.ProgID} ");
+            deviceNames.Add($"{device.Name} ({device.ProgID})");
         }
 
         return deviceNames;

@@ -25,11 +25,20 @@
 
 <ObsManButton Click="@UpdateDeviceList" Text="Update Device List" />
 <ObsManButton Click="@UpdateDeviceList" Text="Connect to Devices" />
-Trace on: @settings.TraceOn
 
 
 <RadzenTabs Change=@OnTabChange style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
     <Tabs>
+
+        <RadzenTabsItem Text="General Setup">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    Trace level
+                    <RadzenDropDown @bind-Value=@TraceLevel Data=@Enum.GetValues(typeof(LogLevel)) Style="margin-top:20px;margin-left:20px; margin-right:0px; " />
+
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
 
         @*Conform configuration*@
         <RadzenTabsItem Text="Composite Observing Conditions Device">
@@ -37,18 +46,17 @@ Trace on: @settings.TraceOn
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Device Selection</h4>
 
-                    <span style="display:inline-block; width:30px; text-align:center; margin:0"><b>ID</b></span>
-                    <span style="display:inline-block; width:150px; text-align:center; margin:0"><b>Property</b></span>
-                    <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Served from Device</b></span>
+                    <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
+                    <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
                     <span style="display:inline-block; width:50px; text-align:center; margin:0"><b>Switch number</b></span>
                     <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Description</b></span>
 
-                    <DeviceSelection ID=1 Property="Rain Rate" AscomDevices=@ObservingConditionsDevices />
-                    <DeviceSelection ID=2 Property="Wind Gust" />
-                    <DeviceSelection ID=3 Property="Wind Direction" />
-                    <DeviceSelection ID=4 Property="Star FWHM" />
-                    <DeviceSelection ID=5 Property="Sky Temperature" />
-                    <DeviceSelection ID=15 Property="Sky Brightness" />
+                    <DeviceSelection PropertyName="PropertyName.RainRate" Property="Rain Rate" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.WindGust" Property="Wind Gust" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.WindDirection" Property="Wind Direction" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.StarFWHM" Property="Star FWHM" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.SkyTemperature" Property="Sky Temperature" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.SkyBrightness" Property="Sky Brightness" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -85,7 +93,7 @@ Trace on: @settings.TraceOn
 @code {
     AlpacaDiscovery? discovery;
     DotNetObjectReference<Setup>? objRef;
-
+    LogLevel TraceLevel { get { return settings.LogLevel; } set { settings.LogLevel = value; settings.Save(); } }
     private int WindowWidth { get; set; } = 1280;
 
     protected override async Task OnInitializedAsync()
@@ -117,11 +125,9 @@ Trace on: @settings.TraceOn
     private async Task UpdateDeviceList()
     {
         logger.LogMessage("Connect", "About to invert Trace value");
-        settings.TraceOn = !settings.TraceOn;
         settings.Save();
         logger.LogDebug("Connect", $"Spurious debug message!");
         logger.LogError("Connect", $"Spurious error message!");
-        logger.LogMessage("Connect", $"Trace Set {settings.TraceOn}!!");
     }
 
     private async void OnTabChange()
@@ -129,16 +135,17 @@ Trace on: @settings.TraceOn
 
     }
 
-    private List<AscomDevice> ObservingConditionsDevices { get; set; } = new();
+    private List<AscomDevice> ObservingConditionsDevicesAlpaca { get; set; } = new();
+    private List<ASCOMRegistration> ObservingConditionsDevicesCom { get; set; } = new();
     private List<AscomDevice> SwitchDevices { get; set; } = new();
     private List<AscomDevice> SafetyMonitorDevices { get; set; } = new();
 
     private async void AlpacaDiscoveryCompleted(object? caller, EventArgs args)
     {
         ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
-        ObservingConditionsDevices = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
+        ObservingConditionsDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
 
-        logger.LogDebug("AlpacaDiscoveryCompleted", $"AlpacaDiscoveryCompleted - Found {ObservingConditionsDevices.Count} devices");
+        logger.LogDebug("AlpacaDiscoveryCompleted", $"AlpacaDiscoveryCompleted - Found {ObservingConditionsDevicesAlpaca.Count} devices");
         SwitchDevices = discovery.GetAscomDevices(DeviceTypes.Switch);
         SafetyMonitorDevices = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
 
@@ -150,19 +157,20 @@ Trace on: @settings.TraceOn
         List<ASCOMRegistration> drivers = Profile.GetDrivers(DeviceTypes.Switch);
         foreach (ASCOMRegistration driver in drivers)
         {
-            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM Switch device: {driver.Name} ({driver.ProgID})");
+            //logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM Switch device: {driver.Name} ({driver.ProgID})");
         }
 
         drivers = Profile.GetDrivers(DeviceTypes.ObservingConditions);
         foreach (ASCOMRegistration driver in drivers)
         {
             logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
+            ObservingConditionsDevicesCom.Add(driver);
         }
 
         drivers = Profile.GetDrivers(DeviceTypes.SafetyMonitor);
         foreach (ASCOMRegistration driver in drivers)
         {
-            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM SafetyMonitor device: {driver.Name} ({driver.ProgID})");
+            //logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM SafetyMonitor device: {driver.Name} ({driver.ProgID})");
         }
 
         await InvokeAsync(StateHasChanged);
@@ -200,7 +208,7 @@ Trace on: @settings.TraceOn
         {
             // Calculate the number of rows that will fit in the available height
             int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
-            logger.LogDebug("OnResizeSetup", $"Window size: {width} x {height}");
+            //logger.LogDebug("OnResizeSetup", $"Window size: {width} x {height}");
             WindowWidth = width;
             state.WindowWidth = width;
 
@@ -243,7 +251,7 @@ Trace on: @settings.TraceOn
             //     ResizeStatusArea();
             // }
         }
-        logger.LogDebug("AlpacaDeviceDiscovered", $"Found {newDevices.Count} devices.");
+        //logger.LogDebug("AlpacaDeviceDiscovered", $"Found {newDevices.Count} devices.");
 
         // await InvokeAsync(StateHasChanged);
     }

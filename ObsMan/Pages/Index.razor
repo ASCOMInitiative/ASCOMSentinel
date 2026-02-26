@@ -53,11 +53,9 @@
     private async Task Connect()
     {
         logger.LogMessage("Connect", "About to invert Trace value");
-        settings.TraceOn = !settings.TraceOn;
         settings.Save();
         logger.LogDebug("Connect", $"Spurious debug message!");
         logger.LogError("Connect", $"Spurious error message!");
-        logger.LogMessage("Connect", $"Trace Set {settings.TraceOn}!!");
     }
 
     private int LastnumberOfLogLines()

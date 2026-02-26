@@ -3,7 +3,7 @@
 <span>
     <RadzenRadialGauge Style="width: 320px; height: 320px;">
         <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step=@Step Min=@MinValue Max=@AbsoluteMaxValue TickPosition=GaugeTickPosition.Inside MinorStep="@MinorStep" MinorTickLength=9 TickLength=13>
-            <RadzenRadialGaugeScalePointer Value=@Value Length="0.7" ShowValue=true>
+            <RadzenRadialGaugeScalePointer Value=@Value Length="0.7" ShowValue=true Fill="dimgray">
                 <Template Context="pointer">
                     <RadzenStack AlignItems="AlignItems.Center" Gap="0" class="rz-mt-4">
                         <RadzenText TextStyle="TextStyle.Body1" class="rz-m-0"><strong>@pointer.Value</strong></RadzenText>
@@ -49,6 +49,8 @@
     [Parameter]
     public double RedOrangeTransition { get; set; } = 0;
 
+    #region Private methods
+
     private double AbsoluteMaxValue
     {
         get
@@ -72,4 +74,7 @@
             return Math.Max(0.1, Step / 5);
         }
     }
+
+    #endregion
+
 }

@@ -3,10 +3,12 @@ using ASCOM.Common;
 using ASCOM.Tools;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using Radzen;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace ObsMan
@@ -45,8 +47,8 @@ namespace ObsMan
             //You can add custom Command Line arguments here
             #region Startup and Logging
 
-            logger.LogMessage("",$"{ServerName} version {ServerVersion}");
-            logger.LogMessage("",$"Running on: {RuntimeInformation.OSDescription}.");
+            logger.LogMessage("", $"{ServerName} version {ServerVersion}");
+            logger.LogMessage("", $"Running on: {RuntimeInformation.OSDescription}.");
 
             //If already running start browser
             try
@@ -57,7 +59,7 @@ namespace ObsMan
                     var con1 = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Where(con => con.LocalEndPoint.Port == ServerSettings.ServerPort);
                     if (IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Any(con => con.LocalEndPoint.Port == ServerSettings.ServerPort && (con.State == TcpState.Listen || con.State == TcpState.Established)))
                     {
-                        logger.LogMessage("","Detected driver port already open, starting web browser on IP and Port. If this fails something else is using the port");
+                        logger.LogMessage("", "Detected driver port already open, starting web browser on IP and Port. If this fails something else is using the port");
                         StartBrowser(ServerSettings.ServerPort);
                         return;
                     }
@@ -139,20 +141,21 @@ namespace ObsMan
 
             var builder = WebApplication.CreateBuilder(args ?? []);
 
+            // Remove the default ASP.NET console logger and replace with one customised to create output in the application's colour and format
+            builder.Logging.ClearProviders(); // Remove default console logger
+            builder.Logging.AddProvider(new ConsoleLoggerProvider(settings.LogLevel.ToMSLogLevel())); // Add the customised logger
+
             #endregion Startup and Logging
 
             //ToDo you can add devices here
 
-            //Attach the logger
+            //Attach the main logger to the Alpaca.Razor components
             Logging.AttachLogger(logger);
 
             //Load the configuration
             DeviceManager.LoadConfiguration(new AlpacaConfiguration());
 
-            //Add a safety monitor with device id 0. You can load any number of the same device with different ids or load other devices with Load* functions.
-            //You may want to inject settings and logging here to the Driver Instance.
-            //For each device you add you should add or edit an existing settings page in the settings folder and an entry in the Shared NavMenu.
-            //There are pages already included for the first device of each device type.
+            // Add the safety monitor, observing conditions and switch devices that will be exposed to clients
             DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.BasicMonitor(), "Really Basic Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
             DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(), "Observing Conditions Device", ServerSettings.GetDeviceUniqueId("ObservingConditions", 0));
             DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), "Switch Device", ServerSettings.GetDeviceUniqueId("Switch", 0));

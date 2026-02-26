@@ -15,12 +15,14 @@ namespace ObsMan
         { 
             this.state = state;
             this.settings = settings;
+            SetMinimumLoggingLevel(settings.LogLevel);
         }
 
         public ObsManLogger(string logFileName, State state, Settings settings) : base("ObsMan", true)
         {
             this.state = state;
             this.settings = settings;
+            SetMinimumLoggingLevel(settings.LogLevel);
         }
 
         #region Event handlers
@@ -34,8 +36,9 @@ namespace ObsMan
 
         void ILogger.Log(LogLevel level, string message)
         {
-            base.LogMessage(level.ToString(), message);
-            Console.WriteLine($"{level}: {message}");
+            //base.LogMessage(level.ToString(), message);
+            //Console.WriteLine($"{level}: {message}");
+            LogMessage(string.Empty, level, message);
         }
 
         /// <summary>
@@ -63,6 +66,9 @@ namespace ObsMan
                         // Select an appropriate colour for the log level
                         switch (logLevel)
                         {
+                            case LogLevel.Verbose:
+                                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                                break;
                             case LogLevel.Debug:
                                 Console.ForegroundColor = ConsoleColor.Blue;
                                 break;
@@ -147,7 +153,6 @@ namespace ObsMan
         {
             LogMessage(method, LogLevel.Error, message);
         }
-
 
         #region Support code
 

@@ -243,8 +243,6 @@ namespace ObsMan
 
         public int SettingsCompatibilityVersion { get; set; } = SETTINGS_COMPATIBILTY_VERSION;
 
-        public bool TraceOn { get; set; } = false;
-
         public LogLevel LogLevel { get; set; } = LogLevel.Debug;
 
         public string ServerName { get; set; } = "Observatory Manager";

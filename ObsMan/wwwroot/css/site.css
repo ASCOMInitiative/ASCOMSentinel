@@ -2,13 +2,18 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: white;
+    background-image: none !important;
+    background-color: white !important;
 }
 
 /* Force the page background opaque white */
 body {
-    background-image: none !important;
-    background-color: #ffffff !important; /* Or any other solid color, e.g., #f0f0f0 */
+    background-image:none !important;
+    background-color: white !important; /* Or any other solid color, e.g., #f0f0f0 */
+}
+
+.rz-main-content {
+    background-color: white !important;
 }
 
 h1:focus {
