@@ -4,9 +4,9 @@ namespace ObsMan
 {
     internal class AlpacaConfiguration : IAlpacaConfiguration
     {
-        public bool RunInStrictAlpacaMode => ServerSettings.RunInStrictAlpacaMode;
+        public bool RunInStrictAlpacaMode => Program.settings.RunInStrictAlpacaMode;
 
-        public bool PreventRemoteDisconnects => ServerSettings.PreventRemoteDisconnects;
+        public bool PreventRemoteDisconnects => Program.settings.PreventRemoteDisconnects;
 
         public string ServerName => Program.ServerName;
 
@@ -14,18 +14,18 @@ namespace ObsMan
 
         public string ServerVersion => Program.ServerVersion;
 
-        public string Location => ServerSettings.Location;
+        public string Location => Program.settings.Location;
 
-        public bool AllowImageBytesDownload => ServerSettings.AllowImageBytesDownload;
+        public bool AllowImageBytesDownload => Program.settings.AllowImageBytesDownload;
 
-        public bool AllowDiscovery => ServerSettings.AllowDiscovery;
+        public bool AllowDiscovery => Program.settings.AllowDiscovery;
 
-        public int ServerPort => ServerSettings.ServerPort;
+        public int ServerPort => Program.settings.ServerPort;
 
-        public bool AllowRemoteAccess => ServerSettings.AllowRemoteAccess;
+        public bool AllowRemoteAccess => Program.settings.AllowRemoteAccess;
 
-        public bool LocalRespondOnlyToLocalHost => ServerSettings.LocalRespondOnlyToLocalHost;
+        public bool LocalRespondOnlyToLocalHost => Program.settings.LocalRespondOnlyToLocalHost;
 
-        public bool RunSwagger => ServerSettings.RunSwagger;
+        public bool RunSwagger => Program.settings.RunSwagger;
     }
 }

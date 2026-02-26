@@ -56,11 +56,11 @@ namespace ObsMan
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     //Already running, start the browser, detects based on port in use
-                    var con1 = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Where(con => con.LocalEndPoint.Port == ServerSettings.ServerPort);
-                    if (IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Any(con => con.LocalEndPoint.Port == ServerSettings.ServerPort && (con.State == TcpState.Listen || con.State == TcpState.Established)))
+                    var con1 = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Where(con => con.LocalEndPoint.Port == settings.ServerPort);
+                    if (IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpConnections().Any(con => con.LocalEndPoint.Port == settings.ServerPort && (con.State == TcpState.Listen || con.State == TcpState.Established)))
                     {
                         logger.LogMessage("", "Detected driver port already open, starting web browser on IP and Port. If this fails something else is using the port");
-                        StartBrowser(ServerSettings.ServerPort);
+                        StartBrowser(settings.ServerPort);
                         return;
                     }
                 }
@@ -72,7 +72,7 @@ namespace ObsMan
                         if (Process.GetProcessesByName(entryAssembly.Location).Length > 1)
                         {
                             logger.LogMessage("", "Detected driver already running, starting web browser on IP and Port");
-                            StartBrowser(ServerSettings.ServerPort);
+                            StartBrowser(settings.ServerPort);
                             return;
                         }
                     }
@@ -88,7 +88,7 @@ namespace ObsMan
             if (args?.Any(str => str.Contains("--reset")) ?? false)
             {
                 logger.LogMessage("", "Reseting Settings");
-                ServerSettings.Reset();
+                settings.ResetToDefaults();
 
                 //If you have any device settings you should reset them as well or add a specific reset command.
 
@@ -99,13 +99,14 @@ namespace ObsMan
             if (args?.Any(str => str.Contains("--reset-auth")) ?? false)
             {
                 logger.LogMessage("", "Turning off Authentication to allow password reset.");
-                ServerSettings.UseAuth = false;
+                settings.UseAuth = false;
+                settings.Save();
                 logger.LogMessage("", "Authentication off, you can change the password and then re-enable Authentication.");
             }
 
             if (args?.Any(str => str.Contains("--local-address")) ?? false)
             {
-                Console.WriteLine($"http://localhost:{ServerSettings.ServerPort}");
+                Console.WriteLine($"http://localhost:{settings.ServerPort}");
             }
 
             if (!args?.Any(str => str.Contains("--urls")) ?? true)
@@ -121,7 +122,7 @@ namespace ObsMan
                 string startupURLArg = "--urls=http://";
 
                 //If set to allow remote access bind to all local ips, otherwise bind only to localhost
-                if (ServerSettings.AllowRemoteAccess)
+                if (settings.AllowRemoteAccess)
                 {
                     startupURLArg += "*";
                 }
@@ -130,7 +131,7 @@ namespace ObsMan
                     startupURLArg += "localhost";
                 }
 
-                startupURLArg += ":" + ServerSettings.ServerPort;
+                startupURLArg += ":" + settings.ServerPort;
 
                 logger.LogMessage("", "Startup URL args: " + startupURLArg);
 
@@ -156,9 +157,9 @@ namespace ObsMan
             DeviceManager.LoadConfiguration(new AlpacaConfiguration());
 
             // Add the safety monitor, observing conditions and switch devices that will be exposed to clients
-            DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.BasicMonitor(), "Really Basic Safety Monitor", ServerSettings.GetDeviceUniqueId("SafetyMonitor", 0));
-            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(), "Observing Conditions Device", ServerSettings.GetDeviceUniqueId("ObservingConditions", 0));
-            DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), "Switch Device", ServerSettings.GetDeviceUniqueId("Switch", 0));
+            DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.BasicMonitor(), "Really Basic Safety Monitor", settings.GetDeviceUniqueId("SafetyMonitor", 0));
+            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(), "Observing Conditions Device", settings.GetDeviceUniqueId("ObservingConditions", 0));
+            DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), "Switch Device", settings.GetDeviceUniqueId("Switch", 0));
 
             #region Finish Building and Start server
 
@@ -235,11 +236,11 @@ namespace ObsMan
 
             app.MapFallbackToPage("/_Host");
 
-            if (ServerSettings.AutoStartBrowser)
+            if (settings.AutoStartBrowser)
             {
                 try
                 {
-                    StartBrowser(ServerSettings.ServerPort);
+                    StartBrowser(settings.ServerPort);
                 }
                 catch (Exception ex)
                 {

@@ -12,6 +12,7 @@
 @inject IJSRuntime JSRuntime
 @inject State state;
 
+@using ASCOM.Alpaca
 @using ASCOM.Alpaca.Discovery
 @using ASCOM.Com
 @using ASCOM.Common
@@ -124,7 +125,7 @@
                                     <tr>
                                         <th>Addresses server is listening on.</th>
                                     </tr>
-                                    @if (ServerSettings.AllowRemoteAccess)
+                                    @if (settings.AllowRemoteAccess)
                                     {
                                         try
                                         {
@@ -390,22 +391,23 @@
         // await InvokeAsync(StateHasChanged);
     }
 
-    // Server Settings - properties persist immediately to ServerSettings on change
+    // Server Settings - properties persist immediately to settings on change
 
     private string SrvLocation
     {
-        get => ServerSettings.Location;
-        set => ServerSettings.Location = value;
+        get => settings.Location;
+        set { settings.Location = value; settings.Save(); }
     }
 
     private bool SrvRemoteAccess
     {
-        get => ServerSettings.AllowRemoteAccess;
+        get => settings.AllowRemoteAccess;
         set
         {
-            if (ServerSettings.AllowRemoteAccess != value)
+            if (settings.AllowRemoteAccess != value)
             {
-                ServerSettings.AllowRemoteAccess = value;
+                settings.AllowRemoteAccess = value;
+                settings.Save();
                 Program.Main(Array.Empty<string>());
             }
         }
@@ -413,12 +415,13 @@
 
     private ushort SrvServerPort
     {
-        get => ServerSettings.ServerPort;
+        get => settings.ServerPort;
         set
         {
-            if (ServerSettings.ServerPort != value)
+            if (settings.ServerPort != value)
             {
-                ServerSettings.ServerPort = value;
+                settings.ServerPort = value;
+                settings.Save();
                 Program.Main(Array.Empty<string>());
             }
         }
@@ -426,49 +429,52 @@
 
     private bool SrvStartBrowser
     {
-        get => ServerSettings.AutoStartBrowser;
-        set => ServerSettings.AutoStartBrowser = value;
+        get => settings.AutoStartBrowser;
+        set { settings.AutoStartBrowser = value; settings.Save(); }
     }
 
     private bool SrvStrictAPIMode
     {
-        get => ServerSettings.RunInStrictAlpacaMode;
-        set => ServerSettings.RunInStrictAlpacaMode = value;
+        get => settings.RunInStrictAlpacaMode;
+        set { settings.RunInStrictAlpacaMode = value; settings.Save(); }
     }
 
     private bool SrvPreventRemoteDisconnects
     {
-        get => ServerSettings.PreventRemoteDisconnects;
-        set => ServerSettings.PreventRemoteDisconnects = value;
+        get => settings.PreventRemoteDisconnects;
+        set { settings.PreventRemoteDisconnects = value; settings.Save(); }
     }
 
     private bool SrvDiscovery
     {
-        get => ServerSettings.AllowDiscovery;
-        set => ServerSettings.AllowDiscovery = value;
+        get => settings.AllowDiscovery;
+        set { settings.AllowDiscovery = value; settings.Save(); }
     }
 
     private bool SrvLocalHostOnlyOnHost
     {
-        get => ServerSettings.LocalRespondOnlyToLocalHost;
-        set => ServerSettings.LocalRespondOnlyToLocalHost = value;
+        get => settings.LocalRespondOnlyToLocalHost;
+        set { settings.LocalRespondOnlyToLocalHost = value; settings.Save(); }
     }
 
     private bool SrvRequireAuthorization
     {
-        get => ServerSettings.UseAuth;
-        set => ServerSettings.UseAuth = value;
+        get => settings.UseAuth;
+        set { settings.UseAuth = value; settings.Save(); }
     }
 
     private bool SrvDisableAuth => !SrvRequireAuthorization;
 
     private string SrvUserName
     {
-        get => ServerSettings.UserName;
+        get => settings.UserName;
         set
         {
             if (!string.IsNullOrWhiteSpace(value))
-                ServerSettings.UserName = value;
+            {
+                settings.UserName = value;
+                settings.Save();
+            }
         }
     }
 
@@ -498,7 +504,8 @@
 
         if (_srvPassword == _srvPassword2)
         {
-            ServerSettings.Password = _srvPassword;
+            settings.Password = Hash.GetStoragePassword(_srvPassword);
+            settings.Save();
             _srvPasswordStatus = "Password saved.";
         }
         else
@@ -509,14 +516,19 @@
 
     private LogLevel SrvLoggingLevel
     {
-        get => ServerSettings.LoggingLevel;
-        set => ServerSettings.LoggingLevel = value;
+        get => settings.LoggingLevel;
+        set
+        {
+            settings.LoggingLevel = value;
+            Program.logger?.SetMinimumLoggingLevel(value);
+            settings.Save();
+        }
     }
 
     private bool SrvRunSwagger
     {
-        get => ServerSettings.RunSwagger;
-        set => ServerSettings.RunSwagger = value;
+        get => settings.RunSwagger;
+        set { settings.RunSwagger = value; settings.Save(); }
     }
 
     private bool SrvEnableShutdown { get; set; } = false;

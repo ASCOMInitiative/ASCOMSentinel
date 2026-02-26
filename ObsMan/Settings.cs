@@ -258,6 +258,20 @@ namespace ObsMan
 
         public bool FirstUse { get; set; } = true;
 
+        public bool AutoStartBrowser { get; set; } = true;
+        public ushort ServerPort { get; set; } = (ushort)Globals.DEFAULT_ALPACA_PORT;
+        public bool AllowRemoteAccess { get; set; } = true;
+        public bool AllowDiscovery { get; set; } = true;
+        public bool LocalRespondOnlyToLocalHost { get; set; } = true;
+        public bool PreventRemoteDisconnects { get; set; } = false;
+        public bool RunSwagger { get; set; } = true;
+        public bool AllowImageBytesDownload { get; set; } = true;
+        public bool RunInStrictAlpacaMode { get; set; } = true;
+        public bool UseAuth { get; set; } = false;
+        public string UserName { get; set; } = "User";
+        public string Password { get; set; } = string.Empty;
+        public LogLevel LoggingLevel { get; set; } = LogLevel.Information;
+
         #endregion
 
         #region Public methods
@@ -280,6 +294,20 @@ namespace ObsMan
                 LogMessage(LogLevel.Error, $"ResetToDefaults - Exception during Reset: {ex.Message}\r\n{ex}");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Returns the stored unique ID for the given device type and number, creating and persisting one if it does not yet exist.
+        /// </summary>
+        internal string GetDeviceUniqueId(string deviceType, int deviceId)
+        {
+            return (deviceType, deviceId) switch
+            {
+                ("SafetyMonitor", 0) => UniqueIdSafetyMonitor,
+                ("ObservingConditions", 0) => UniqueIdObservingConditions,
+                ("Switch", 0) => UniqueIdSwitch,
+                _ => Guid.NewGuid().ToString()
+            };
         }
 
         /// <summary>
