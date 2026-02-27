@@ -57,13 +57,13 @@
         foreach (AscomDevice device in AlpacaDevices)
         {
             logger.LogDebug("", $"GetDeviceNames - {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-            deviceNames.Add($"{device.AscomDeviceName} ({device.HostName}:{device.IpPort})");
+            deviceNames.Add($"{device.AscomDeviceName} (Alpaca {device.HostName}:{device.IpPort})");
         }
 
         foreach (ASCOMRegistration device in ComDevices)
         {
             logger.LogDebug("", $"GetDeviceNames - {device.Name}, {device.ProgID} ");
-            deviceNames.Add($"{device.Name} ({device.ProgID})");
+            deviceNames.Add($"{device.Name} (COM {device.ProgID})");
         }
 
         return deviceNames;

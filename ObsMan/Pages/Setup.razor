@@ -27,10 +27,10 @@
 <ObsManButton Click="@UpdateDeviceList" Text="Update Device List" />
 <ObsManButton Click="@UpdateDeviceList" Text="Connect to Devices" />
 
-
 <RadzenTabs Change=@OnTabChange style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
     <Tabs>
 
+        @*Observatory manager configuration*@
         <RadzenTabsItem Text="General Setup">
             <RadzenTabs style="margin-top:10px" RenderMode="TabRenderMode.Client">
                 <Tabs>
@@ -143,7 +143,6 @@
             </RadzenTabs>
         </RadzenTabsItem>
 
-        @*Conform configuration*@
         <RadzenTabsItem Text="Composite Observing Conditions Device">
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
@@ -190,8 +189,6 @@
 
     </Tabs>
 </RadzenTabs>
-
-
 
 @code {
     const string alignPoint = "250px"; // Right alignment for settings values in the general settings tab
