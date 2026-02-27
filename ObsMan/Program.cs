@@ -27,8 +27,8 @@ namespace ObsMan
         //Fill these out
         internal const string Manufacturer = "Peter Simpson";
 
-        internal const string ServerName = "Peter'sAlpaca Server";
-        internal const string ServerVersion = "1.0";
+        internal const string ServerName = "Observatory Manager";
+        internal const string ServerVersion = "0.1";
 
         internal static State state = new();
         internal static Settings settings = new Settings("");

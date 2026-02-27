@@ -32,83 +32,31 @@
     <Tabs>
 
         <RadzenTabsItem Text="General Setup">
-            <div class="row" style="margin-top: 10px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    Trace level
-                    <RadzenDropDown @bind-Value=@TraceLevel Data=@Enum.GetValues(typeof(LogLevel)) Style="margin-top:20px;margin-left:20px; margin-right:0px; " />
-
-                </RadzenCard>
-            </div>
-        </RadzenTabsItem>
-
-        @*Conform configuration*@
-        <RadzenTabsItem Text="Composite Observing Conditions Device">
-            <div class="row" style="margin-top: 10px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Device Selection</h4>
-
-                    <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
-                    <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
-                    <span style="display:inline-block; width:50px; text-align:center; margin:0"><b>Switch number</b></span>
-                    <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Description</b></span>
-
-                    <DeviceSelection PropertyName="PropertyName.RainRate" Property="Rain Rate" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.WindGust" Property="Wind Gust" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.WindDirection" Property="Wind Direction" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.StarFWHM" Property="Star FWHM" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.SkyTemperature" Property="Sky Temperature" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.SkyBrightness" Property="Sky Brightness" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                </RadzenCard>
-            </div>
-        </RadzenTabsItem>
-
-        <RadzenTabsItem Text="Composite Switch Device">
-            <div class="row" style="margin-top: 10px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
-                </RadzenCard>
-            </div>
-        </RadzenTabsItem>
-
-        <RadzenTabsItem Text="Composite Safety Monitor Device">
-            <div class="row" style="margin-top: 10px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
-                </RadzenCard>
-            </div>
-        </RadzenTabsItem>
-
-        <RadzenTabsItem Text="Safety Monitor Rules">
-            <div class="row" style="margin-top: 10px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
-                </RadzenCard>
-            </div>
-        </RadzenTabsItem>
-
-        <RadzenTabsItem Text="Server Settings">
             <RadzenTabs style="margin-top:10px" RenderMode="TabRenderMode.Client">
                 <Tabs>
 
                     <RadzenTabsItem Text="Server Settings">
                         <div class="row" style="margin-top: 10px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                                <p>Server Version: @Program.ServerVersion</p>
-                                <div style="margin-bottom: 10px">
-                                    <label>Server Location:</label>
+                                <div style="margin-bottom:10px">
+                                    <span style="display:inline-block;min-width:@alignPoint">Trace Level:</span>
+                                    <RadzenDropDown @bind-Value=@TraceLevel Data=@Enum.GetValues(typeof(LogLevel)) Style="margin-top:20px;margin-left:0px; margin-right:0px; " />
+                                </div>
+                                <div style="margin-bottom:10px">
+                                    <span style="display:inline-block;min-width:@alignPoint;">Server Version:</span>
+                                    @Program.ServerVersion
+                                </div>
+                                <div style="margin-bottom:10px">
+                                    <span style="display:inline-block;min-width:@alignPoint;">Server Location:</span>
                                     <input type="text" style="width:21ch;" @bind="SrvLocation">
                                 </div>
-                                <div style="margin-bottom: 10px">
-                                    <label>Allow Remote Access:</label>
+                                <div style="margin-bottom:10px">
+                                    <span style="display:inline-block;min-width:@alignPoint;">Allow Remote Access:</span>
                                     <input type="checkbox" @bind="SrvRemoteAccess">
                                 </div>
-                                <div style="margin-bottom: 10px">
-                                    <label>Server (Alpaca) Port:</label>
+                                <div style="margin-bottom:10px">
+                                    <span style="display:inline-block;min-width:@alignPoint;">Server (Alpaca) Port:</span>
                                     <input type="number" @bind="SrvServerPort" min="1" max="65535" style="width:20ch;">
-                                </div>
-                                <div style="margin-bottom: 10px">
-                                    <label>Require Strict API Compliance:</label>
-                                    <input type="checkbox" @bind="SrvStrictAPIMode">
                                 </div>
                             </RadzenCard>
                         </div>
@@ -187,23 +135,6 @@
                                 {
                                     <p style="color: @(_srvPasswordStatus.Contains("not match") ? "red" : "green")">@_srvPasswordStatus</p>
                                 }
-
-                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Log Settings</h4>
-                                <p>The logging system will log out at or above the specified level.</p>
-                                <div style="margin-bottom: 10px">
-                                    <label>Log Level:</label>
-                                    <RadzenDropDown @bind-Value=@SrvLoggingLevel Data=@Enum.GetValues(typeof(LogLevel)) Style="margin-left:10px;" />
-                                </div>
-
-                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">OpenAPI / Swagger</h4>
-                                <p>The OpenAPI / Swagger integration allows for the Alpaca API documentation to be shown by this server. It also allows calls to be made directly in the browser. Note that this will apply on the next time this driver runs.</p>
-
-                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Shutdown Driver</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <span>Shutdown:</span>
-                                    <input type="checkbox" @bind="SrvEnableShutdown">
-                                    <button @onclick="SrvShutdown" style="min-width:12ch; vertical-align:middle;" disabled="@SrvAllowShutdown">Shutdown</button>
-                                </div>
                             </RadzenCard>
                         </div>
                     </RadzenTabsItem>
@@ -212,12 +143,58 @@
             </RadzenTabs>
         </RadzenTabsItem>
 
+        @*Conform configuration*@
+        <RadzenTabsItem Text="Composite Observing Conditions Device">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Device Selection</h4>
+
+                    <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
+                    <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
+                    <span style="display:inline-block; width:50px; text-align:center; margin:0"><b>Switch number</b></span>
+                    <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Description</b></span>
+
+                    <DeviceSelection PropertyName="PropertyName.RainRate" Property="Rain Rate" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.WindGust" Property="Wind Gust" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.WindDirection" Property="Wind Direction" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.StarFWHM" Property="Star FWHM" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.SkyTemperature" Property="Sky Temperature" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.SkyBrightness" Property="Sky Brightness" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Composite Switch Device">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Composite Safety Monitor Device">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Safety Monitor Rules">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
+
     </Tabs>
 </RadzenTabs>
 
 
 
 @code {
+    const string alignPoint = "250px"; // Right alignment for settings values in the general settings tab
     AlpacaDiscovery? discovery;
     DotNetObjectReference<Setup>? objRef;
     LogLevel TraceLevel { get { return settings.LogLevel; } set { settings.LogLevel = value; settings.Save(); } }
