@@ -15,5 +15,8 @@
         internal const int LOG_TRUNCATION_CHARACTERS = 5000; // The number of characters by which to truncate the screen log when required.
         internal const bool ALPACA_SEARCH_STRICT_CASING = false;
         internal const string USER_AGENT_PRODUCT_NAME = "ObservatoryManager";
+
+        internal const  string SAFETY_MONITOR_DEVICE_NAME = "Observatory Manager - Safety Monitor";
+        internal const string OBSERVING_CONDITIONS_DEVICE_NAME = "Observatory Manager - Observing Conditions";
     }
 }

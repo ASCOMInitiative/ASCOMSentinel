@@ -157,8 +157,8 @@ namespace ObsMan
             DeviceManager.LoadConfiguration(new AlpacaConfiguration());
 
             // Add the safety monitor, observing conditions and switch devices that will be exposed to clients
-            DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.BasicMonitor(), "Really Basic Safety Monitor", settings.GetDeviceUniqueId("SafetyMonitor", 0));
-            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(), "Observing Conditions Device", settings.GetDeviceUniqueId("ObservingConditions", 0));
+            DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.BasicMonitor(), Globals.SAFETY_MONITOR_DEVICE_NAME, settings.GetDeviceUniqueId("SafetyMonitor", 0));
+            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(), Globals.OBSERVING_CONDITIONS_DEVICE_NAME, settings.GetDeviceUniqueId("ObservingConditions", 0));
             DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), "Switch Device", settings.GetDeviceUniqueId("Switch", 0));
 
             #region Finish Building and Start server

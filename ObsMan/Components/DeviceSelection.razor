@@ -6,7 +6,18 @@
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;">@PropertyName</span>
-    <RadzenDropDown @bind-Value=@value Data=@GetDeviceNames() Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 600px; text-align:left;" Name="DropDownBindValue" />
+    <RadzenDropDown @bind-Value=@value Data=@GetDeviceNames() Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;" Name="DropDownBindValue">
+        <Template Context="item">
+            <span style="color: @(item.Contains(":") ? "DodgerBlue" : "LightSeaGreen")">
+                @item
+            </span>
+        </Template>
+    </RadzenDropDown>
+
+
+
+
+
     <RadzenNumeric @bind-Value=@switchNumber InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" Style="width:50px; margin:0px" Min=0 TextAlign="TextAlign.Center" />
     <RadzenTextArea @bind-Value=@SomeValue
                     Rows="1"
@@ -15,6 +26,9 @@
 </div>
 
 @code {
+    IEnumerable<string> dropdownItems = new List<string> { "Normal", "Warning", "Critical" };
+    string selectedItem;
+
     string value = "";
     int switchNumber = 0;
 
@@ -53,17 +67,22 @@
     {
         List<String> deviceNames = new();
 
+        // Add discovered Alpaca devices
         logger.LogDebug("", $"GetDeviceNames - Found {AlpacaDevices.Count()} devices.");
         foreach (AscomDevice device in AlpacaDevices)
         {
-            logger.LogDebug("", $"GetDeviceNames - {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-            deviceNames.Add($"{device.AscomDeviceName} (Alpaca {device.HostName}:{device.IpPort})");
+            // Exclude the observatory manager observing conditions device from the list
+            if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
+            {
+                logger.LogDebug("", $"GetDeviceNames - {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
+                deviceNames.Add($"{device.AscomDeviceName} ({device.HostName}:{device.IpPort})");
+            }
         }
 
         foreach (ASCOMRegistration device in ComDevices)
         {
             logger.LogDebug("", $"GetDeviceNames - {device.Name}, {device.ProgID} ");
-            deviceNames.Add($"{device.Name} (COM {device.ProgID})");
+            deviceNames.Add($"{device.Name} ({device.ProgID})");
         }
 
         return deviceNames;
