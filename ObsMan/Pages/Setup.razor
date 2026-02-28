@@ -153,12 +153,12 @@
                     <span style="display:inline-block; width:50px; text-align:center; margin:0"><b>Switch number</b></span>
                     <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Description</b></span>
 
-                    <DeviceSelection PropertyName="PropertyName.RainRate" Property="Rain Rate" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.WindGust" Property="Wind Gust" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.WindDirection" Property="Wind Direction" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.StarFWHM" Property="Star FWHM" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.SkyTemperature" Property="Sky Temperature" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
-                    <DeviceSelection PropertyName="PropertyName.SkyBrightness" Property="Sky Brightness" AlpacaDevices=@ObservingConditionsDevicesAlpaca ComDevices="@ObservingConditionsDevicesCom" />
+                    <DeviceSelection PropertyName="PropertyName.RainRate" Property="Rain Rate" ConfiguredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.WindGust" Property="Wind Gust" ConfiguredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.WindDirection" Property="Wind Direction" ConfiguredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.StarFWHM" Property="Star FWHM" ConfiguredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.SkyTemperature" Property="Sky Temperature" ConfiguredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.SkyBrightness" Property="Sky Brightness" ConfiguredDevices=@discoveredDevices />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -240,6 +240,7 @@
     private List<ASCOMRegistration> ObservingConditionsDevicesCom { get; set; } = new();
     private List<AscomDevice> SwitchDevices { get; set; } = new();
     private List<AscomDevice> SafetyMonitorDevices { get; set; } = new();
+    private List<ConfiguredDevice> discoveredDevices = new List<ConfiguredDevice>();
 
     private async void AlpacaDiscoveryCompleted(object? caller, EventArgs args)
     {
@@ -273,6 +274,48 @@
         {
             //logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM SafetyMonitor device: {driver.Name} ({driver.ProgID})");
         }
+
+
+        discoveredDevices.Clear();
+
+        // Add discovered Alpaca devices
+        logger.LogDebug("", $"GetDeviceNames - Found {ObservingConditionsDevicesAlpaca.Count()} devices.");
+
+        foreach (AscomDevice device in ObservingConditionsDevicesAlpaca)
+        {
+            // Exclude the observatory manager observing conditions device from the list
+            if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
+            {
+                logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
+                discoveredDevices.Add(new ConfiguredDevice
+                {
+                    Protocol = Protocol.Alpaca,
+                    DeviceType = ASCOM.Common.DeviceTypes.ObservingConditions,
+                    Name = device.AscomDeviceName,
+                    HostName = device.HostName,
+                    IpPort = device.IpPort
+                });
+            }
+        }
+
+        foreach (ASCOMRegistration device in ObservingConditionsDevicesCom)
+        {
+            logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
+            discoveredDevices.Add(new ConfiguredDevice
+            {
+                Protocol = Protocol.COM,
+                DeviceType = ASCOM.Common.DeviceTypes.ObservingConditions,
+                Name = device.Name,
+                ProgID = device.ProgID
+            });
+        }
+
+        foreach (ConfiguredDevice device in discoveredDevices)
+        {
+            logger.LogMessage("", $"Discovered device: {device.DeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+        }
+
+        logger.LogMessage("", $"Discovery complete.");
 
         await InvokeAsync(StateHasChanged);
 

@@ -6,17 +6,19 @@
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;">@PropertyName</span>
-    <RadzenDropDown @bind-Value=@value Data=@GetDeviceNames() Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;" Name="DropDownBindValue">
+    <RadzenDropDown @bind-Value=@value
+                    Data=@ConfiguredDevices
+                    TValue="string"
+                    TextProperty="@nameof(ConfiguredDevice.DisplayName)"
+                    ValueProperty="@nameof(ConfiguredDevice.Id)"
+                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;"
+                    Name="DropDownBindValue">
         <Template Context="item">
-            <span style="color: @(item.Contains(":") ? "DodgerBlue" : "LightSeaGreen");font-size:1rem">
-                @item
+            <span style="color: @((item.IpPort != 0) ? "DodgerBlue" : "LightSeaGreen");font-size:1rem">
+                @item.DisplayName
             </span>
         </Template>
     </RadzenDropDown>
-
-
-
-
 
     <RadzenNumeric @bind-Value=@switchNumber InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" Style="width:50px; margin:0px" Min=0 TextAlign="TextAlign.Center" />
     <RadzenTextArea @bind-Value=@SomeValue
@@ -26,17 +28,22 @@
 </div>
 
 @code {
+    //<RadzenDropDown @bind-Value=@customerID TValue="string" Data=@customers TextProperty="CompanyName" ValueProperty="CustomerID" />
+    public List<ConfiguredDevice> GetNames()
+    {
+        //return new List<string> { "Device 1", "Device 2", "Device 3" };
+        return new List<ConfiguredDevice> { new ConfiguredDevice() { Name = "Device 1", ProgID = "ASCOM.Device1" } };
+    }
+
     IEnumerable<string> dropdownItems = new List<string> { "Normal", "Warning", "Critical" };
-    string selectedItem;
 
     string value = "";
     int switchNumber = 0;
 
-    [Parameter]
-    public IEnumerable<AscomDevice> AlpacaDevices { get { logger.LogDebug("", $"AlpacaDevices Get {field.Count()}"); return field; } set { field = value; logger.LogDebug("", $"AlpacaDevices Set {field.Count()}"); } } = new List<AscomDevice>();
 
     [Parameter]
-    public IEnumerable<ASCOMRegistration> ComDevices { get { logger.LogDebug("", $"ComDevices Get {field.Count()}"); return field; } set { field = value; logger.LogDebug("", $"ComDevices Set {field.Count()}"); } } = new List<ASCOMRegistration>();
+    public IEnumerable<ConfiguredDevice> ConfiguredDevices { get; set; } = Enumerable.Empty<ConfiguredDevice>();
+
     [Parameter]
     public string Property { get; set; } = "Not set";
 
@@ -60,31 +67,5 @@
             return "Default string";
         }
         set { }
-    }
-
-
-    private IEnumerable<string> GetDeviceNames()
-    {
-        List<String> deviceNames = new();
-
-        // Add discovered Alpaca devices
-        logger.LogDebug("", $"GetDeviceNames - Found {AlpacaDevices.Count()} devices.");
-        foreach (AscomDevice device in AlpacaDevices)
-        {
-            // Exclude the observatory manager observing conditions device from the list
-            if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
-            {
-                logger.LogDebug("", $"GetDeviceNames - {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-                deviceNames.Add($"{device.AscomDeviceName} (http://{device.HostName}:{device.IpPort})");
-            }
-        }
-
-        foreach (ASCOMRegistration device in ComDevices)
-        {
-            logger.LogDebug("", $"GetDeviceNames - {device.Name}, {device.ProgID} ");
-            deviceNames.Add($"{device.Name} ({device.ProgID})");
-        }
-
-        return deviceNames;
     }
 }

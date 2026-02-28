@@ -205,10 +205,6 @@ namespace ObsMan
             // Add event handler to detect when the browser closes
             builder.Services.AddSingleton<CircuitHandler, CircuitHandlerService>();
 
-
-
-
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
