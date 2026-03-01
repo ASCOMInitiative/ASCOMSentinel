@@ -151,19 +151,19 @@
                     <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
                     <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
 
-                    <DeviceSelection Property="PropertyName.CloudCover" PropertyDescription="Cloud Cover" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
-                    <DeviceSelection Property="PropertyName.DewPoint" PropertyDescription="Dew Point" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
-                    <DeviceSelection Property="PropertyName.Humidity" PropertyDescription="Humidity" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
-                    <DeviceSelection Property="PropertyName.Pressure" PropertyDescription="Pressure" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
-                    <DeviceSelection Property="PropertyName.RainRate" PropertyDescription="Rain Rate" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
-                    <DeviceSelection Property="PropertyName.SkyBrightness" PropertyDescription="Sky Brightness" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
-                    <DeviceSelection Property="PropertyName.SkyQuality" PropertyDescription="Sky Quality" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
-                    <DeviceSelection Property="PropertyName.SkyTemperature" PropertyDescription="Sky Temperature" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
-                    <DeviceSelection Property="PropertyName.StarFWHM" PropertyDescription="Star FWHM" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
-                    <DeviceSelection Property="PropertyName.Temperature" PropertyDescription="Temperature" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
-                    <DeviceSelection Property="PropertyName.WindDirection" PropertyDescription="Wind Direction" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
-                    <DeviceSelection Property="PropertyName.WindGust" PropertyDescription="Wind Gust" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
-                    <DeviceSelection Property="PropertyName.WindSpeed" PropertyDescription="Wind Speed" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
+                    <DeviceSelection Property="PropertyName.CloudCover" PropertyDescription="Cloud Cover" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
+                    <DeviceSelection Property="PropertyName.DewPoint" PropertyDescription="Dew Point" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
+                    <DeviceSelection Property="PropertyName.Humidity" PropertyDescription="Humidity" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
+                    <DeviceSelection Property="PropertyName.Pressure" PropertyDescription="Pressure" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
+                    <DeviceSelection Property="PropertyName.RainRate" PropertyDescription="Rain Rate" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
+                    <DeviceSelection Property="PropertyName.SkyBrightness" PropertyDescription="Sky Brightness" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
+                    <DeviceSelection Property="PropertyName.SkyQuality" PropertyDescription="Sky Quality" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
+                    <DeviceSelection Property="PropertyName.SkyTemperature" PropertyDescription="Sky Temperature" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
+                    <DeviceSelection Property="PropertyName.StarFWHM" PropertyDescription="Star FWHM" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
+                    <DeviceSelection Property="PropertyName.Temperature" PropertyDescription="Temperature" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
+                    <DeviceSelection Property="PropertyName.WindDirection" PropertyDescription="Wind Direction" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
+                    <DeviceSelection Property="PropertyName.WindGust" PropertyDescription="Wind Gust" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
+                    <DeviceSelection Property="PropertyName.WindSpeed" PropertyDescription="Wind Speed" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -179,7 +179,21 @@
         <RadzenTabsItem Text="Composite Safety Monitor Device">
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Device Selection</h4>
+
+                    <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
+                    <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
+
+                    <DeviceSelection Property="PropertyName.SafetyMonitor0" PropertyDescription="Safety monitor 0" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor0]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor1" PropertyDescription="Safety monitor 1" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor1]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor2" PropertyDescription="Safety monitor 2" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor2]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor3" PropertyDescription="Safety monitor 3" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor3]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor4" PropertyDescription="Safety monitor 4" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor4]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor5" PropertyDescription="Safety monitor 5" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor5]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor6" PropertyDescription="Safety monitor 6" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor6]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor7" PropertyDescription="Safety monitor 7" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor7]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor8" PropertyDescription="Safety monitor 8" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor8]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor9" PropertyDescription="Safety monitor 9" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor9]" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -244,8 +258,10 @@
     private List<AscomDevice> ObservingConditionsDevicesAlpaca { get; set; } = new();
     private List<ASCOMRegistration> ObservingConditionsDevicesCom { get; set; } = new();
     private List<AscomDevice> SwitchDevices { get; set; } = new();
-    private List<AscomDevice> SafetyMonitorDevices { get; set; } = new();
-    private List<DiscoveredDevice> discoveredDevices = new List<DiscoveredDevice>();
+    private List<AscomDevice> SafetyMonitorDevicesAlpaca { get; set; } = new();
+    private List<ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
+    private List<DiscoveredDevice> observingConditionsDevices = new List<DiscoveredDevice>();
+    private List<DiscoveredDevice> safetyMonitorDevices = new List<DiscoveredDevice>();
 
     private async void AlpacaDiscoveryCompleted(object? caller, EventArgs args)
     {
@@ -254,7 +270,7 @@
 
         logger.LogDebug("AlpacaDiscoveryCompleted", $"AlpacaDiscoveryCompleted - Found {ObservingConditionsDevicesAlpaca.Count} devices");
         SwitchDevices = discovery.GetAscomDevices(DeviceTypes.Switch);
-        SafetyMonitorDevices = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
+        SafetyMonitorDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
 
         foreach (AscomDevice device in discovery.GetAscomDevices(null))
         {
@@ -277,11 +293,12 @@
         drivers = Profile.GetDrivers(DeviceTypes.SafetyMonitor);
         foreach (ASCOMRegistration driver in drivers)
         {
-            //logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM SafetyMonitor device: {driver.Name} ({driver.ProgID})");
+            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
+            SafetyMonitorDevicesCom.Add(driver);
         }
 
 
-        discoveredDevices.Clear();
+        observingConditionsDevices.Clear();
 
         // Add discovered Alpaca devices
         logger.LogDebug("", $"GetDeviceNames - Found {ObservingConditionsDevicesAlpaca.Count()} devices.");
@@ -292,7 +309,7 @@
             if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
             {
                 logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-                discoveredDevices.Add(new DiscoveredDevice
+                observingConditionsDevices.Add(new DiscoveredDevice
                 {
                     Protocol = Protocol.Alpaca,
                     ObsManDeviceType = ObsManDeviceType.ObservingConditions,
@@ -306,7 +323,7 @@
         foreach (ASCOMRegistration device in ObservingConditionsDevicesCom)
         {
             logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
-            discoveredDevices.Add(new DiscoveredDevice
+            observingConditionsDevices.Add(new DiscoveredDevice
             {
                 Protocol = Protocol.COM,
                 ObsManDeviceType = ObsManDeviceType.ObservingConditions,
@@ -315,10 +332,51 @@
             });
         }
 
-        foreach (DiscoveredDevice device in discoveredDevices)
+        foreach (DiscoveredDevice device in observingConditionsDevices)
         {
             logger.LogMessage("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
         }
+
+        safetyMonitorDevices.Clear();
+
+        // Add discovered Alpaca devices
+        logger.LogDebug("", $"GetDeviceNames - Found {SafetyMonitorDevicesAlpaca.Count()} Alpaca safety monitor devices.");
+
+        foreach (AscomDevice device in SafetyMonitorDevicesAlpaca)
+        {
+            // Exclude the observatory manager observing conditions device from the list
+            if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
+            {
+                logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
+                safetyMonitorDevices.Add(new DiscoveredDevice
+                {
+                    Protocol = Protocol.Alpaca,
+                    ObsManDeviceType = ObsManDeviceType.SafetyMonitor,
+                    Name = device.AscomDeviceName,
+                    HostName = device.HostName,
+                    IpPort = device.IpPort
+                });
+            }
+        }
+
+        foreach (ASCOMRegistration device in SafetyMonitorDevicesCom)
+        {
+            logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
+            safetyMonitorDevices.Add(new DiscoveredDevice
+            {
+                Protocol = Protocol.COM,
+                ObsManDeviceType = ObsManDeviceType.SafetyMonitor,
+                Name = device.Name,
+                ProgID = device.ProgID
+            });
+        }
+
+        foreach (DiscoveredDevice device in safetyMonitorDevices)
+        {
+            logger.LogMessage("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+        }
+
+
 
         logger.LogMessage("", $"Discovery complete.");
 

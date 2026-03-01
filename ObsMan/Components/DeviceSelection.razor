@@ -34,7 +34,7 @@
         if (args == null)
             return;
         DiscoveredDevice device = (DiscoveredDevice)args;
-        logger.LogMessage("", $"DropDownChanged - Selected value: {device.DisplayName} {bindValue.Id}");
+        logger.LogMessage("", $"DropDownChanged - Selected value: {device.DisplayName} {device.Id}");
 
         settings.ConfiguredDevices[Property] = device;
         logger.LogMessage("", $"DropDownChanged - Set device");
