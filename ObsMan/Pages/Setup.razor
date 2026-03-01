@@ -153,17 +153,24 @@
                     <span style="display:inline-block; width:50px; text-align:center; margin:0"><b>Switch number</b></span>
                     <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Description</b></span>
 
-                    <DeviceSelection PropertyName="PropertyName.RainRate" Property="Rain Rate" DiscoveredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.WindGust" Property="Wind Gust" DiscoveredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.WindDirection" Property="Wind Direction" DiscoveredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.StarFWHM" Property="Star FWHM" DiscoveredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.SkyTemperature" Property="Sky Temperature" DiscoveredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.SkyBrightness" Property="Sky Brightness" DiscoveredDevices=@discoveredDevices />
+                    <DeviceSelection Property="PropertyName.CloudCover" PropertyDescription="Cloud Cover" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
+                    <DeviceSelection Property="PropertyName.DewPoint" PropertyDescription="Dew Point" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
+                    <DeviceSelection Property="PropertyName.Humidity" PropertyDescription="Humidity" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
+                    <DeviceSelection Property="PropertyName.Pressure" PropertyDescription="Pressure" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
+                    <DeviceSelection Property="PropertyName.RainRate" PropertyDescription="Rain Rate" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
+                    <DeviceSelection Property="PropertyName.SkyBrightness" PropertyDescription="Sky Brightness" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
+                    <DeviceSelection Property="PropertyName.SkyQuality" PropertyDescription="Sky Quality" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
+                    <DeviceSelection Property="PropertyName.SkyTemperature" PropertyDescription="Sky Temperature" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
+                    <DeviceSelection Property="PropertyName.StarFWHM" PropertyDescription="Star FWHM" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
+                    <DeviceSelection Property="PropertyName.Temperature" PropertyDescription="Temperature" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
+                    <DeviceSelection Property="PropertyName.WindDirection" PropertyDescription="Wind Direction" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
+                    <DeviceSelection Property="PropertyName.WindGust" PropertyDescription="Wind Gust" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
+                    <DeviceSelection Property="PropertyName.WindSpeed" PropertyDescription="Wind Speed" DiscoveredDevices=@discoveredDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
 
-        <RadzenTabsItem Text="Composite Switch Device">
+        <RadzenTabsItem Text="Composite Switch Device" Visible="false">
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
@@ -290,7 +297,7 @@
                 discoveredDevices.Add(new DiscoveredDevice
                 {
                     Protocol = Protocol.Alpaca,
-                    DeviceType = ASCOM.Common.DeviceTypes.ObservingConditions,
+                    ObsManDeviceType = ObsManDeviceType.ObservingConditions,
                     Name = device.AscomDeviceName,
                     HostName = device.HostName,
                     IpPort = device.IpPort
@@ -304,7 +311,7 @@
             discoveredDevices.Add(new DiscoveredDevice
             {
                 Protocol = Protocol.COM,
-                DeviceType = ASCOM.Common.DeviceTypes.ObservingConditions,
+                ObsManDeviceType = ObsManDeviceType.ObservingConditions,
                 Name = device.Name,
                 ProgID = device.ProgID
             });
@@ -312,7 +319,7 @@
 
         foreach (DiscoveredDevice device in discoveredDevices)
         {
-            logger.LogMessage("", $"Discovered device: {device.DeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+            logger.LogMessage("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
         }
 
         logger.LogMessage("", $"Discovery complete.");
@@ -322,7 +329,7 @@
         // alpacaDiscoveryProgress += $"Discovery complete!";
         // ResizeStatusArea();
         // ascomDevices = new();
-        // foreach (AscomDevice device in discovery.GetAscomDevices(Enum.Parse<DeviceTypes>(selectedDeviceTypeString)))
+        // foreach (AscomDevice device in discovery.GetAscomDevices(Enum.Parse<ObsManDeviceTypes>(selectedObsManDeviceTypeString)))
         // {
         //     ascomDevices.Add(new AlpacaDeviceListItem($"{device.AscomDeviceName} ({device.IpAddress})", device));
 

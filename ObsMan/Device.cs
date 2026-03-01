@@ -58,7 +58,7 @@ namespace ObsMan
 
         public string ProgId { get; set; } = string.Empty;
 
-        public DeviceTypes DeviceType { get; set; } = DeviceTypes.SafetyMonitor;
+        public ObsManDeviceType ObsManDeviceType { get; set; } = ObsManDeviceType.SafetyMonitor;
 
         #endregion
 

@@ -21,7 +21,7 @@ namespace ObsMan
             }
         }
 
-        public DeviceTypes DeviceType { get; set; } = DeviceTypes.Video;
+        public ObsManDeviceType ObsManDeviceType { get; set; } = ObsManDeviceType.NotSet;
         public string Name { get; set; } = "UnknownName";
         public string HostName { get; set; } = "UnknownHostName";
         public int IpPort { get; set; } = 0;
@@ -51,9 +51,9 @@ namespace ObsMan
         {
             if (observingConditionsDevice is null)
             {
-                switch (DeviceType)
+                switch (ObsManDeviceType)
                 {
-                    case DeviceTypes.ObservingConditions:
+                    case ObsManDeviceType.ObservingConditions:
                         if (observingConditionsDevice is null)
                         {
                             switch (Protocol)
@@ -79,16 +79,16 @@ namespace ObsMan
                         }
                         break;
 
-                    case DeviceTypes.SafetyMonitor:
-                    case DeviceTypes.Switch:
-                        throw new InvalidValueException($"This is an ObservingConditions device not a {DeviceType} device.");
+                    case ObsManDeviceType.SafetyMonitor:
+                    case ObsManDeviceType.Switch:
+                        throw new InvalidValueException($"This is an ObservingConditions device not a {ObsManDeviceType} device.");
 
                     // Default value so do nothing
-                    case DeviceTypes.Video:
+                    case ObsManDeviceType.NotSet:
                         break;
 
                     default:
-                        throw new InvalidValueException($"Device type {DeviceType} not supported.");
+                        throw new InvalidValueException($"Device type {ObsManDeviceType} not supported.");
                 }
             }
 
@@ -102,9 +102,9 @@ namespace ObsMan
         {
             if (safetyMonitorDevice is null)
             {
-                switch (DeviceType)
+                switch (ObsManDeviceType)
                 {
-                    case DeviceTypes.SafetyMonitor:
+                    case ObsManDeviceType.SafetyMonitor:
                         if (safetyMonitorDevice is null)
                         {
                             switch (Protocol)
@@ -130,16 +130,16 @@ namespace ObsMan
                         }
                         break;
 
-                    case DeviceTypes.ObservingConditions:
-                    case DeviceTypes.Switch:
-                        throw new InvalidValueException($"This is a SafetyMonitor device not a {DeviceType} device.");
+                    case ObsManDeviceType.ObservingConditions:
+                    case ObsManDeviceType.Switch:
+                        throw new InvalidValueException($"This is a SafetyMonitor device not a {ObsManDeviceType} device.");
 
                     // Default value so do nothing
-                    case DeviceTypes.Video:
+                    case ObsManDeviceType.NotSet:
                         break;
 
                     default:
-                        throw new InvalidValueException($"Device type {DeviceType} not supported.");
+                        throw new InvalidValueException($"Device type {ObsManDeviceType} not supported.");
                 }
             }
         }

@@ -6,8 +6,8 @@
 @inject Settings settings
 
 <div>
-    <span style="display:inline-block; width:150px; margin:0px; text-align:left;">@PropertyName</span>
-    <RadzenDropDown @bind-Value=@value
+    <span style="display:inline-block; width:150px; margin:0px; text-align:left;">@PropertyDescription</span>
+    <RadzenDropDown @bind-Value=@bindValue
                     Data=@DiscoveredDevices
                     TValue="DiscoveredDevice"
                     TextProperty="@nameof(DiscoveredDevice.DisplayName)"
@@ -31,7 +31,7 @@
 @code {
     IEnumerable<string> dropdownItems = new List<string> { "Normal", "Warning", "Critical" };
 
-    DiscoveredDevice? value = null;
+    DiscoveredDevice? bindValue = null;
     int switchNumber = 0;
 
     private void DropDownChanged(object args)
@@ -39,9 +39,9 @@
         if (args == null)
             return;
         DiscoveredDevice device = (DiscoveredDevice)args;
-        logger.LogMessage("", $"DropDownChanged - Selected value: {device.DisplayName} {value.Id}");
+        logger.LogMessage("", $"DropDownChanged - Selected value: {device.DisplayName} {bindValue.Id}");
 
-        settings.ConfiguredDevices[PropertyName] = device;
+        settings.ConfiguredDevices[Property] = device;
         logger.LogMessage("", $"DropDownChanged - Set device");
         settings.Save();
         logger.LogMessage("", $"DropDownChanged - Saved settings");
@@ -51,10 +51,13 @@
     public IEnumerable<DiscoveredDevice> DiscoveredDevices { get; set; } = Enumerable.Empty<DiscoveredDevice>();
 
     [Parameter]
-    public string Property { get; set; } = "Not set";
+    public string PropertyDescription { get; set; } = "Not set";
 
     [Parameter]
-    public PropertyName PropertyName { get; set; }
+    public DiscoveredDevice CurrentValue { get { return bindValue; } set { bindValue = value; } } 
+
+    [Parameter]
+    public PropertyName Property { get; set; }
 
     static int valueIndex;
     string SomeValue
