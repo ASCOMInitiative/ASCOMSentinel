@@ -18,5 +18,6 @@
 
         internal const  string SAFETY_MONITOR_DEVICE_NAME = "Observatory Manager - Safety Monitor";
         internal const string OBSERVING_CONDITIONS_DEVICE_NAME = "Observatory Manager - Observing Conditions";
+
     }
 }

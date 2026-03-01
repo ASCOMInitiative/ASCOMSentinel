@@ -153,12 +153,12 @@
                     <span style="display:inline-block; width:50px; text-align:center; margin:0"><b>Switch number</b></span>
                     <span style="display:inline-block; width:400px; text-align:center; margin:0"><b>Description</b></span>
 
-                    <DeviceSelection PropertyName="PropertyName.RainRate" Property="Rain Rate" ConfiguredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.WindGust" Property="Wind Gust" ConfiguredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.WindDirection" Property="Wind Direction" ConfiguredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.StarFWHM" Property="Star FWHM" ConfiguredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.SkyTemperature" Property="Sky Temperature" ConfiguredDevices=@discoveredDevices />
-                    <DeviceSelection PropertyName="PropertyName.SkyBrightness" Property="Sky Brightness" ConfiguredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.RainRate" Property="Rain Rate" DiscoveredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.WindGust" Property="Wind Gust" DiscoveredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.WindDirection" Property="Wind Direction" DiscoveredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.StarFWHM" Property="Star FWHM" DiscoveredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.SkyTemperature" Property="Sky Temperature" DiscoveredDevices=@discoveredDevices />
+                    <DeviceSelection PropertyName="PropertyName.SkyBrightness" Property="Sky Brightness" DiscoveredDevices=@discoveredDevices />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -240,7 +240,7 @@
     private List<ASCOMRegistration> ObservingConditionsDevicesCom { get; set; } = new();
     private List<AscomDevice> SwitchDevices { get; set; } = new();
     private List<AscomDevice> SafetyMonitorDevices { get; set; } = new();
-    private List<ConfiguredDevice> discoveredDevices = new List<ConfiguredDevice>();
+    private List<DiscoveredDevice> discoveredDevices = new List<DiscoveredDevice>();
 
     private async void AlpacaDiscoveryCompleted(object? caller, EventArgs args)
     {
@@ -287,7 +287,7 @@
             if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
             {
                 logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-                discoveredDevices.Add(new ConfiguredDevice
+                discoveredDevices.Add(new DiscoveredDevice
                 {
                     Protocol = Protocol.Alpaca,
                     DeviceType = ASCOM.Common.DeviceTypes.ObservingConditions,
@@ -301,7 +301,7 @@
         foreach (ASCOMRegistration device in ObservingConditionsDevicesCom)
         {
             logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
-            discoveredDevices.Add(new ConfiguredDevice
+            discoveredDevices.Add(new DiscoveredDevice
             {
                 Protocol = Protocol.COM,
                 DeviceType = ASCOM.Common.DeviceTypes.ObservingConditions,
@@ -310,7 +310,7 @@
             });
         }
 
-        foreach (ConfiguredDevice device in discoveredDevices)
+        foreach (DiscoveredDevice device in discoveredDevices)
         {
             logger.LogMessage("", $"Discovered device: {device.DeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
         }

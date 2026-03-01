@@ -3,15 +3,16 @@
 @using ASCOM.Com
 
 @inject ObsManLogger logger
+@inject Settings settings
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;">@PropertyName</span>
     <RadzenDropDown @bind-Value=@value
-                    Data=@ConfiguredDevices
-                    TValue="string"
-                    TextProperty="@nameof(ConfiguredDevice.DisplayName)"
-                    ValueProperty="@nameof(ConfiguredDevice.Id)"
+                    Data=@DiscoveredDevices
+                    TValue="DiscoveredDevice"
+                    TextProperty="@nameof(DiscoveredDevice.DisplayName)"
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;"
+                    Change="(args)=>DropDownChanged(args)"
                     Name="DropDownBindValue">
         <Template Context="item">
             <span style="color: @((item.IpPort != 0) ? "DodgerBlue" : "LightSeaGreen");font-size:1rem">
@@ -28,21 +29,26 @@
 </div>
 
 @code {
-    //<RadzenDropDown @bind-Value=@customerID TValue="string" Data=@customers TextProperty="CompanyName" ValueProperty="CustomerID" />
-    public List<ConfiguredDevice> GetNames()
-    {
-        //return new List<string> { "Device 1", "Device 2", "Device 3" };
-        return new List<ConfiguredDevice> { new ConfiguredDevice() { Name = "Device 1", ProgID = "ASCOM.Device1" } };
-    }
-
     IEnumerable<string> dropdownItems = new List<string> { "Normal", "Warning", "Critical" };
 
-    string value = "";
+    DiscoveredDevice? value = null;
     int switchNumber = 0;
 
+    private void DropDownChanged(object args)
+    {
+        if (args == null)
+            return;
+        DiscoveredDevice device = (DiscoveredDevice)args;
+        logger.LogMessage("", $"DropDownChanged - Selected value: {device.DisplayName} {value.Id}");
+
+        settings.ConfiguredDevices[PropertyName] = device;
+        logger.LogMessage("", $"DropDownChanged - Set device");
+        settings.Save();
+        logger.LogMessage("", $"DropDownChanged - Saved settings");
+    }
 
     [Parameter]
-    public IEnumerable<ConfiguredDevice> ConfiguredDevices { get; set; } = Enumerable.Empty<ConfiguredDevice>();
+    public IEnumerable<DiscoveredDevice> DiscoveredDevices { get; set; } = Enumerable.Empty<DiscoveredDevice>();
 
     [Parameter]
     public string Property { get; set; } = "Not set";

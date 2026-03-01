@@ -11,7 +11,7 @@ namespace ObsMan
     {
         #region Constants and variables
 
-        private static LogLevel LOGGING_LEVEL = LogLevel.Information;
+        private static LogLevel LOGGING_LEVEL = LogLevel.Debug;
 
         private const int SETTINGS_COMPATIBILTY_VERSION = 1; // Current settings file version number
 
@@ -239,7 +239,37 @@ namespace ObsMan
 
         #region Public persisted properties
 
-        public bool TraceAlpacaDiscovery = false;
+        // NOTE Values to be persisted must be defined as PROPERTIES rather than FIELDS.
+        // If they are not properties they will NOT be included in the serialised JSON string.
+
+        public Dictionary<PropertyName, DiscoveredDevice> ConfiguredDevices { get; set; } = new()
+        {
+            { PropertyName.CloudCover, new DiscoveredDevice() },
+            { PropertyName.DewPoint, new DiscoveredDevice() },
+            { PropertyName.Humidity, new DiscoveredDevice() },
+            { PropertyName.Pressure, new DiscoveredDevice() },
+            { PropertyName.RainRate, new DiscoveredDevice() },
+            { PropertyName.SkyBrightness, new DiscoveredDevice() },
+            { PropertyName.SkyQuality, new DiscoveredDevice() },
+            { PropertyName.SkyTemperature, new DiscoveredDevice() },
+            { PropertyName.StarFWHM, new DiscoveredDevice() },
+            { PropertyName.Temperature, new DiscoveredDevice() },
+            { PropertyName.WindDirection, new DiscoveredDevice() },
+            { PropertyName.WindGust, new DiscoveredDevice() },
+            { PropertyName.WindSpeed, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor0, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor1, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor2, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor3, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor4, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor5, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor6, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor7, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor8, new DiscoveredDevice() },
+            { PropertyName.SafetyMonitor9, new DiscoveredDevice() }
+        };
+
+        public bool TraceAlpacaDiscovery { get; set; } = false;
 
         public int SettingsCompatibilityVersion { get; set; } = SETTINGS_COMPATIBILTY_VERSION;
 

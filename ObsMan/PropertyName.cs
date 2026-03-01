@@ -2,11 +2,28 @@
 {
     public enum PropertyName
     {
+        CloudCover,
+        DewPoint,
+        Humidity,
+        Pressure,
         RainRate,
-        WindGust,
-        WindDirection,
-        StarFWHM,
+        SkyBrightness,
+        SkyQuality,
         SkyTemperature,
-        SkyBrightness
+        StarFWHM,
+        Temperature,
+        WindDirection,
+        WindGust,
+        WindSpeed,
+        SafetyMonitor0,
+        SafetyMonitor1,
+        SafetyMonitor2,
+        SafetyMonitor3,
+        SafetyMonitor4,
+        SafetyMonitor5,
+        SafetyMonitor6,
+        SafetyMonitor7,
+        SafetyMonitor8,
+        SafetyMonitor9
     }
 }
