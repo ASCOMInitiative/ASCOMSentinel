@@ -21,11 +21,6 @@
         </Template>
     </RadzenDropDown>
 
-    <RadzenNumeric @bind-Value=@switchNumber InputAttributes="@(new Dictionary<string, object>() { { "aria-label", "enter value" } })" Style="width:50px; margin:0px" Min=0 TextAlign="TextAlign.Center" />
-    <RadzenTextArea @bind-Value=@SomeValue
-                    Rows="1"
-                    ReadOnly="true"
-                    Style="max-width:400px; min-width:400px;vertical-align:bottom; resize:none" />
 </div>
 
 @code {
