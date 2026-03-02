@@ -52,10 +52,22 @@
 
     private async Task Connect()
     {
-        logger.LogMessage("Connect", "About to invert Trace value");
-        settings.Save();
-        logger.LogDebug("Connect", $"Spurious debug message!");
-        logger.LogError("Connect", $"Spurious error message!");
+        //List<DiscoveredDevice> UniqueDevices =  
+        List < DiscoveredDevice > uniqueDevices = settings.ConfiguredDevices.Values
+            .Where(d => d.ObsManDeviceType != ObsManDeviceType.NotSet)
+            .DistinctBy(d => (d.ObsManDeviceType, d.ProgID, d.HostName, d.IpPort)).ToList();
+
+        foreach (DiscoveredDevice device in uniqueDevices)
+        {
+            logger.LogMessage("Connect", $"Connecting to {device.DisplayName} at {device.HostName}:{device.IpPort} using {device.Protocol} protocol");
+        }
+
+        foreach (PropertyName property in Enum.GetValues<PropertyName>())
+        {
+            logger.LogMessage("Property", $"Property: {property}");
+
+        }
+
     }
 
     private int LastnumberOfLogLines()

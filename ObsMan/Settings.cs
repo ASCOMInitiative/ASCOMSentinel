@@ -11,7 +11,7 @@ namespace ObsMan
     {
         #region Constants and variables
 
-        private static LogLevel LOGGING_LEVEL = LogLevel.Debug;
+        private static LogLevel LOGGING_LEVEL = LogLevel.Information;
 
         private const int SETTINGS_COMPATIBILTY_VERSION = 1; // Current settings file version number
 
@@ -104,25 +104,7 @@ namespace ObsMan
                                         LogMessage(LogLevel.Information, $"Settings read OK");
 
                                         // Load the retrieved settings into this instance
-                                        PropertyInfo[] properties = settings.GetType().GetProperties(); // Get a list of public properties in this class
-                                        foreach (PropertyInfo property in properties)
-                                        {
-                                            string name = property.Name;
-                                            object value = property.GetValue(settings) ?? "Null value";
-
-                                            LogMessage(LogLevel.Debug, $"Settings is loading property: {name} = {value}");
-
-                                            // Try to set the property but ignore bad values, which will take the property's default value instead
-                                            try
-                                            {
-                                                // Get the value of the property from the new settings class and set it into this class's property
-                                                property.SetValue(this, property.GetValue(settings));
-                                            }
-                                            catch
-                                            {
-                                                // No action here because the property will take its default value when read.                                            }
-                                            }
-                                        }
+                                        CopyPropertiesFrom(settings);
                                     }
                                     else // Version numbers don't match so reset to defaults
                                     {
@@ -302,12 +284,17 @@ namespace ObsMan
         {
             try
             {
+                Settings defaults = new Settings();
+
                 // Create serialised settings string with all values at defaults
-                string serialisedSettings = JsonSerializer.Serialize<Settings>(new Settings(), jsonSerialisationOptions);
+                string serialisedSettings = JsonSerializer.Serialize<Settings>(defaults, jsonSerialisationOptions);
 
                 // Create the settings folder if it doesn't exist
                 Directory.CreateDirectory(Path.GetDirectoryName(SettingsFileName) ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Globals.APPLICATION_FOLDER_NAME));
                 File.WriteAllText(SettingsFileName, serialisedSettings);
+
+                // Reset all in-memory properties to their default values
+                CopyPropertiesFrom(defaults);
 
                 Status = $"Settings reset at {DateTime.Now:HH:mm:ss}.";
             }
@@ -415,6 +402,22 @@ namespace ObsMan
             catch (Exception ex)
             {
                 Console.WriteLine($"Logger.LogMessage Exception: {ex.Message}\r\n{ex}");
+            }
+        }
+
+        private void CopyPropertiesFrom(Settings source)
+        {
+            foreach (PropertyInfo property in source.GetType().GetProperties())
+            {
+                LogMessage(LogLevel.Debug, $"CopyPropertiesFrom - {property.Name} = {property.GetValue(source) ?? "null"}");
+                try
+                {
+                    property.SetValue(this, property.GetValue(source));
+                }
+                catch
+                {
+                    // No action here because the property will take its default value when read.
+                }
             }
         }
 

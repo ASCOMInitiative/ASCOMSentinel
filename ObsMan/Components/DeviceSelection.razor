@@ -15,16 +15,31 @@
                     Change="(args)=>DropDownChanged(args)"
                     Name="DropDownBindValue">
         <Template Context="item">
-            <span style="color: @((item.IpPort != 0) ? "DodgerBlue" : "LightSeaGreen");font-size:1rem">
+            <span style="color: @(ItemColour(item));font-size:1rem">
                 @item.DisplayName
             </span>
         </Template>
     </RadzenDropDown>
-
 </div>
 
 @code {
-    IEnumerable<string> dropdownItems = new List<string> { "Normal", "Warning", "Critical" };
+    /// <summary>
+    /// Determines the display color for a given device based on its configuration and protocol.
+    /// </summary>
+    /// <param name="device">The device.</param>
+    /// <returns>A string representing the color.</returns>
+    private string ItemColour(DiscoveredDevice device)
+    {
+        // Check if this device is not configured
+        if (device.ObsManDeviceType == ObsManDeviceType.NotSet) // Not configured so return red
+            return "Red";
+            
+        // Check whether it is Alpaca or COM
+        if (device.IpPort != 0) // Alpaca device so return blue
+            return "DodgerBlue";
+        else // COM device so return green
+            return "LightSeaGreen";
+    }
 
     DiscoveredDevice? bindValue = null;
     int switchNumber = 0;
@@ -34,12 +49,12 @@
         if (args == null)
             return;
         DiscoveredDevice device = (DiscoveredDevice)args;
-        logger.LogMessage("", $"DropDownChanged - Selected value: {device.DisplayName} {device.Id}");
+        //logger.LogMessage("", $"DropDownChanged - Selected value: {device.DisplayName} {device.Id}");
 
         settings.ConfiguredDevices[Property] = device;
-        logger.LogMessage("", $"DropDownChanged - Set device");
+        //logger.LogMessage("", $"DropDownChanged - Set device");
         settings.Save();
-        logger.LogMessage("", $"DropDownChanged - Saved settings");
+        //logger.LogMessage("", $"DropDownChanged - Saved settings");
     }
 
     [Parameter]
@@ -53,23 +68,4 @@
 
     [Parameter]
     public PropertyName Property { get; set; }
-
-    static int valueIndex;
-    string SomeValue
-    {
-        get
-        {
-            valueIndex++;
-            if (valueIndex > 2)
-                valueIndex = 0;
-            switch (valueIndex)
-            {
-                case 0: return "Short string";
-                case 1: return "Long string - Some value asd a";
-                case 2: return "Very long string - Some value asd asd as da";
-            }
-            return "Default string";
-        }
-        set { }
-    }
 }

@@ -23,10 +23,11 @@
 <PageTitle>Application Setup</PageTitle>
 
 <h1>Application Setup</h1>
-
-<ObsManButton Click="@UpdateDeviceList" Text="Update Device List" />
-<ObsManButton Click="@UpdateDeviceList" Text="Connect to Devices" />
-
+<span>
+    <ObsManButton Click="@UpdateDeviceList" Text="Update Device List" /> 
+    <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:410px;">@statusText</RadzenText>
+    <ObsManButton Click="@ResetSettings" Text="Reset To Defaults" />
+</span>
 <RadzenTabs Change=@OnTabChange style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
     <Tabs>
 
@@ -205,11 +206,22 @@
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
-
     </Tabs>
 </RadzenTabs>
 
 @code {
+    private async Task ResetSettings()
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to reset all settings? This cannot be undone."))
+        {
+            settings.ResetToDefaults();
+            StartDiscovery();
+            StateHasChanged();
+        }
+    }
+
+    string statusText = "";
+
     const string alignPoint = "250px"; // Right alignment for settings values in the general settings tab
     AlpacaDiscovery? discovery;
     DotNetObjectReference<Setup>? objRef;
@@ -218,12 +230,18 @@
 
     protected override async Task OnInitializedAsync()
     {
+        StartDiscovery();
+    }
+
+    private void StartDiscovery()
+    {
         discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.TraceAlpacaDiscovery ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
             (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
         discovery.AlpacaDevicesUpdated += AlpacaDeviceDiscovered;
         discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
         discovery.StartDiscovery();
-
+        statusText = "Alpaca discovery underway";
+        InvokeAsync(StateHasChanged);
     }
 
     protected override async void OnAfterRender(bool firstRender)
@@ -244,10 +262,7 @@
 
     private async Task UpdateDeviceList()
     {
-        logger.LogMessage("Connect", "About to invert Trace value");
-        settings.Save();
-        logger.LogDebug("Connect", $"Spurious debug message!");
-        logger.LogError("Connect", $"Spurious error message!");
+        StartDiscovery();
     }
 
     private async void OnTabChange()
@@ -299,6 +314,7 @@
 
 
         observingConditionsDevices.Clear();
+        observingConditionsDevices.Add(new DiscoveredDevice());
 
         // Add discovered Alpaca devices
         logger.LogDebug("", $"GetDeviceNames - Found {ObservingConditionsDevicesAlpaca.Count()} devices.");
@@ -338,6 +354,7 @@
         }
 
         safetyMonitorDevices.Clear();
+        safetyMonitorDevices.Add(new DiscoveredDevice());
 
         // Add discovered Alpaca devices
         logger.LogDebug("", $"GetDeviceNames - Found {SafetyMonitorDevicesAlpaca.Count()} Alpaca safety monitor devices.");
@@ -380,6 +397,7 @@
 
         logger.LogMessage("", $"Discovery complete.");
 
+        statusText = "Discovery completed";
         await InvokeAsync(StateHasChanged);
 
         // alpacaDiscoveryProgress += $"Discovery complete!";

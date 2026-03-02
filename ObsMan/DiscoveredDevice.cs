@@ -11,22 +11,46 @@ namespace ObsMan
         private IObservingConditionsV2? observingConditionsDevice;
         private ISwitchV3? switchDevice;
         private ISafetyMonitorV3? safetyMonitorDevice;
-        private string guid = Guid.NewGuid().ToString();
+        private string uniqueId = Guid.NewGuid().ToString();
 
-        public string Id
-        {
-            get
-            {
-                return guid;
-            }
-        }
+        /// <summary>
+        /// Communication protocol e.g. Alpaca, COM etc.
+        /// </summary>
+        public Protocol Protocol { get; set; } = Protocol.NotConfigured;
 
+        /// <summary>
+        /// Unique ID for this device
+        /// </summary>
+        public string Id { get { return uniqueId; } }
+
+        /// <summary>
+        /// Device type for this device.
+        /// </summary>
         public ObsManDeviceType ObsManDeviceType { get; set; } = ObsManDeviceType.NotSet;
+
+        /// <summary>
+        /// Device name.
+        /// </summary>
         public string Name { get; set; } = "UnknownName";
+
+        /// <summary>
+        /// Alapca host name or IP address.
+        /// </summary>
         public string HostName { get; set; } = "UnknownHostName";
+
+        /// <summary>
+        /// IP port for the device.
+        /// </summary>
         public int IpPort { get; set; } = 0;
+
+        /// <summary>
+        /// COM ProgID for the device.
+        /// </summary>
         public string ProgID { get; set; } = "UnknownProgID";
 
+        /// <summary>
+        /// Formatted name for use in UI
+        /// </summary>
         public string DisplayName
         {
             get
@@ -40,12 +64,18 @@ namespace ObsMan
                         return $"{Name} ({ProgID})";
 
                     default:
-                        return "";
+                        return "Not set";
                 }
             }
         }
 
-        public Protocol Protocol { get; set; } = Protocol.Unknown;
+        #region Device instance management
+
+        public IObservingConditionsV2? ObservingConditions { get; set; } = null;
+
+        public ISafetyMonitorV3? Safetymonitor { get; set; } = null;
+
+        public ISwitchV3? Switch { get; set;} = null;
 
         public void CreateObservingConditionsDevice()
         {
@@ -94,10 +124,6 @@ namespace ObsMan
 
         }
 
-        public IObservingConditionsV2? ObservingConditions { get; set; } = null;
-
-        public ISwitchV3? Switch { get; set;} = null;
-
         public void CreateSafetyMonitorDevice()
         {
             if (safetyMonitorDevice is null)
@@ -143,6 +169,7 @@ namespace ObsMan
                 }
             }
         }
-        public ISafetyMonitorV3? Safetymonitor { get; set; } = null;
+
+        #endregion
     }
 }

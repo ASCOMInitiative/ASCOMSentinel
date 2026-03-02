@@ -2,7 +2,7 @@
 {
     public enum Protocol
     {
-        Unknown = 0,
+        NotConfigured = 0,
         Alpaca = 1,
         COM = 2
     }
