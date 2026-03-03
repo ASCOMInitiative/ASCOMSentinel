@@ -61,20 +61,12 @@
         // Define a dictionary to hold the unique device instances
         Dictionary<DiscoveredDevice, IObservingConditionsV2> deviceInstances = new();
 
-        if(state.ObservingConditionsDevices.Count>0)
-        {         
+        if (state.ObservingConditionsDevices.Count > 0)
+        {
             logger.LogDebug("Connect", $"Already connected to devices - disconnecting first");
             foreach (IObservingConditionsV2 device in state.ObservingConditionsDevices)
             {
-                try
-                {
-                    device.Connected = false;
-                    device.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    logger.LogDebug("Connect", $"Exception setting Connected false for device during disconnect - {ex.Message}\r\n{ex}");
-                }
+                try { device.Dispose(); } catch { }
             }
             state.ObservingConditionsDevices.Clear();
         }
@@ -114,34 +106,41 @@
                     throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Protocol}");
             }
 
-            // Create a cancellation token that will cancel the task if it takes longer than the configured timeout to complete.
-            CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout));
-
-            // Create a task to set Connected=true for this device, which will time out after the configured timeout.
-            Task task = Task.Run(() =>
+            // Create a task to set Connected=true for this device. The inner Task.Run wraps the blocking ASCOM call;
+            // Task.WhenAny enforces the timeout since the blocking call cannot be cancelled directly.
+            Task task = Task.Run(async () =>
             {
-                try
+                Task connectTask = Task.Run(() =>
                 {
-                    logger.LogDebug("Property", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
-                    deviceInstances[device].Connected = true;
-                    logger.LogMessage("Property", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
-                }
-                catch (Exception ex)
-                {
-                    if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
-                        logger.LogError("", $"Exception setting Connected true for {device.DisplayName} {device.Protocol} - {ex.Message}\r\n{ex}");
-                    else
-                        logger.LogError("", $"Unable to set Connected true for {device.DisplayName} - {ex.Message}");
-                }
-            }, cts.Token);
+                    try
+                    {
+                        logger.LogDebug("Property", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
+                        deviceInstances[device].Connected = true;
+                        logger.LogMessage("Property", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
+                    }
+                    catch (Exception ex)
+                    {
+                        if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
+                            logger.LogError("", $"Exception setting Connected true for {device.DisplayName} {device.Protocol} - {ex.Message}\r\n{ex}");
+                        else
+                            logger.LogError("", $"Unable to set Connected true for {device.DisplayName} - {ex.Message}");
+                    }
+                });
 
-            // Add the task to the list of tasks and start it.
+                if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
+                {
+                    logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to {device.DisplayName}");
+                    try { deviceInstances[device].Dispose(); deviceInstances[device] = null!; } catch { }
+                }
+            });
+
+            // Add the task to the list of tasks.
             startTasks.Add(task);
         }
 
         // Wait for all tasks to finish.
         logger.LogMessage("Property", $"Waiting for tasks to finish");
-        Task.WaitAll(startTasks);
+        await Task.WhenAll(startTasks);
         logger.LogMessage("Property", $"Tasks finished");
 
         // Clear the mapping between properties and devices, then re-populate it based on the configured device definitions and the instances we just created.
@@ -212,7 +211,7 @@
             // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
             state.TopOfVisibleLog = top;
         }
-        catch (Exception ex){ LogConsole(ex.Message); } // Ignore exceptions here - we don't want the app to crash just because the log window can't scroll for some reason. The log will still be updated, just not scrolled to the bottom.
+        catch (Exception ex) { LogConsole(ex.Message); } // Ignore exceptions here - we don't want the app to crash just because the log window can't scroll for some reason. The log will still be updated, just not scrolled to the bottom.
     }
 
     #region Log resize support
