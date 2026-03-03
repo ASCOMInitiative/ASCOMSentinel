@@ -15,10 +15,10 @@
 
         #region public properties
 
-/// <summary>
-/// Current width of the view port window
-/// </summary>
-public int WindowWidth { get; set { field = value; RaiseChangeEvent(nameof(WindowWidth)); } } = 1280;
+        /// <summary>
+        /// Current width of the view port window
+        /// </summary>
+        public int WindowWidth { get; set { field = value; RaiseChangeEvent(nameof(WindowWidth)); } } = 1280;
 
         /// <summary>
         /// Gets or sets the index of the first visible log entry in the log view.
@@ -34,9 +34,18 @@ public int WindowWidth { get; set { field = value; RaiseChangeEvent(nameof(Windo
 
         public bool Connected { get; set; } = false;
 
-        public Dictionary<int, ISafetyMonitorV3> SafetyMonitorDevices { get; set { RaiseChangeEvent(nameof(SafetyMonitorDevices)); } } = [];
 
-        public Dictionary<int, IObservingConditionsV2> ObservingConditionsDevices { get; set; } = [];
+
+        public List<IObservingConditionsV2> ObservingConditionsDevices { get; set; } = [];
+
+        public Dictionary<PropertyName, IObservingConditionsV2> ObservingConditionsDeviceMap { get; set; } = [];
+
+
+
+
+        public Dictionary<Guid, ISafetyMonitorV3> SafetyMonitorDevices { get; set { RaiseChangeEvent(nameof(SafetyMonitorDevices)); } } = [];
+
+        public Dictionary<PropertyName, Guid> SafetyMonitorDeviceMap { get; set; } = [];
 
         public Dictionary<int, ISwitchV3> SwitchDevices { get; set; } = [];
 

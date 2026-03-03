@@ -9,15 +9,6 @@ namespace ObsMan
 
         #region Initialisers and dispose
 
-        /// <summary>
-        /// Initializes a new instance of the Device class with the given device number.
-        /// </summary>
-        /// <param name="deviceNumber">The unique number of this instance.</param>
-        public Device(int deviceNumber)
-        {
-            DeviceNumber = deviceNumber;
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -44,9 +35,11 @@ namespace ObsMan
 
         #region Information and management methods
 
-        public DeviceTechnology DeviceTechnology { get; set; } = DeviceTechnology.NotSelected;
+		public Guid UniqueId { get; set; } = Guid.Empty;
 
-        public int DeviceNumber { get; private set; }
+        public ObsManDeviceType ObsManDeviceType { get; set; } = ObsManDeviceType.NotSet;
+
+        public DeviceTechnology DeviceTechnology { get; set; } = DeviceTechnology.NotSet;
 
         public string Name { get; set; } = string.Empty;
 
@@ -54,11 +47,9 @@ namespace ObsMan
 
         public int AlpacaPort { get; set; } = 0;
 
-        public string DeviceId { get; set; } = string.Empty;
+        public int AlpacaDeviceNumber { get; set; } = 0;
 
         public string ProgId { get; set; } = string.Empty;
-
-        public ObsManDeviceType ObsManDeviceType { get; set; } = ObsManDeviceType.SafetyMonitor;
 
         #endregion
 

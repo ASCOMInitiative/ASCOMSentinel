@@ -35,7 +35,7 @@
             return "Red";
             
         // Check whether it is Alpaca or COM
-        if (device.IpPort != 0) // Alpaca device so return blue
+        if (device.PortNumber != 0) // Alpaca device so return blue
             return "DodgerBlue";
         else // COM device so return green
             return "LightSeaGreen";

@@ -327,11 +327,12 @@
                 logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                 observingConditionsDevices.Add(new DiscoveredDevice
                 {
-                    Protocol = Protocol.Alpaca,
                     ObsManDeviceType = ObsManDeviceType.ObservingConditions,
+                    Protocol = Protocol.Alpaca,
                     Name = device.AscomDeviceName,
-                    HostName = device.HostName,
-                    IpPort = device.IpPort
+                    IpAddress = device.IpAddress,
+                    PortNumber = device.IpPort,
+                    RemoteDeviceNumber = device.AlpacaDeviceNumber
                 });
             }
         }
@@ -341,10 +342,10 @@
             logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
             observingConditionsDevices.Add(new DiscoveredDevice
             {
-                Protocol = Protocol.COM,
                 ObsManDeviceType = ObsManDeviceType.ObservingConditions,
+                Protocol = Protocol.COM,
                 Name = device.Name,
-                ProgID = device.ProgID
+                ComProgID = device.ProgID
             });
         }
 
@@ -370,8 +371,8 @@
                     Protocol = Protocol.Alpaca,
                     ObsManDeviceType = ObsManDeviceType.SafetyMonitor,
                     Name = device.AscomDeviceName,
-                    HostName = device.HostName,
-                    IpPort = device.IpPort
+                    IpAddress = device.IpAddress,
+                    PortNumber = device.IpPort
                 });
             }
         }
@@ -384,7 +385,7 @@
                 Protocol = Protocol.COM,
                 ObsManDeviceType = ObsManDeviceType.SafetyMonitor,
                 Name = device.Name,
-                ProgID = device.ProgID
+                ComProgID = device.ProgID
             });
         }
 

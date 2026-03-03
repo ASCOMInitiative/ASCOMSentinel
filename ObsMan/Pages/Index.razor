@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using ASCOM.Common.DeviceInterfaces
 
 @inject State state;
 @inject ObsManLogger logger;
@@ -55,19 +56,91 @@
         //List<DiscoveredDevice> UniqueDevices =  
         List < DiscoveredDevice > uniqueDevices = settings.ConfiguredDevices.Values
             .Where(d => d.ObsManDeviceType != ObsManDeviceType.NotSet)
-            .DistinctBy(d => (d.ObsManDeviceType, d.ProgID, d.HostName, d.IpPort)).ToList();
+            .DistinctBy(d => (d.ObsManDeviceType, d.ComProgID, d.IpAddress, d.PortNumber,d.RemoteDeviceNumber)).ToList();
+
+        Dictionary<DiscoveredDevice, IObservingConditionsV2> deviceInstances = new();
 
         foreach (DiscoveredDevice device in uniqueDevices)
         {
-            logger.LogMessage("Connect", $"Connecting to {device.DisplayName} at {device.HostName}:{device.IpPort} using {device.Protocol} protocol");
+            logger.LogMessage("Connect", $"Connecting to {device.DisplayName} at {device.IpAddress}:{device.PortNumber} using {device.Protocol} protocol");
+            // Only process devices that are configured
+            switch (device.Protocol)
+            {
+                case Protocol.Alpaca:
+                    IObservingConditionsV2 alpacaDevice = new ASCOM.Alpaca.Clients.AlpacaObservingConditions(new ASCOM.Alpaca.Clients.AlpacaConfiguration()
+                        {
+                            IpAddressString = device.IpAddress,
+                            PortNumber = device.PortNumber,
+                            RemoteDeviceNumber= device.RemoteDeviceNumber
+                        });
+                    deviceInstances[device] = alpacaDevice;
+                    state.ObservingConditionsDevices.Add(alpacaDevice);
+                    logger.LogMessage("Connect", $"Connect: added a real Alpaca device for {device.DisplayName}");
+                    break;
+
+                case Protocol.COM:
+                    IObservingConditionsV2 comDevice = new ASCOM.Com.DriverAccess.ObservingConditions(device.ComProgID);
+                    deviceInstances[device] = comDevice;
+                    state.ObservingConditionsDevices.Add(comDevice);
+                    logger.LogMessage("Connect", $"Connect: added a real COM device for {device.DisplayName}");
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Protocol}");
+            }
+
         }
+        state.ObservingConditionsDeviceMap.Clear();
+
+        List<Task> startTasks=[];
 
         foreach (PropertyName property in Enum.GetValues<PropertyName>())
         {
-            logger.LogMessage("Property", $"Property: {property}");
+            logger.LogMessage("Property", $"Processing Property: {property}");
+            DiscoveredDevice configured = settings.ConfiguredDevices[property];
+            if (configured.Protocol != Protocol.NotConfigured)
+            {
+                logger.LogMessage("Property", $"Looking for match Property: {property}");
+                try
+                {
+                    KeyValuePair<DiscoveredDevice, IObservingConditionsV2> device = deviceInstances.First(d =>
+                        d.Key.Protocol             == configured.Protocol &&
+                        d.Key.ObsManDeviceType     == configured.ObsManDeviceType &&
+                        d.Key.IpAddress            == configured.IpAddress &&
+                        d.Key.PortNumber           == configured.PortNumber &&
+                        d.Key.RemoteDeviceNumber   == configured.RemoteDeviceNumber &&
+                        d.Key.ComProgID            == configured.ComProgID);
 
+                    state.ObservingConditionsDeviceMap.Add(property, device.Value);
+                    logger.LogMessage("Property", $"Added Property: {property} {device.Key.DisplayName}");
+
+                    Task task = new Task(()=>
+                    {
+                        try
+                        {
+                            logger.LogMessage("Property", $"Setting Connected True for {property} {device.Key.DisplayName}");
+                            device.Value.Connected = true;
+                            logger.LogMessage("Property", $"Connected set True OK for {property} {device.Key.DisplayName}");
+
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError("", $"Exception setting Connected true for {property} {device.Key.DisplayName} - {ex.Message}\r\n{ex}");
+                        }
+                    });
+
+                    startTasks.Add(task);
+                    task.Start();
+                }
+                catch (Exception ex)
+                {                    
+                    logger.LogError("Connect", $"Exception: \r\n{ex}");
+                }
+            }
         }
-
+        logger.LogMessage("Property", $"Waiting for tasks to finish");
+        Task.WaitAll(startTasks);
+        logger.LogMessage("Property", $"Tasks finished");
     }
 
     private int LastnumberOfLogLines()

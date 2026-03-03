@@ -11,17 +11,11 @@ namespace ObsMan
         private IObservingConditionsV2? observingConditionsDevice;
         private ISwitchV3? switchDevice;
         private ISafetyMonitorV3? safetyMonitorDevice;
-        private string uniqueId = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Communication protocol e.g. Alpaca, COM etc.
         /// </summary>
         public Protocol Protocol { get; set; } = Protocol.NotConfigured;
-
-        /// <summary>
-        /// Unique ID for this device
-        /// </summary>
-        public string Id { get { return uniqueId; } }
 
         /// <summary>
         /// Device type for this device.
@@ -36,17 +30,22 @@ namespace ObsMan
         /// <summary>
         /// Alapca host name or IP address.
         /// </summary>
-        public string HostName { get; set; } = "UnknownHostName";
+        public string IpAddress { get; set; } = "UnknownHostName";
 
         /// <summary>
         /// IP port for the device.
         /// </summary>
-        public int IpPort { get; set; } = 0;
+        public int PortNumber { get; set; } = 0;
+
+        /// <summary>
+        /// Alpaca device number
+        /// </summary>
+        public int RemoteDeviceNumber { get; set; } = 0;
 
         /// <summary>
         /// COM ProgID for the device.
         /// </summary>
-        public string ProgID { get; set; } = "UnknownProgID";
+        public string ComProgID { get; set; } = "UnknownProgID";
 
         /// <summary>
         /// Formatted name for use in UI
@@ -58,10 +57,10 @@ namespace ObsMan
                 switch (Protocol)
                 {
                     case Protocol.Alpaca:
-                        return $"{Name} ({HostName}:{IpPort})";
+                        return $"{Name} ({IpAddress}:{PortNumber})";
 
                     case Protocol.COM:
-                        return $"{Name} ({ProgID})";
+                        return $"{Name} ({ComProgID})";
 
                     default:
                         return "Not set";
@@ -91,8 +90,8 @@ namespace ObsMan
                                 case Protocol.Alpaca:
                                     ASCOM.Alpaca.Clients.AlpacaConfiguration config = new()
                                     {
-                                        IpAddressString = HostName,
-                                        PortNumber = IpPort,
+                                        IpAddressString = IpAddress,
+                                        PortNumber = PortNumber,
 
                                         UserAgentProductName = Globals.USER_AGENT_PRODUCT_NAME
                                     };
@@ -100,7 +99,7 @@ namespace ObsMan
                                     break;
 #if WINDOWS
                                     case Protocol.COM:
-                                        observingConditionsDevice = new ASCOM.Com.DriverAccess.ObservingConditions(ProgID);
+                                        observingConditionsDevice = new ASCOM.Com.DriverAccess.ObservingConditions(ComProgID);
                                         break;
 #endif
                                 default:
@@ -138,8 +137,8 @@ namespace ObsMan
                                 case Protocol.Alpaca:
                                     ASCOM.Alpaca.Clients.AlpacaConfiguration config = new()
                                     {
-                                        IpAddressString = HostName,
-                                        PortNumber = IpPort,
+                                        IpAddressString = IpAddress,
+                                        PortNumber = PortNumber,
 
                                         UserAgentProductName = Globals.USER_AGENT_PRODUCT_NAME
                                     };
@@ -147,7 +146,7 @@ namespace ObsMan
                                     break;
 #if WINDOWS
                                     case Protocol.COM:
-                                        safetyMonitorDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(ProgID);
+                                        safetyMonitorDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(ComProgID);
                                         break;
 #endif
                                 default:
