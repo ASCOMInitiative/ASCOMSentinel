@@ -224,6 +224,8 @@ namespace ObsMan
         // NOTE Values to be persisted must be defined as PROPERTIES rather than FIELDS.
         // If they are not properties they will NOT be included in the serialised JSON string.
 
+        public int AlpacaConnectTimeout { get; set; } = 5; // Seconds to wait for a response when connecting to an Alpaca device before timing out
+
         public Dictionary<PropertyName, DiscoveredDevice> ConfiguredDevices { get; set; } = new()
         {
             { PropertyName.CloudCover, new DiscoveredDevice() },
