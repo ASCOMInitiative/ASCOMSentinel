@@ -11,13 +11,20 @@ namespace ObsMan.DeviceAccess
         private readonly ObsManLogger logger;
 
         // Record defining a cache entry for a property value, including the value, any exception that occurred when trying to read it, and the timestamp of when it was read.
-        private record CacheEntry(double Value, Exception? Exception, DateTime Timestamp); // Cached value, any exception that occurred when trying to read it and the timestamp of when it was read
+        private record DoubleCacheEntry(double Value, Exception? Exception, DateTime Timestamp); // Cached value, any exception that occurred when trying to read it and the timestamp of when it was read
+
+        // Record defining a cache entry for string results (e.g. SensorDescription)
+        private record StringCacheEntry(string Value, Exception? Exception, DateTime Timestamp);
 
         // Class to hold cache records 
-        private readonly ConcurrentDictionary<PropertyName, CacheEntry> _propertyCache = new();
+        private readonly ConcurrentDictionary<PropertyName, DoubleCacheEntry> _propertyCache = new();
 
         // Class to hold a lock for each individual property to allow concurrent reads of different properties without blocking each other
         private readonly ConcurrentDictionary<PropertyName, Lock> _propertyLocks = new();
+
+        // Cache and locks for SensorDescription results
+        private readonly ConcurrentDictionary<PropertyName, StringCacheEntry> _sensorDescriptionCache = new();
+        private readonly ConcurrentDictionary<PropertyName, Lock> _sensorDescriptionLocks = new();
 
         public ObservingConditions(Settings settings, State state, ObsManLogger logger)
         {
@@ -66,13 +73,13 @@ namespace ObsMan.DeviceAccess
 
         /// <summary>Reads a device property value, re-throwing NotImplementedException as-is and wrapping all other exceptions in a NotImplementedException.</summary>
         /// <remarks>Results (including exceptions) are cached for <see cref="CacheExpiry"/>. Each property has its own lock so concurrent reads of different properties do not block each other.</remarks>
-        private double GetPropertyValue(PropertyName propertyName, Func<double> getValue)
+        private double GetCachedDouble(PropertyName propertyName, Func<double> getValue)
         {
             Lock propertyLock = _propertyLocks.GetOrAdd(propertyName, _ => new Lock());
             lock (propertyLock)
             {
                 // Return the cached result if it exists and the call time is still within the expiry window
-                if ((_propertyCache.TryGetValue(propertyName, out CacheEntry? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime)) // Value is cached and within the expiry time so return the last value
+                if ((_propertyCache.TryGetValue(propertyName, out DoubleCacheEntry? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime)) // Value is cached and within the expiry time so return the last value
                 {
                     if (entry.Exception is null) // Cache hit with a valid value so return the value without calling the device
                         return entry.Value;
@@ -85,41 +92,71 @@ namespace ObsMan.DeviceAccess
                 try
                 {
                     double value = getValue(); // Call the provided delegate to get the property value from the device
-                    _propertyCache[propertyName] = new CacheEntry(value, null, DateTime.UtcNow); // Cache the successful result
+                    _propertyCache[propertyName] = new DoubleCacheEntry(value, null, DateTime.UtcNow); // Cache the successful result
                     return value;
                 }
                 catch (Exception ex) // The device returned an exception — cache and re-throw it
                 {
-                    _propertyCache[propertyName] = new CacheEntry(0, ex, DateTime.UtcNow); // Cache the exception result
+                    _propertyCache[propertyName] = new DoubleCacheEntry(0, ex, DateTime.UtcNow); // Cache the exception result
                     throw;
                 }
             }
         }
 
-        public double CloudCover => GetPropertyValue(PropertyName.CloudCover, () => state.ObservingConditionsDeviceMap[PropertyName.CloudCover].CloudCover);
+        /// <summary>Reads a string result from a device method (e.g. SensorDescription), caching both successful results and exceptions.</summary>
+        /// <remarks>Results (including exceptions) are cached for the configured cache time. Each property has its own lock.</remarks>
+        private string GetCachedString(PropertyName propertyName, Func<string> getValue)
+        {
+            Lock propertyLock = _sensorDescriptionLocks.GetOrAdd(propertyName, _ => new Lock());
+            lock (propertyLock)
+            {
+                // Return the cached result if it exists and the call time is still within the expiry window
+                if ((_sensorDescriptionCache.TryGetValue(propertyName, out StringCacheEntry? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime))
+                {
+                    if (entry.Exception is null)
+                        return entry.Value;
+                    throw entry.Exception;
+                }
 
-        public double DewPoint => GetPropertyValue(PropertyName.DewPoint, () => state.ObservingConditionsDeviceMap[PropertyName.DewPoint].DewPoint);
+                // Cache miss or expired — call the real method
+                try
+                {
+                    string value = getValue();
+                    _sensorDescriptionCache[propertyName] = new StringCacheEntry(value, null, DateTime.UtcNow);
+                    return value;
+                }
+                catch (Exception ex)
+                {
+                    _sensorDescriptionCache[propertyName] = new StringCacheEntry(string.Empty, ex, DateTime.UtcNow);
+                    throw;
+                }
+            }
+        }
 
-        public double Humidity => GetPropertyValue(PropertyName.Humidity, () => state.ObservingConditionsDeviceMap[PropertyName.Humidity].Humidity);
+        public double CloudCover => GetCachedDouble(PropertyName.CloudCover, () => state.ObservingConditionsDeviceMap[PropertyName.CloudCover].CloudCover);
 
-        public double Pressure => GetPropertyValue(PropertyName.Pressure, () => state.ObservingConditionsDeviceMap[PropertyName.Pressure].Pressure);
+        public double DewPoint => GetCachedDouble(PropertyName.DewPoint, () => state.ObservingConditionsDeviceMap[PropertyName.DewPoint].DewPoint);
 
-        public double RainRate => GetPropertyValue(PropertyName.RainRate, () => state.ObservingConditionsDeviceMap[PropertyName.RainRate].RainRate);
+        public double Humidity => GetCachedDouble(PropertyName.Humidity, () => state.ObservingConditionsDeviceMap[PropertyName.Humidity].Humidity);
 
-        public double SkyBrightness => GetPropertyValue(PropertyName.SkyBrightness, () => state.ObservingConditionsDeviceMap[PropertyName.SkyBrightness].SkyBrightness);
+        public double Pressure => GetCachedDouble(PropertyName.Pressure, () => state.ObservingConditionsDeviceMap[PropertyName.Pressure].Pressure);
 
-        public double SkyQuality => GetPropertyValue(PropertyName.SkyQuality, () => state.ObservingConditionsDeviceMap[PropertyName.SkyQuality].SkyQuality);
+        public double RainRate => GetCachedDouble(PropertyName.RainRate, () => state.ObservingConditionsDeviceMap[PropertyName.RainRate].RainRate);
 
-        public double StarFWHM => GetPropertyValue(PropertyName.StarFWHM, () => state.ObservingConditionsDeviceMap[PropertyName.StarFWHM].StarFWHM);
+        public double SkyBrightness => GetCachedDouble(PropertyName.SkyBrightness, () => state.ObservingConditionsDeviceMap[PropertyName.SkyBrightness].SkyBrightness);
 
-        public double SkyTemperature => GetPropertyValue(PropertyName.SkyTemperature, () => state.ObservingConditionsDeviceMap[PropertyName.SkyTemperature].SkyTemperature);
-        public double Temperature => GetPropertyValue(PropertyName.Temperature, () => state.ObservingConditionsDeviceMap[PropertyName.Temperature].Temperature);
+        public double SkyQuality => GetCachedDouble(PropertyName.SkyQuality, () => state.ObservingConditionsDeviceMap[PropertyName.SkyQuality].SkyQuality);
 
-        public double WindDirection => GetPropertyValue(PropertyName.WindDirection, () => state.ObservingConditionsDeviceMap[PropertyName.WindDirection].WindDirection);
+        public double StarFWHM => GetCachedDouble(PropertyName.StarFWHM, () => state.ObservingConditionsDeviceMap[PropertyName.StarFWHM].StarFWHM);
 
-        public double WindGust => GetPropertyValue(PropertyName.WindGust, () => state.ObservingConditionsDeviceMap[PropertyName.WindGust].WindGust);
+        public double SkyTemperature => GetCachedDouble(PropertyName.SkyTemperature, () => state.ObservingConditionsDeviceMap[PropertyName.SkyTemperature].SkyTemperature);
+        public double Temperature => GetCachedDouble(PropertyName.Temperature, () => state.ObservingConditionsDeviceMap[PropertyName.Temperature].Temperature);
 
-        public double WindSpeed => GetPropertyValue(PropertyName.WindSpeed, () => state.ObservingConditionsDeviceMap[PropertyName.WindSpeed].WindSpeed);
+        public double WindDirection => GetCachedDouble(PropertyName.WindDirection, () => state.ObservingConditionsDeviceMap[PropertyName.WindDirection].WindDirection);
+
+        public double WindGust => GetCachedDouble(PropertyName.WindGust, () => state.ObservingConditionsDeviceMap[PropertyName.WindGust].WindGust);
+
+        public double WindSpeed => GetCachedDouble(PropertyName.WindSpeed, () => state.ObservingConditionsDeviceMap[PropertyName.WindSpeed].WindSpeed);
 
         public string Description => "Observatory Manager - Description";
 
@@ -194,10 +231,10 @@ namespace ObsMan.DeviceAccess
         public string SensorDescription(string PropertyName)
         {
             PropertyName? propertyEnum = ToPropertyName(PropertyName);
-            if (propertyEnum.HasValue)
-                return state.ObservingConditionsDeviceMap[propertyEnum.Value].SensorDescription(PropertyName);
+            if (!propertyEnum.HasValue)
+                throw new ASCOM.InvalidValueException($"Property name '{PropertyName}' is not a valid ObservingConditions property name.");
 
-            throw new ASCOM.InvalidValueException($"Property name '{PropertyName}' is not a valid ObservingConditions property name.");
+            return GetCachedString(propertyEnum.Value, () => state.ObservingConditionsDeviceMap[propertyEnum.Value].SensorDescription(PropertyName));
         }
 
         public double TimeSinceLastUpdate(string PropertyName)
