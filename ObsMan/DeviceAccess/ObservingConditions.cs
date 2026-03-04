@@ -43,19 +43,19 @@ namespace ObsMan.DeviceAccess
             {
                 List<StateValue> stateValues = [];
 
-                try { stateValues.Add(new StateValue(nameof(CloudCover), CloudCover)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(DewPoint), DewPoint)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(Humidity), Humidity)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(Pressure), Pressure)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(RainRate), RainRate)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(SkyBrightness), SkyBrightness)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(SkyQuality), SkyQuality)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(SkyTemperature), SkyTemperature)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(StarFWHM), StarFWHM)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(Temperature), Temperature)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(WindDirection), WindDirection)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(WindSpeed), WindSpeed)); } catch (Exception ex) { Console.WriteLine(ex); }
-                try { stateValues.Add(new StateValue(nameof(WindGust), WindGust)); } catch (Exception ex) { Console.WriteLine(ex); }
+                try { stateValues.Add(new StateValue(nameof(CloudCover), CloudCover)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(DewPoint), DewPoint)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(Humidity), Humidity)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(Pressure), Pressure)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(RainRate), RainRate)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(SkyBrightness), SkyBrightness)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(SkyQuality), SkyQuality)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(SkyTemperature), SkyTemperature)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(StarFWHM), StarFWHM)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(Temperature), Temperature)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(WindDirection), WindDirection)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(WindSpeed), WindSpeed)); } catch { }
+                try { stateValues.Add(new StateValue(nameof(WindGust), WindGust)); } catch { }
 
                 return stateValues;
             }
@@ -133,30 +133,146 @@ namespace ObsMan.DeviceAccess
             }
         }
 
-        public double CloudCover => GetCachedDouble(PropertyName.CloudCover, () => state.ObservingConditionsDeviceMap[PropertyName.CloudCover].CloudCover);
+        public double CloudCover
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.CloudCover]  == null)
+                    throw new ASCOM.NotImplementedException($"CloudCover is not implemented in this observing conditions device.");
 
-        public double DewPoint => GetCachedDouble(PropertyName.DewPoint, () => state.ObservingConditionsDeviceMap[PropertyName.DewPoint].DewPoint);
+                return GetCachedDouble(PropertyName.CloudCover, () => state.ObservingConditionsDeviceMap[PropertyName.CloudCover].CloudCover);
+            }
+        }
+        public double DewPoint
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.DewPoint] == null)
+                    throw new ASCOM.NotImplementedException($"DewPoint is not implemented in this observing conditions device.");
 
-        public double Humidity => GetCachedDouble(PropertyName.Humidity, () => state.ObservingConditionsDeviceMap[PropertyName.Humidity].Humidity);
+                return GetCachedDouble(PropertyName.DewPoint, () => state.ObservingConditionsDeviceMap[PropertyName.DewPoint].DewPoint);
+            }
+        }
 
-        public double Pressure => GetCachedDouble(PropertyName.Pressure, () => state.ObservingConditionsDeviceMap[PropertyName.Pressure].Pressure);
+        public double Humidity
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.Humidity] == null)
+                    throw new ASCOM.NotImplementedException($"Humidity is not implemented in this observing conditions device.");
 
-        public double RainRate => GetCachedDouble(PropertyName.RainRate, () => state.ObservingConditionsDeviceMap[PropertyName.RainRate].RainRate);
+                return GetCachedDouble(PropertyName.Humidity, () => state.ObservingConditionsDeviceMap[PropertyName.Humidity].Humidity);
+            }
+        }
 
-        public double SkyBrightness => GetCachedDouble(PropertyName.SkyBrightness, () => state.ObservingConditionsDeviceMap[PropertyName.SkyBrightness].SkyBrightness);
+        public double Pressure
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.Pressure] == null)
+                    throw new ASCOM.NotImplementedException($"Pressure is not implemented in this observing conditions device.");
 
-        public double SkyQuality => GetCachedDouble(PropertyName.SkyQuality, () => state.ObservingConditionsDeviceMap[PropertyName.SkyQuality].SkyQuality);
+                return GetCachedDouble(PropertyName.Pressure, () => state.ObservingConditionsDeviceMap[PropertyName.Pressure].Pressure);
+            }
+        }
 
-        public double StarFWHM => GetCachedDouble(PropertyName.StarFWHM, () => state.ObservingConditionsDeviceMap[PropertyName.StarFWHM].StarFWHM);
+        public double RainRate
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.RainRate] == null)
+                    throw new ASCOM.NotImplementedException($"RainRate is not implemented in this observing conditions device.");
 
-        public double SkyTemperature => GetCachedDouble(PropertyName.SkyTemperature, () => state.ObservingConditionsDeviceMap[PropertyName.SkyTemperature].SkyTemperature);
-        public double Temperature => GetCachedDouble(PropertyName.Temperature, () => state.ObservingConditionsDeviceMap[PropertyName.Temperature].Temperature);
+                return GetCachedDouble(PropertyName.RainRate, () => state.ObservingConditionsDeviceMap[PropertyName.RainRate].RainRate);
+            }
+        }
 
-        public double WindDirection => GetCachedDouble(PropertyName.WindDirection, () => state.ObservingConditionsDeviceMap[PropertyName.WindDirection].WindDirection);
+        public double SkyBrightness
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.SkyBrightness] == null)
+                    throw new ASCOM.NotImplementedException($"SkyBrightness is not implemented in this observing conditions device.");
 
-        public double WindGust => GetCachedDouble(PropertyName.WindGust, () => state.ObservingConditionsDeviceMap[PropertyName.WindGust].WindGust);
+                return GetCachedDouble(PropertyName.SkyBrightness, () => state.ObservingConditionsDeviceMap[PropertyName.SkyBrightness].SkyBrightness);
+            }
+        }
 
-        public double WindSpeed => GetCachedDouble(PropertyName.WindSpeed, () => state.ObservingConditionsDeviceMap[PropertyName.WindSpeed].WindSpeed);
+        public double SkyQuality
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.SkyQuality] == null)
+                    throw new ASCOM.NotImplementedException($"SkyQuality is not implemented in this observing conditions device.");
+
+                return GetCachedDouble(PropertyName.SkyQuality, () => state.ObservingConditionsDeviceMap[PropertyName.SkyQuality].SkyQuality);
+            }
+        }
+
+        public double StarFWHM
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.StarFWHM] == null)
+                    throw new ASCOM.NotImplementedException($"StarFWHM is not implemented in this observing conditions device.");
+
+                return GetCachedDouble(PropertyName.StarFWHM, () => state.ObservingConditionsDeviceMap[PropertyName.StarFWHM].StarFWHM);
+            }
+        }
+
+        public double SkyTemperature
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.SkyTemperature] == null)
+                    throw new ASCOM.NotImplementedException($"SkyTemperature is not implemented in this observing conditions device.");
+
+                return GetCachedDouble(PropertyName.SkyTemperature, () => state.ObservingConditionsDeviceMap[PropertyName.SkyTemperature].SkyTemperature);
+            }
+        }
+        public double Temperature
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.Temperature] == null)
+                    throw new ASCOM.NotImplementedException($"Temperature is not implemented in this observing conditions device.");
+
+                return GetCachedDouble(PropertyName.Temperature, () => state.ObservingConditionsDeviceMap[PropertyName.Temperature].Temperature);
+            }
+        }
+
+        public double WindDirection
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.WindDirection] == null)
+                    throw new ASCOM.NotImplementedException($"WindDirection is not implemented in this observing conditions device.");
+
+                return GetCachedDouble(PropertyName.WindDirection, () => state.ObservingConditionsDeviceMap[PropertyName.WindDirection].WindDirection);
+            }
+        }
+
+        public double WindGust
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.WindGust] == null)
+                    throw new ASCOM.NotImplementedException($"WindGust is not implemented in this observing conditions device.");
+
+                return GetCachedDouble(PropertyName.WindGust, () => state.ObservingConditionsDeviceMap[PropertyName.WindGust].WindGust);
+            }
+        }
+
+        public double WindSpeed
+        {
+            get
+            {
+                if (state.ObservingConditionsDeviceMap[PropertyName.WindSpeed] == null)
+                    throw new ASCOM.NotImplementedException($"WindSpeed is not implemented in this observing conditions device.");
+
+                return GetCachedDouble(PropertyName.WindSpeed, () => state.ObservingConditionsDeviceMap[PropertyName.WindSpeed].WindSpeed);
+            }
+        }
 
         public string Description => "Observatory Manager - Description";
 
@@ -199,9 +315,9 @@ namespace ObsMan.DeviceAccess
         public void Connect()
         {
             Connecting = true;
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                Thread.Sleep(500);
+                await Task.Delay(500);
                 Connecting = false;
                 Connected = true;
             });
@@ -210,9 +326,9 @@ namespace ObsMan.DeviceAccess
         public void Disconnect()
         {
             Connecting = true;
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                Thread.Sleep(500);
+                await Task.Delay(500);
                 Connecting = false;
                 Connected = false;
             });
@@ -234,11 +350,24 @@ namespace ObsMan.DeviceAccess
             if (!propertyEnum.HasValue)
                 throw new ASCOM.InvalidValueException($"Property name '{PropertyName}' is not a valid ObservingConditions property name.");
 
+            if (state.ObservingConditionsDeviceMap[propertyEnum.Value] == null)
+                throw new ASCOM.NotImplementedException($"{PropertyName} sensor description is not available because the device is not configured.");
+
             return GetCachedString(propertyEnum.Value, () => state.ObservingConditionsDeviceMap[propertyEnum.Value].SensorDescription(PropertyName));
         }
 
         public double TimeSinceLastUpdate(string PropertyName)
         {
+            if (string.IsNullOrEmpty(PropertyName))
+                return 1;
+
+            PropertyName? propertyEnum = ToPropertyName(PropertyName);
+            if (!propertyEnum.HasValue)
+                throw new ASCOM.InvalidValueException($"Property name '{PropertyName}' is not a valid ObservingConditions property name.");
+
+            if (state.ObservingConditionsDeviceMap[propertyEnum.Value] == null)
+                throw new ASCOM.NotImplementedException($"{PropertyName} sensor description is not available because the device is not configured.");
+
             return 1;
         }
 

@@ -136,6 +136,12 @@
                                 {
                                     <p style="color: @(_srvPasswordStatus.Contains("not match") ? "red" : "green")">@_srvPasswordStatus</p>
                                 }
+                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Connection</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Auto connect:</label>
+                                    <input type="checkbox" @bind="AutoConnect">
+                                </div>
+
                             </RadzenCard>
                         </div>
                     </RadzenTabsItem>
@@ -210,6 +216,7 @@
 </RadzenTabs>
 
 @code {
+
     private async Task ResetSettings()
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to reset all settings? This cannot be undone."))
@@ -450,8 +457,6 @@
         }
     }
 
-
-
     public async ValueTask DisposeAsync()
     {
         if (objRef != null)
@@ -597,6 +602,12 @@
         {
             _srvPasswordStatus = "Passwords do not match.";
         }
+    }
+
+    private bool AutoConnect
+    {
+        get => settings.AutoConnect;
+        set { settings.AutoConnect = value; settings.Save(); }
     }
 
     private LogLevel SrvLoggingLevel

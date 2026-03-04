@@ -10,7 +10,7 @@
 
 <h1>Observatory Manager</h1>
 <div>
-    <RadzenButton Click="@Connect" Text="Connect" Style="margin-left:30px;border-radius:20px; margin-right:30px" /> @settings.Status
+    <RadzenButton Click="@ConnectedButtonClickHandler" Text="@(connectedState ? "Disconnect from devices" : "Connect to devices")" Style="margin-left:30px;border-radius:20px; margin-right:30px" /> @settings.Status
     <p />
 </div>
 
@@ -21,6 +21,8 @@
 
 @code
 {
+    bool connectedState = false;
+
     DotNetObjectReference<Index>? objRef;
 
     protected override async void OnAfterRender(bool firstRender)
@@ -48,11 +50,49 @@
             {
                 Console.WriteLine($"OnInitialized-setScrollTop: {ex}");
             }
+
+            if (settings.AutoConnect)
+                await Connect();
+        }
+    }
+
+    private async Task Disconnect()
+    {
+        if (state.ObservingConditionsDevices.Count > 0)
+        {
+            logger.LogDebug("Disconnect", $"Disconnecting from devices");
+            foreach (IObservingConditionsV2 device in state.ObservingConditionsDevices)
+            {
+                try { device.Dispose(); } catch { }
+            }
+            state.ObservingConditionsDevices.Clear();
+            state.ObservingConditionsDeviceMap.Clear();
+            StateHasChanged();
+        }
+        connectedState = false;
+    }
+
+    private async Task ConnectedButtonClickHandler()
+    {
+        if (connectedState)
+        {
+            await Disconnect();
+            logger.LogMessage("Disconnect", "");
+            logger.LogMessage("Disconnect", "Devices disconnected.");
+            logger.LogMessage("Disconnect", "");
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            logger.LogMessage("Connect", "");
+            await Connect();
+            await InvokeAsync(StateHasChanged);
         }
     }
 
     private async Task Connect()
     {
+
         // Get a list of unique devices to which to connect. we only need one instance even if that device is used for multiple properties.
         List<DiscoveredDevice> uniqueDevices = settings.ConfiguredDevices.Values
             .Where(d => d.ObsManDeviceType != ObsManDeviceType.NotSet)
@@ -61,16 +101,8 @@
         // Define a dictionary to hold the unique device instances
         Dictionary<DiscoveredDevice, IObservingConditionsV2> deviceInstances = new();
 
-        if (state.ObservingConditionsDevices.Count > 0)
-        {
-            logger.LogDebug("Connect", $"Already connected to devices - disconnecting first");
-            foreach (IObservingConditionsV2 device in state.ObservingConditionsDevices)
-            {
-                try { device.Dispose(); } catch { }
-            }
-            state.ObservingConditionsDevices.Clear();
-        }
-
+        // Disconnect from any currently connected devices before connecting to the new set of devices.
+        await Disconnect();
 
         List<Task> startTasks = []; // List of tasks to set Connected=true on each device
 
@@ -136,6 +168,9 @@
 
             // Add the task to the list of tasks.
             startTasks.Add(task);
+
+            connectedState = true;
+            StateHasChanged();
         }
 
         // Wait for all tasks to finish.
