@@ -87,7 +87,7 @@ namespace ObsMan
             //Reset all stored settings if requested
             if (args?.Any(str => str.Contains("--reset")) ?? false)
             {
-                logger.LogMessage("", "Reseting Settings");
+                logger.LogMessage("", "Resetting Settings");
                 settings.ResetToDefaults();
 
                 //If you have any device settings you should reset them as well or add a specific reset command.
@@ -158,7 +158,7 @@ namespace ObsMan
 
             // Add the safety monitor, observing conditions and switch devices that will be exposed to clients
             DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.BasicMonitor(), Globals.SAFETY_MONITOR_DEVICE_NAME, settings.GetDeviceUniqueId("SafetyMonitor", 0));
-            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(), Globals.OBSERVING_CONDITIONS_DEVICE_NAME, settings.GetDeviceUniqueId("ObservingConditions", 0));
+            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(state, logger), Globals.OBSERVING_CONDITIONS_DEVICE_NAME, settings.GetDeviceUniqueId("ObservingConditions", 0));
             DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), "Switch Device", settings.GetDeviceUniqueId("Switch", 0));
 
             #region Finish Building and Start server
