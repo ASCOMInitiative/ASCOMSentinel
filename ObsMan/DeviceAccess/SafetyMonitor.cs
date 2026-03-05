@@ -2,7 +2,7 @@
 
 namespace ObsMan.DeviceAccess
 {
-    public class BasicMonitor : ISafetyMonitorV3
+    public class SafetyMonitor : ISafetyMonitorV3
     {
         public bool IsSafe
         {
