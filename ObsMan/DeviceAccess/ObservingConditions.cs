@@ -10,20 +10,15 @@ namespace ObsMan.DeviceAccess
         private readonly State state;
         private readonly ObsManLogger logger;
 
-        // Record defining a cache entry for a property value, including the value, any exception that occurred when trying to read it, and the timestamp of when it was read.
-        private record DoubleCacheEntry(double Value, Exception? Exception, DateTime Timestamp); // Cached value, any exception that occurred when trying to read it and the timestamp of when it was read
+        // Record defining a cache entry for double and string results (e.g. property values and SensorDescription values)
+        private record CacheEntry<T>(T Value, Exception? Exception, DateTime Timestamp);
 
-        // Record defining a cache entry for string results (e.g. SensorDescription)
-        private record StringCacheEntry(string Value, Exception? Exception, DateTime Timestamp);
-
-        // Class to hold cache records 
-        private readonly ConcurrentDictionary<PropertyName, DoubleCacheEntry> _propertyCache = new();
-
-        // Class to hold a lock for each individual property to allow concurrent reads of different properties without blocking each other
+        // Classes to hold cache records and locks for each property to allow concurrent reads of different properties without blocking each other
+        private readonly ConcurrentDictionary<PropertyName, CacheEntry<double>> _propertyCache = new();
         private readonly ConcurrentDictionary<PropertyName, Lock> _propertyLocks = new();
 
         // Cache and locks for SensorDescription results
-        private readonly ConcurrentDictionary<PropertyName, StringCacheEntry> _sensorDescriptionCache = new();
+        private readonly ConcurrentDictionary<PropertyName, CacheEntry<string>> _sensorDescriptionCache = new();
         private readonly ConcurrentDictionary<PropertyName, Lock> _sensorDescriptionLocks = new();
 
         public ObservingConditions(Settings settings, State state, ObsManLogger logger)
@@ -79,7 +74,7 @@ namespace ObsMan.DeviceAccess
             lock (propertyLock)
             {
                 // Return the cached result if it exists and the call time is still within the expiry window
-                if ((_propertyCache.TryGetValue(propertyName, out DoubleCacheEntry? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime)) // Value is cached and within the expiry time so return the last value
+                if ((_propertyCache.TryGetValue(propertyName, out CacheEntry<double>? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime)) // Value is cached and within the expiry time so return the last value
                 {
                     if (entry.Exception is null) // Cache hit with a valid value so return the value without calling the device
                         return entry.Value;
@@ -92,12 +87,12 @@ namespace ObsMan.DeviceAccess
                 try
                 {
                     double value = getValue(); // Call the provided delegate to get the property value from the device
-                    _propertyCache[propertyName] = new DoubleCacheEntry(value, null, DateTime.UtcNow); // Cache the successful result
+                    _propertyCache[propertyName] = new CacheEntry<double>(value, null, DateTime.UtcNow); // Cache the successful result
                     return value;
                 }
                 catch (Exception ex) // The device returned an exception — cache and re-throw it
                 {
-                    _propertyCache[propertyName] = new DoubleCacheEntry(0, ex, DateTime.UtcNow); // Cache the exception result
+                    _propertyCache[propertyName] = new CacheEntry<double>(0, ex, DateTime.UtcNow); // Cache the exception result
                     throw;
                 }
             }
@@ -111,7 +106,7 @@ namespace ObsMan.DeviceAccess
             lock (propertyLock)
             {
                 // Return the cached result if it exists and the call time is still within the expiry window
-                if ((_sensorDescriptionCache.TryGetValue(propertyName, out StringCacheEntry? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime))
+                if ((_sensorDescriptionCache.TryGetValue(propertyName, out CacheEntry<string>? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime))
                 {
                     if (entry.Exception is null)
                         return entry.Value;
@@ -122,12 +117,12 @@ namespace ObsMan.DeviceAccess
                 try
                 {
                     string value = getValue();
-                    _sensorDescriptionCache[propertyName] = new StringCacheEntry(value, null, DateTime.UtcNow);
+                    _sensorDescriptionCache[propertyName] = new CacheEntry<string>(value, null, DateTime.UtcNow);
                     return value;
                 }
                 catch (Exception ex)
                 {
-                    _sensorDescriptionCache[propertyName] = new StringCacheEntry(string.Empty, ex, DateTime.UtcNow);
+                    _sensorDescriptionCache[propertyName] = new CacheEntry<string>(string.Empty, ex, DateTime.UtcNow);
                     throw;
                 }
             }
