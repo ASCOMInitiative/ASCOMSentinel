@@ -12,7 +12,7 @@ namespace ObsMan
         Settings settings;
 
         public ObsManLogger(State state, Settings settings) : base("ObsMan", true)
-        { 
+        {
             this.state = state;
             this.settings = settings;
             SetMinimumLoggingLevel(settings.LogLevel);
@@ -96,20 +96,23 @@ namespace ObsMan
                         // Raise the MessaegLogChanged event to Write the message to the screen if required
                         if (logToScreen) // Log to screen is enabled
                         {
-                            // Update the screen log, truncating it if required
-                            try
+                            lock (Globals.logLock)
                             {
-                                // Update the screen log
-                                state.ApplicationLog.Append($"\r\n{formattedMessage}");
-                            }
-                            catch (ArgumentOutOfRangeException) // The new length exceeded the specified maximum so truncate the log
-                            {
-                                // Truncate the log
-                                state.ApplicationLog.Remove(0, Globals.LOG_TRUNCATION_CHARACTERS);
-                                state.ApplicationLog.Insert(0, $"\r\n**** Log truncated at {DateTime.Now:HH:mm:ss.fff} ****\r\n");
+                                // Update the screen log, truncating it if required
+                                try
+                                {
+                                    // Update the screen log
+                                    state.ApplicationLog.Append($"\r\n{formattedMessage}");
+                                }
+                                catch (ArgumentOutOfRangeException) // The new length exceeded the specified maximum so truncate the log
+                                {
+                                    // Truncate the log
+                                    state.ApplicationLog.Remove(0, Globals.LOG_TRUNCATION_CHARACTERS);
+                                    state.ApplicationLog.Insert(0, $"\r\n**** Log truncated at {DateTime.Now:HH:mm:ss.fff} ****\r\n");
 
-                                // Update the screen log
-                                state.ApplicationLog.Append($"\r\n{formattedMessage}");
+                                    // Update the screen log
+                                    state.ApplicationLog.Append($"\r\n{formattedMessage}");
+                                }
                             }
 
                             // Raise the MessaegLogChanged event to let listeners know that the log has been updated

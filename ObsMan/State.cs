@@ -43,9 +43,8 @@
 
 
 
-        public Dictionary<Guid, ISafetyMonitorV3> SafetyMonitorDevices { get; set { RaiseChangeEvent(nameof(SafetyMonitorDevices)); } } = [];
+        public Dictionary<PropertyName, ISafetyMonitorV3> SafetyMonitorDevices { get; set ; } = [];
 
-        public Dictionary<PropertyName, Guid> SafetyMonitorDeviceMap { get; set; } = [];
 
         public Dictionary<int, ISwitchV3> SwitchDevices { get; set; } = [];
 

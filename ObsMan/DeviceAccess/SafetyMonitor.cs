@@ -1,72 +1,172 @@
-﻿using ASCOM.Common.DeviceInterfaces;
+﻿using ASCOM.Common;
+using ASCOM.Common.DeviceInterfaces;
+using System.Collections.Concurrent;
+using System.Security.Cryptography;
 
 namespace ObsMan.DeviceAccess
 {
     public class SafetyMonitor : ISafetyMonitorV3
     {
+        private readonly Settings settings;
+        private readonly State state;
+        private readonly ObsManLogger logger;
+
+        PropertyName[] safetyMonitors = [
+            PropertyName.SafetyMonitor0,
+                PropertyName.SafetyMonitor1,
+                PropertyName.SafetyMonitor2,
+                PropertyName.SafetyMonitor3,
+                PropertyName.SafetyMonitor4,
+                PropertyName.SafetyMonitor5,
+                PropertyName.SafetyMonitor6,
+                PropertyName.SafetyMonitor7,
+                PropertyName.SafetyMonitor8,
+                PropertyName.SafetyMonitor9];
+
+        public SafetyMonitor(Settings settings, State state, ObsManLogger logger)
+        {
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(state);
+            ArgumentNullException.ThrowIfNull(logger);
+
+            this.settings = settings;
+            this.state = state;
+            this.logger = logger;
+        }
+        private record CacheEntry<T>(T Value, Exception? Exception, DateTime Timestamp);
+
+        // Classes to hold cache records and locks for each property to allow concurrent reads of different properties without blocking each other
+        private readonly ConcurrentDictionary<PropertyName, CacheEntry<bool>> _propertyCache = new();
+        private readonly ConcurrentDictionary<PropertyName, Lock> _propertyLocks = new();
+
+        /// <summary>Reads a device property value, re-throwing NotImplementedException as-is and wrapping all other exceptions in a NotImplementedException.</summary>
+        /// <remarks>Results (including exceptions) are cached for <see cref="CacheExpiry"/>. Each property has its own lock so concurrent reads of different properties do not block each other.</remarks>
+        private bool GetCachedBool(PropertyName propertyName, Func<bool> getValue)
+        {
+            Lock propertyLock = _propertyLocks.GetOrAdd(propertyName, _ => new Lock());
+            lock (propertyLock)
+            {
+                // Return the cached result if it exists and the call time is still within the expiry window
+                if ((_propertyCache.TryGetValue(propertyName, out CacheEntry<bool>? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime)) // Value is cached and within the expiry time so return the last value
+                {
+                    if (entry.Exception is null) // Cache hit with a valid value so return the value without calling the device
+                        return entry.Value;
+
+                    // Last call returned an exception, and we're still within the cache expiry window, so re-throw the same exception without calling the device again
+                    throw entry.Exception;
+                }
+
+                // Cache miss or expired — send to the real device
+                try
+                {
+                    bool value = getValue(); // Call the provided delegate to get the property value from the device
+                    _propertyCache[propertyName] = new CacheEntry<bool>(value, null, DateTime.UtcNow); // Cache the successful result
+                    return value;
+                }
+                catch (Exception ex) // The device returned an exception — cache and re-throw it
+                {
+                    _propertyCache[propertyName] = new CacheEntry<bool>(false, ex, DateTime.UtcNow); // Cache the exception result
+                    throw;
+                }
+            }
+        }
+
         public bool IsSafe
         {
             get
             {
                 if (Connected)
                 {
-                    return false;
+                    bool allSafe = true;
+                    foreach (PropertyName property in safetyMonitors)
+                    {
+                        if (state.SafetyMonitorDevices.TryGetValue(property, out ISafetyMonitorV3? entry))
+                        {
+                            allSafe &= GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe); // All monitors must report safe for overall safety
+                        }
+                    }
+                    return allSafe;
                 }
-                return true;
+
+                throw new ASCOM.NotConnectedException("Observatory Manager safety monitor is not connected.");
             }
         }
 
-        public bool Connected { get; set; } = false;
+        public List<StateValue> DeviceState
+        {
+            get
+            {
+                List<StateValue> stateValues = [];
 
-        public string Description => "A Safety Monitor";
+                try { stateValues.Add(new StateValue(nameof(IsSafe), IsSafe)); } catch { }
 
-        public string DriverInfo => "A really not functional Safety Monitor";
+                return stateValues;
+            }
+        }
+
+        public string Description => "Observatory Manager - Description";
+
+        public string DriverInfo => "Observatory Manager - Driver Info";
 
         public string DriverVersion => "0.1";
 
-        public short InterfaceVersion => 1;
-
-        public string Name => "Safety Monitor";
+        public short InterfaceVersion => 3;
+        public string Name => "Observatory Manager - Name";
 
         public IList<string> SupportedActions => [];
 
-		public bool Connecting => throw new NotImplementedException();
-
-		public List<StateValue> DeviceState => throw new NotImplementedException();
-
-		public string Action(string ActionName, string ActionParameters)
+        public string Action(string actionName, string actionParameters)
         {
-            throw new ASCOM.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public void CommandBlind(string Command, bool Raw = false)
+        public void CommandBlind(string command, bool raw = false)
         {
-            throw new ASCOM.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public bool CommandBool(string Command, bool Raw = false)
+        public bool CommandBool(string command, bool raw = false)
         {
-            throw new ASCOM.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public string CommandString(string Command, bool Raw = false)
+        public string CommandString(string command, bool raw = false)
         {
-            throw new ASCOM.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-		public void Connect()
-		{
-			throw new NotImplementedException();
-		}
+        private bool connected = false;
+        private bool connecting = false;
 
-		public void Disconnect()
-		{
-			throw new NotImplementedException();
-		}
+        public bool Connected { get => connected; set => connected = value; }
 
-		public void Dispose()
+        public bool Connecting { get => connecting; set => connecting = value; }
+
+        public void Connect()
         {
-            throw new ASCOM.NotImplementedException();
+            Connecting = true;
+            Task.Run(async () =>
+            {
+                await Task.Delay(500);
+                Connecting = false;
+                Connected = true;
+            });
+        }
+
+        public void Disconnect()
+        {
+            Connecting = true;
+            Task.Run(async () =>
+            {
+                await Task.Delay(500);
+                Connecting = false;
+                Connected = false;
+            });
+        }
+
+        public void Dispose()
+        {
+
         }
     }
 }

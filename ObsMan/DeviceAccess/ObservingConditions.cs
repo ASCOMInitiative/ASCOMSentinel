@@ -138,6 +138,7 @@ namespace ObsMan.DeviceAccess
                 return GetCachedDouble(PropertyName.CloudCover, () => state.ObservingConditionsDeviceMap[PropertyName.CloudCover].CloudCover);
             }
         }
+
         public double DewPoint
         {
             get
