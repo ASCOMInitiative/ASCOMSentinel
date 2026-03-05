@@ -10,18 +10,27 @@
 
 <h1>Observatory Manager</h1>
 <div>
-    <RadzenButton Click="@ConnectedButtonClickHandler" Text="@(connectedState ? "Disconnect from devices" : "Connect to devices")" Style="margin-left:30px;border-radius:20px; margin-right:30px" /> @settings.Status
+    <RadzenButton Disabled="@connectingToDevices"
+                  Click="@ConnectedButtonClickHandler"
+                  Text="@( connectingToDevices ? (connectedState ? "Connecting to devices" : "Disconnecting from devices") : (connectedState ? "Disconnect from devices" : "Connect to devices"))"
+                  Style="margin-left:30px;border-radius:20px; margin-right:30px" />
+    @settings.Status
     <p />
 </div>
 
 <div style="height:100%;min-height:100%;">
-    <RadzenTextArea Id="ObsManLog" Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%; '
-                    Name="ObsManLog" @bind-Value=@ApplicationLog Rows="@LastnumberOfLogLines()" Cols="250" ReadOnly=true />
+    <RadzenTextArea Id="ObsManLog"
+                    Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%;'
+                    Name="ObsManLog"
+                    @bind-Value=@ApplicationLog
+                    Rows="@LastnumberOfLogLines()"
+                    Cols="250" ReadOnly=true />
 </div>
 
 @code
 {
     bool connectedState = false;
+    bool connectingToDevices = false;
 
     DotNetObjectReference<Index>? objRef;
 
@@ -52,7 +61,7 @@
             }
 
             if (settings.AutoConnect)
-                await Connect();
+                await ConnectedButtonClickHandler();
         }
     }
 
@@ -74,18 +83,34 @@
 
     private async Task ConnectedButtonClickHandler()
     {
-        if (connectedState)
+
+        try
         {
-            await Disconnect();
-            logger.LogMessage("Disconnect", "");
-            logger.LogMessage("Disconnect", "Devices disconnected.");
-            logger.LogMessage("Disconnect", "");
+            connectingToDevices = true;
             await InvokeAsync(StateHasChanged);
+
+            if (connectedState)
+            {
+                await Disconnect();
+                logger.LogMessage("Disconnect", "");
+                logger.LogMessage("Disconnect", "Devices disconnected.");
+                logger.LogMessage("Disconnect", "");
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                logger.LogMessage("Connect", "");
+                await Connect();
+                await InvokeAsync(StateHasChanged);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            logger.LogMessage("Connect", "");
-            await Connect();
+            logger.LogError("Connect", $"Overall exception: \r\n{ex}");
+        }
+        finally
+        {
+            connectingToDevices = false;
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -231,7 +256,6 @@
             // Do nothing - required for two-way binding
         }
     }
-
 
     private async void OnLogChanged(object? sender, MessageEventArgs e)
     {
