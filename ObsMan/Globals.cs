@@ -19,7 +19,7 @@
         internal const  string SAFETY_MONITOR_DEVICE_NAME = "Observatory Manager - Safety Monitor";
         internal const string OBSERVING_CONDITIONS_DEVICE_NAME = "Observatory Manager - Observing Conditions";
 
-        internal static readonly Lock logLock = new(); // Lock object to synchronize access to the log when resizing
+        internal static readonly Lock writeLogLock = new(); // Lock object to synchronize access to the log when resizing
 
     }
 }

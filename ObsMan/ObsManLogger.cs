@@ -36,7 +36,6 @@ namespace ObsMan
 
         void ILogger.Log(LogLevel level, string message)
         {
-            //base.LogMessage(level.ToString(), message);
             //Console.WriteLine($"{level}: {message}");
             LogMessage(string.Empty, level, message);
         }
@@ -54,8 +53,7 @@ namespace ObsMan
                 // Check if the message should be logged based on the current log level setting
                 if (logLevel >= settings.LogLevel) // Message level is within or above the current log level
                 {
-                    // Lock this method to prevent multiple threads writing to the log at the same time
-                    lock (this)
+                    lock (Globals.writeLogLock)
                     {
                         string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel,-13} {message}";
 
@@ -96,25 +94,21 @@ namespace ObsMan
                         // Raise the MessaegLogChanged event to Write the message to the screen if required
                         if (logToScreen) // Log to screen is enabled
                         {
-                            lock (Globals.logLock)
+                            // Update the screen log, truncating it if required
+                            try
                             {
-                                // Update the screen log, truncating it if required
-                                try
-                                {
-                                    // Update the screen log
-                                    state.ApplicationLog.Append($"\r\n{formattedMessage}");
-                                }
-                                catch (ArgumentOutOfRangeException) // The new length exceeded the specified maximum so truncate the log
-                                {
-                                    // Truncate the log
-                                    state.ApplicationLog.Remove(0, Globals.LOG_TRUNCATION_CHARACTERS);
-                                    state.ApplicationLog.Insert(0, $"\r\n**** Log truncated at {DateTime.Now:HH:mm:ss.fff} ****\r\n");
-
-                                    // Update the screen log
-                                    state.ApplicationLog.Append($"\r\n{formattedMessage}");
-                                }
+                                // Update the screen log
+                                state.ApplicationLog.Append($"\r\n{formattedMessage}");
                             }
+                            catch (ArgumentOutOfRangeException) // The new length exceeded the specified maximum so truncate the log
+                            {
+                                // Truncate the log
+                                state.ApplicationLog.Remove(0, Globals.LOG_TRUNCATION_CHARACTERS);
+                                state.ApplicationLog.Insert(0, $"\r\n**** Log truncated at {DateTime.Now:HH:mm:ss.fff} ****\r\n");
 
+                                // Update the screen log
+                                state.ApplicationLog.Append($"\r\n{formattedMessage}");
+                            }
                             // Raise the MessaegLogChanged event to let listeners know that the log has been updated
                             OnMessageLogChanged(formattedMessage);
                         }
@@ -155,6 +149,21 @@ namespace ObsMan
         public void LogError(string method, string message)
         {
             LogMessage(method, LogLevel.Error, message);
+        }
+
+        public void LogMessageConsole(string method, string message)
+        {
+            LogMessage(method, LogLevel.Information, message, logToScreen: false);
+        }
+
+        public void LogDebugConsole(string method, string message)
+        {
+            LogMessage(method, LogLevel.Debug, message, logToScreen: false);
+        }
+
+        public void LogErrorConsole(string method, string message)
+        {
+            LogMessage(method, LogLevel.Error, message, logToScreen: false);
         }
 
         #region Support code

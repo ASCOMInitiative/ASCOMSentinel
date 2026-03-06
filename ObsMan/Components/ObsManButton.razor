@@ -1,5 +1,5 @@
 ﻿@namespace ObsMan.Components
-<RadzenButton Click="@Click" Text="@Text" Style="margin-left:30px; margin-right:30px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Info" />
+<RadzenButton Click="@Click" Text="@Text" Style="margin-left:30px; margin-right:30px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Info" Disabled="@Disabled" />
 
 @code {
 
@@ -9,6 +9,9 @@
     [Parameter]
     public EventCallback<MouseEventArgs> Click { get; set; } // same
 
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+    
     private string FormatCompassLabel(double value)
     {
         switch (value)

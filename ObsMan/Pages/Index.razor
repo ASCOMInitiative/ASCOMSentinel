@@ -65,7 +65,7 @@
                 await ConnectedButtonClickHandler();
         }
         // Always scroll after render so new content is visible
-        int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+        state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
     }
 
     private async Task ConnectedButtonClickHandler()
@@ -360,7 +360,7 @@
     {
         get
         {
-            lock (Globals.logLock)
+            lock (Globals.writeLogLock)
             {
                 return state.ApplicationLog.ToString();
             }
@@ -388,7 +388,7 @@
 
     private void LogConsole(string message)
     {
-        lock (Globals.logLock)
+        lock (Globals.writeLogLock)
         {
             Console.Write(DateTime.Now.ToString("HH:mm:ss.fff"));
             Console.ForegroundColor = ConsoleColor.DarkCyan;
