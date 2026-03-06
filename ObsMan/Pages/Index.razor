@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using ASCOM.Common.DeviceInterfaces
+@using System.Diagnostics
 
 @inject State state;
 @inject ObsManLogger logger;
@@ -174,7 +175,8 @@
                             ServiceType = ASCOM.Common.Alpaca.ServiceType.Http,
                             IpAddressString = device.IpAddress,
                             PortNumber = device.PortNumber,
-                            RemoteDeviceNumber = device.RemoteDeviceNumber
+                            RemoteDeviceNumber = device.RemoteDeviceNumber,
+                            EstablishConnectionTimeout = 2, // Seconds
                         });
                         deviceInstances[device] = alpacaDevice;
                         state.ObservingConditionsDevices.Add(alpacaDevice);
@@ -196,6 +198,7 @@
                 // Task.WhenAny enforces the timeout since the blocking call cannot be cancelled directly.
                 Task task = Task.Run(async () =>
                 {
+                    Stopwatch sw = Stopwatch.StartNew();
                     Task connectTask = Task.Run(() =>
                     {
                         try
@@ -215,7 +218,7 @@
 
                     if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
                     {
-                        logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to {device.DisplayName}");
+                        logger.LogError("Connect", $"Timeout ({sw.Elapsed.TotalSeconds:0.0}s) connecting to {device.DisplayName}");
                         try { deviceInstances[device].Dispose(); deviceInstances[device] = null!; } catch { }
                     }
                 });
@@ -238,30 +241,31 @@
                             ServiceType = ASCOM.Common.Alpaca.ServiceType.Http,
                             IpAddressString = device.Value.IpAddress,
                             PortNumber = device.Value.PortNumber,
-                            RemoteDeviceNumber = device.Value.RemoteDeviceNumber
+                            RemoteDeviceNumber = device.Value.RemoteDeviceNumber,
+                            EstablishConnectionTimeout = 2 // Seconds
                         });
                         state.SafetyMonitorDevices[device.Key] = alpacaDevice;
-                        logger.LogDebug("Connect", $"Connect: added a real Alpaca SafetyMonitor device for {device.Value.DisplayName}");
+                        logger.LogMessage("Connect", $"Connect: added a real Alpaca SafetyMonitor device for {device.Value.DisplayName}");
                         break;
 
                     case Protocol.COM: // COM so create a DriverAccess COM client
                         ISafetyMonitorV3 comDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(device.Value.ComProgID);
                         state.SafetyMonitorDevices[device.Key] = comDevice;
-                        logger.LogDebug("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
+                        logger.LogMessage("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
                         break;
 
                     default:
                         throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Value.Protocol}");
                 }
 
-                // Connect thew safety monitor device with a timeout,
+                // Connect the safety monitor device with a timeout,
                 Task task = Task.Run(async () =>
                 {
                     Task connectTask = Task.Run(() =>
                     {
                         try
                         {
-                            logger.LogDebug("Property", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
+                            logger.LogMessage("Property", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
                             state.SafetyMonitorDevices[device.Key].Connected = true;
                             logger.LogMessage("Property", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
                         }
@@ -279,7 +283,7 @@
 
                     if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
                     {
-                        logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to {device.Value.DisplayName}");
+                        logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to a safety monitor: {device.Value.DisplayName}");
                         try
                         {
                             state.SafetyMonitorDevices[device.Key].Dispose();

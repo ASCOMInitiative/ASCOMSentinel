@@ -70,22 +70,22 @@
     }
 
     // Scroll to the bottom of the page
-    function ScrollToBottom(elementId) {
-        let top = document.getElementById(elementId).scrollHeight;
-
-        document.getElementById(elementId).scrollTop = top;
-        return top;
-    };
-
     // function ScrollToBottom(elementId) {
-    //     const element = document.getElementById(elementId);
-    //     if (!element) {
-    //         return 0; // Return 0 if element not found
-    //     }
-    //     let top = element.scrollHeight;
-    //     element.scrollTop = top;
+    //     let top = document.getElementById(elementId).scrollHeight;
+
+    //     document.getElementById(elementId).scrollTop = top;
     //     return top;
     // };
+
+    function ScrollToBottom(elementId) {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            return 0; // Return 0 if element not found
+        }
+        let top = element.scrollHeight;
+        element.scrollTop = top;
+        return top;
+    };
 
 
 

@@ -24,7 +24,7 @@
 
 <h1>Application Setup</h1>
 <span>
-    <ObsManButton Click="@UpdateDeviceList" Text="Update Device List" Disabled="@discoveryUnderway" />
+    <ObsManButton Click="@StartDiscovery" Text="Update Device List" Disabled="@discoveryUnderway" />
     <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:410px;">@statusText</RadzenText>
     <ObsManButton Click="@ResetSettings" Text="Reset To Defaults" />
 </span>
@@ -258,7 +258,7 @@
             discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.TraceAlpacaDiscovery ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
                 (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
             discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
-            discovery.StartDiscovery(1, 0, 32227, 3.0, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);
+            discovery.StartDiscovery(1, 10, 32227, 2.0, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);
             statusText = "Alpaca discovery underway";
             await InvokeAsync(StateHasChanged);
         }
@@ -284,12 +284,12 @@
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task UpdateDeviceList()
-    {
-        logger.LogDebugConsole("UpdateDeviceList", $"UpdateDeviceList - Starting device discovery...");
-        await StartDiscovery();
-        logger.LogDebugConsole("UpdateDeviceList", $"UpdateDeviceList - Finished starting device discovery.");
-    }
+    // private async Task UpdateDeviceList()
+    // {
+    //     logger.LogDebugConsole("UpdateDeviceList", $"UpdateDeviceList - Starting device discovery...");
+    //     await StartDiscovery();
+    //     logger.LogDebugConsole("UpdateDeviceList", $"UpdateDeviceList - Finished starting device discovery.");
+    // }
 
     private async void OnTabChange()
     {
