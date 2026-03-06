@@ -12,7 +12,7 @@
 <div>
     <RadzenButton Disabled="@connectingToDevices"
                   Click="@ConnectedButtonClickHandler"
-                  Text="@( connectingToDevices ? (connectedState ? "Connecting to devices" : "Disconnecting from devices") : (connectedState ? "Disconnect from devices" : "Connect to devices"))"
+                  Text="@( connectingToDevices ? (!connectedState ? "Connecting to devices" : "Disconnecting from devices") : (connectedState ? "Disconnect from devices" : "Connect to devices"))"
                   Style="margin-left:30px;border-radius:20px; margin-right:30px" />
     @settings.Status
     <p />
@@ -30,12 +30,12 @@
 @code
 {
     Lock mapLock = new();
-    bool connectedState = false;
-    bool connectingToDevices = false;
+    static bool connectedState = false;
+    static bool connectingToDevices = false;
 
     DotNetObjectReference<Index>? objRef;
 
-    protected override async void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
@@ -52,48 +52,20 @@
             StateHasChanged();
 
             // Scroll the log window to the bottom of its contents.
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("setScrollTop", "ObsManLog", state.TopOfVisibleLog.ToString());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"OnInitialized-setScrollTop: {ex}");
-            }
+            // try
+            // {
+            //     await JSRuntime.InvokeVoidAsync("setScrollTop", "ObsManLog", state.TopOfVisibleLog.ToString());
+            // }
+            // catch (Exception ex)
+            // {
+            //     Console.WriteLine($"OnInitialized-setScrollTop: {ex}");
+            // }
 
-            if (settings.AutoConnect)
+            if (settings.AutoConnect & !connectedState)
                 await ConnectedButtonClickHandler();
         }
-    }
-
-    private async Task Disconnect()
-    {
-        // Disconnect ObservingConditions devices.
-        if (state.ObservingConditionsDevices.Count > 0)
-        {
-            logger.LogDebug("Disconnect", $"Disconnecting from ObservingConditions devices");
-            foreach (IObservingConditionsV2 device in state.ObservingConditionsDevices)
-            {
-                try { device.Dispose(); } catch { }
-            }
-            state.ObservingConditionsDevices.Clear();
-            state.ObservingConditionsDeviceMap.Clear();
-        }
-
-        // Disconnect SafetyMonitordevices.
-        if (state.SafetyMonitorDevices.Count > 0)
-        {
-            logger.LogDebug("Disconnect", $"Disconnecting from SafetyMonitor devices");
-            foreach (KeyValuePair<PropertyName, ISafetyMonitorV3> device in state.SafetyMonitorDevices)
-            {
-                try { device.Value.Dispose(); } catch { }
-            }
-            state.SafetyMonitorDevices.Clear();
-        }
-        //await InvokeAsync(StateHasChanged);
-
-        connectedState = false;
-        logger.LogDebug("Disconnect", $"Devices disconnected");
+        // Always scroll after render so new content is visible
+        int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
     }
 
     private async Task ConnectedButtonClickHandler()
@@ -107,6 +79,7 @@
             if (connectedState)
             {
                 await Disconnect();
+                await InvokeAsync(StateHasChanged);
                 logger.LogMessage("Disconnect", "Devices disconnected.");
             }
             else
@@ -123,193 +96,259 @@
         {
             connectingToDevices = false;
             // Scroll to the bottom of the window and return the current window 'top' value.
-            int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+            //int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
 
             await InvokeAsync(StateHasChanged);
         }
     }
 
-    private async Task Connect()
+    private async Task Disconnect()
     {
-        // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
-        List<DiscoveredDevice> uniqueDevices = settings.ConfiguredDevices.Values
-            .Where(d => d.ObsManDeviceType == ObsManDeviceType.ObservingConditions)
-            .DistinctBy(d => (d.ObsManDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+        logger.LogMessage("Disconnect", $"Disconnecting from devices...");
 
-        // Define a dictionary to hold the unique device instances
-        Dictionary<DiscoveredDevice, IObservingConditionsV2> deviceInstances = new();
-
-        // Disconnect from any currently connected devices before connecting to the new set of devices.
-        await Disconnect();
-
-        List<Task> startTasks = []; // List of tasks to set Connected=true on each device
-
-        // Iterate over the unique devices and create an instance for each one, then add it to the dictionary.
-        foreach (DiscoveredDevice device in uniqueDevices)
+        try
         {
-            //logger.LogMessage("Connect", $"Connecting to {device.DisplayName} at {device.IpAddress}:{device.PortNumber} using {device.Protocol} protocol");
-
-            // Create a COM or Alpaca client as appropriate for the device
-            switch (device.Protocol)
+            // Disconnect ObservingConditions devices.
+            if (state.ObservingConditionsDevices.Count > 0)
             {
-                case Protocol.Alpaca: // Alpaca so create an Alpaca client
-                    IObservingConditionsV2 alpacaDevice = new ASCOM.Alpaca.Clients.AlpacaObservingConditions(new ASCOM.Alpaca.Clients.AlpacaConfiguration()
-                            {
-                                ServiceType = ASCOM.Common.Alpaca.ServiceType.Http,
-                                IpAddressString = device.IpAddress,
-                                PortNumber = device.PortNumber,
-                                RemoteDeviceNumber = device.RemoteDeviceNumber
-                            });
-                    deviceInstances[device] = alpacaDevice;
-                    state.ObservingConditionsDevices.Add(alpacaDevice);
-                    logger.LogDebug("Connect", $"Connect: added a real Alpaca ObservingConditions device for {device.DisplayName}");
-                    break;
-
-                case Protocol.COM: // COM so create a DriverAccess COM client
-                    IObservingConditionsV2 comDevice = new ASCOM.Com.DriverAccess.ObservingConditions(device.ComProgID);
-                    deviceInstances[device] = comDevice;
-                    state.ObservingConditionsDevices.Add(comDevice);
-                    logger.LogDebug("Connect", $"Connect: added a real COM ObservingConditions device for {device.DisplayName}");
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Protocol}");
+                logger.LogDebug("Disconnect", $"Disconnecting from ObservingConditions devices");
+                foreach (IObservingConditionsV2 device in state.ObservingConditionsDevices)
+                {
+                    try { device.Dispose(); } catch { }
+                }
+                state.ObservingConditionsDevices.Clear();
+                state.ObservingConditionsDeviceMap.Clear();
             }
 
-            // Create a task to set Connected=true for this device. The inner Task.Run wraps the blocking ASCOM call;
-            // Task.WhenAny enforces the timeout since the blocking call cannot be cancelled directly.
-            Task task = Task.Run(async () =>
+            // Disconnect SafetyMonitordevices.
+            if (state.SafetyMonitorDevices.Count > 0)
             {
-                Task connectTask = Task.Run(() =>
+                logger.LogDebug("Disconnect", $"Disconnecting from SafetyMonitor devices");
+                foreach (KeyValuePair<PropertyName, ISafetyMonitorV3> device in state.SafetyMonitorDevices)
                 {
-                    try
+                    try { device.Value?.Dispose(); } catch { }
+                }
+                state.SafetyMonitorDevices.Clear();
+            }
+            //await InvokeAsync(StateHasChanged);
+
+        }
+        catch { }
+        finally
+        {
+            logger.LogMessage("Disconnect", $"All devices disconnected");
+            connectedState = false;
+        }
+    }
+
+    private async Task Connect()
+    {
+        logger.LogMessage("Connect", $"Connecting to devices...");
+        try
+        {
+            // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
+            List<DiscoveredDevice> uniqueDevices = settings.ConfiguredDevices.Values
+                .Where(d => d.ObsManDeviceType == ObsManDeviceType.ObservingConditions)
+                .DistinctBy(d => (d.ObsManDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+
+            // Define a dictionary to hold the unique device instances
+            Dictionary<DiscoveredDevice, IObservingConditionsV2> deviceInstances = new();
+
+            // Disconnect from any currently connected devices before connecting to the new set of devices.
+            if (connectedState)
+                await Disconnect();
+
+            List<Task> startTasks = []; // List of tasks to set Connected=true on each device
+
+            // Iterate over the unique devices and create an instance for each one, then add it to the dictionary.
+            foreach (DiscoveredDevice device in uniqueDevices)
+            {
+                //logger.LogMessage("Connect", $"Connecting to {device.DisplayName} at {device.IpAddress}:{device.PortNumber} using {device.Protocol} protocol");
+
+                // Create a COM or Alpaca client as appropriate for the device
+                switch (device.Protocol)
+                {
+                    case Protocol.Alpaca: // Alpaca so create an Alpaca client
+                        IObservingConditionsV2 alpacaDevice = new ASCOM.Alpaca.Clients.AlpacaObservingConditions(new ASCOM.Alpaca.Clients.AlpacaConfiguration()
+                        {
+                            ServiceType = ASCOM.Common.Alpaca.ServiceType.Http,
+                            IpAddressString = device.IpAddress,
+                            PortNumber = device.PortNumber,
+                            RemoteDeviceNumber = device.RemoteDeviceNumber
+                        });
+                        deviceInstances[device] = alpacaDevice;
+                        state.ObservingConditionsDevices.Add(alpacaDevice);
+                        logger.LogDebug("Connect", $"Connect: added a real Alpaca ObservingConditions device for {device.DisplayName}");
+                        break;
+
+                    case Protocol.COM: // COM so create a DriverAccess COM client
+                        IObservingConditionsV2 comDevice = new ASCOM.Com.DriverAccess.ObservingConditions(device.ComProgID);
+                        deviceInstances[device] = comDevice;
+                        state.ObservingConditionsDevices.Add(comDevice);
+                        logger.LogDebug("Connect", $"Connect: added a real COM ObservingConditions device for {device.DisplayName}");
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Protocol}");
+                }
+
+                // Create a task to set Connected=true for this device. The inner Task.Run wraps the blocking ASCOM call;
+                // Task.WhenAny enforces the timeout since the blocking call cannot be cancelled directly.
+                Task task = Task.Run(async () =>
+                {
+                    Task connectTask = Task.Run(() =>
                     {
-                        logger.LogDebug("Property", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
-                        deviceInstances[device].Connected = true;
-                        logger.LogMessage("Property", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
-                    }
-                    catch (Exception ex)
+                        try
+                        {
+                            logger.LogDebug("Property", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
+                            deviceInstances[device].Connected = true;
+                            logger.LogMessage("Property", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
+                        }
+                        catch (Exception ex)
+                        {
+                            if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
+                                logger.LogError("", $"Exception setting Connected true for {device.DisplayName} {device.Protocol} - {ex.Message}\r\n{ex}");
+                            else
+                                logger.LogError("", $"Unable to set Connected true for {device.DisplayName} - {ex.Message}");
+                        }
+                    });
+
+                    if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
                     {
-                        if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
-                            logger.LogError("", $"Exception setting Connected true for {device.DisplayName} {device.Protocol} - {ex.Message}\r\n{ex}");
-                        else
-                            logger.LogError("", $"Unable to set Connected true for {device.DisplayName} - {ex.Message}");
+                        logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to {device.DisplayName}");
+                        try { deviceInstances[device].Dispose(); deviceInstances[device] = null!; } catch { }
                     }
                 });
 
-                if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
-                {
-                    logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to {device.DisplayName}");
-                    try { deviceInstances[device].Dispose(); deviceInstances[device] = null!; } catch { }
-                }
-            });
+                // Add the task to the list of tasks.
+                startTasks.Add(task);
+            }
 
-            // Add the task to the list of tasks.
-            startTasks.Add(task);
-        }
-
-        // Create SafetyMonitor devices
-        foreach(KeyValuePair<PropertyName, DiscoveredDevice> device in settings.ConfiguredDevices)
-        {
-            if (device.Value.ObsManDeviceType != ObsManDeviceType.SafetyMonitor)
-                continue;
-
-            switch (device.Value.Protocol)
+            // Create SafetyMonitor devices
+            foreach (KeyValuePair<PropertyName, DiscoveredDevice> device in settings.ConfiguredDevices)
             {
-                case Protocol.Alpaca: // Alpaca so create an Alpaca client
-                    ISafetyMonitorV3 alpacaDevice = new ASCOM.Alpaca.Clients.AlpacaSafetyMonitor(new ASCOM.Alpaca.Clients.AlpacaConfiguration()
+                if (device.Value.ObsManDeviceType != ObsManDeviceType.SafetyMonitor)
+                    continue;
+
+                switch (device.Value.Protocol)
+                {
+                    case Protocol.Alpaca: // Alpaca so create an Alpaca client
+                        ISafetyMonitorV3 alpacaDevice = new ASCOM.Alpaca.Clients.AlpacaSafetyMonitor(new ASCOM.Alpaca.Clients.AlpacaConfiguration()
+                        {
+                            ServiceType = ASCOM.Common.Alpaca.ServiceType.Http,
+                            IpAddressString = device.Value.IpAddress,
+                            PortNumber = device.Value.PortNumber,
+                            RemoteDeviceNumber = device.Value.RemoteDeviceNumber
+                        });
+                        state.SafetyMonitorDevices[device.Key] = alpacaDevice;
+                        logger.LogDebug("Connect", $"Connect: added a real Alpaca SafetyMonitor device for {device.Value.DisplayName}");
+                        break;
+
+                    case Protocol.COM: // COM so create a DriverAccess COM client
+                        ISafetyMonitorV3 comDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(device.Value.ComProgID);
+                        state.SafetyMonitorDevices[device.Key] = comDevice;
+                        logger.LogDebug("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Value.Protocol}");
+                }
+
+                // Connect thew safety monitor device with a timeout,
+                Task task = Task.Run(async () =>
+                {
+                    Task connectTask = Task.Run(() =>
                     {
-                        ServiceType = ASCOM.Common.Alpaca.ServiceType.Http,
-                        IpAddressString = device.Value.IpAddress,
-                        PortNumber = device.Value.PortNumber,
-                        RemoteDeviceNumber = device.Value.RemoteDeviceNumber
+                        try
+                        {
+                            logger.LogDebug("Property", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
+                            state.SafetyMonitorDevices[device.Key].Connected = true;
+                            logger.LogMessage("Property", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
+                        }
+                        catch (Exception ex)
+                        {
+                            state.SafetyMonitorDevices[device.Key].Dispose();
+                            state.SafetyMonitorDevices[device.Key] = null!;
+
+                            if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
+                                logger.LogError("", $"Exception setting Connected true for {device.Value.DisplayName} {device.Value.Protocol} - {ex.Message}\r\n{ex}");
+                            else
+                                logger.LogError("", $"Unable to set Connected true for {device.Value.DisplayName} - {ex.Message}");
+                        }
                     });
-                    state.SafetyMonitorDevices[device.Key] = alpacaDevice;
-                    logger.LogDebug("Connect", $"Connect: added a real Alpaca SafetyMonitor device for {device.Value.DisplayName}");
-                    break;
 
-                case Protocol.COM: // COM so create a DriverAccess COM client
-                    ISafetyMonitorV3 comDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(device.Value.ComProgID);
-                    state.SafetyMonitorDevices[device.Key] = comDevice;
-                    logger.LogDebug("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
-                    break;
-
-                default:
-                    throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Value.Protocol}");
+                    if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
+                    {
+                        logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to {device.Value.DisplayName}");
+                        try
+                        {
+                            state.SafetyMonitorDevices[device.Key].Dispose();
+                            state.SafetyMonitorDevices[device.Key] = null!;
+                        }
+                        catch { }
+                    }
+                });
+                startTasks.Add(task);
             }
 
-            Task task = Task.Run(async () =>
-           {
-               Task connectTask = Task.Run(() =>
-               {
-                   try
-                   {
-                       logger.LogDebug("Property", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
-                       state.SafetyMonitorDevices[device.Key].Connected = true;
-                       logger.LogMessage("Property", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
-                   }
-                   catch (Exception ex)
-                   {
-                       if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
-                           logger.LogError("", $"Exception setting Connected true for {device.Value.DisplayName} {device.Value.Protocol} - {ex.Message}\r\n{ex}");
-                       else
-                           logger.LogError("", $"Unable to set Connected true for {device.Value.DisplayName} - {ex.Message}");
-                   }
-               });
+            // Wait for all tasks to finish.
+            logger.LogMessage("Connect", $"Waiting for tasks to finish");
+            await Task.WhenAll(startTasks);
+            logger.LogMessage("Connect", $"Tasks finished");
 
-               if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
-               {
-                   logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to {device.Value.DisplayName}");
-                   try { state.SafetyMonitorDevices[device.Key].Dispose(); state.SafetyMonitorDevices[device.Key]= null!; } catch { }
-               }
-           });
-            startTasks.Add(task);
-        }
-
-        // Wait for all tasks to finish.
-        logger.LogMessage("Property", $"Waiting for tasks to finish");
-        await Task.WhenAll(startTasks);
-        logger.LogMessage("Property", $"Tasks finished");
-        lock (mapLock)
-        {
-            // Clear the mapping between properties and devices, then re-populate it based on the configured device definitions and the instances we just created.
-            state.ObservingConditionsDeviceMap.Clear();
-
-            // Iterate over each property and find the matching device instance based on the configured device for that property
-            foreach (PropertyName property in Enum.GetValues<PropertyName>())
+            // Prune any failed safety monitor devices from the state
+            foreach (var key in state.SafetyMonitorDevices.Keys.ToList())
             {
-                logger.LogDebug("Property", $"Processing Property: {property}");
-
-                // Get the discovered device information for this property, ignoring devices that are not configured
-                DiscoveredDevice configured = settings.ConfiguredDevices[property];
-                if (configured.ObsManDeviceType == ObsManDeviceType.ObservingConditions)
+                if (state.SafetyMonitorDevices[key] == null)
                 {
-                    //logger.LogMessage("Property", $"Looking for match Property: {property}");
-                    try
-                    {
-                        // Find the matching device instance based on the configured device for this property
-                        KeyValuePair<DiscoveredDevice, IObservingConditionsV2> device = deviceInstances.First(d =>
-                            d.Key.Protocol == configured.Protocol &&
-                            d.Key.ObsManDeviceType == configured.ObsManDeviceType &&
-                            d.Key.IpAddress == configured.IpAddress &&
-                            d.Key.PortNumber == configured.PortNumber &&
-                            d.Key.RemoteDeviceNumber == configured.RemoteDeviceNumber &&
-                            d.Key.ComProgID == configured.ComProgID);
+                    state.SafetyMonitorDevices.Remove(key);
+                }
+            }
 
-                        // Add the matching device instance to the device map so that we can easily find the device for each property later when we need to read values from it.
-                        state.ObservingConditionsDeviceMap.Add(property, device.Value);
-                        logger.LogDebug("Property", $"Added Property: {property} {device.Key.DisplayName} {device.Key.Protocol}");
-                    }
-                    catch (Exception ex)
+            lock (mapLock)
+            {
+                // Clear the mapping between ObservingConditions properties and devices, then re-populate it based on the configured device definitions and the instances we just created.
+                state.ObservingConditionsDeviceMap.Clear();
+
+                // Iterate over each property and find the matching device instance based on the configured device for that property
+                foreach (PropertyName property in Enum.GetValues<PropertyName>())
+                {
+                    logger.LogDebug("Property", $"Processing Property: {property}");
+
+                    // Get the discovered device information for this property, ignoring devices that are not configured
+                    DiscoveredDevice configured = settings.ConfiguredDevices[property];
+                    if (configured.ObsManDeviceType == ObsManDeviceType.ObservingConditions)
                     {
-                        logger.LogError("Connect", $"Exception {property}: \r\n{ex}");
+                        //logger.LogMessage("Property", $"Looking for match Property: {property}");
+                        try
+                        {
+                            // Find the matching device instance based on the configured device for this property
+                            KeyValuePair<DiscoveredDevice, IObservingConditionsV2> device = deviceInstances.First(d =>
+                                d.Key.Protocol == configured.Protocol &&
+                                d.Key.ObsManDeviceType == configured.ObsManDeviceType &&
+                                d.Key.IpAddress == configured.IpAddress &&
+                                d.Key.PortNumber == configured.PortNumber &&
+                                d.Key.RemoteDeviceNumber == configured.RemoteDeviceNumber &&
+                                d.Key.ComProgID == configured.ComProgID);
+
+                            // Add the matching device instance to the device map so that we can easily find the device for each property later when we need to read values from it.
+                            state.ObservingConditionsDeviceMap.Add(property, device.Value);
+                            logger.LogDebug("Property", $"Added Property: {property} {device.Key.DisplayName} {device.Key.Protocol}");
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError("Connect", $"Exception {property}: \r\n{ex}");
+                        }
                     }
                 }
             }
         }
-        connectedState = true;
-
-        logger.LogMessage("Property", $"Connect to devices finished");
+        catch { }
+        finally
+        {
+            connectedState = true;
+            logger.LogMessage("Connect", $"Connect to devices finished");
+        }
     }
 
     private int LastnumberOfLogLines()
@@ -336,14 +375,11 @@
     {
         try
         {
-            await InvokeAsync(StateHasChanged);
 
             // Scroll to the bottom of the window and return the current window 'top' value.
-            //int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
-            int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
-
             // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
-            state.TopOfVisibleLog = top;
+            state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+            await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex) { LogConsole(ex.Message); } // Ignore exceptions here - we don't want the app to crash just because the log window can't scroll for some reason. The log will still be updated, just not scrolled to the bottom.
     }
@@ -378,10 +414,8 @@
             await InvokeAsync(StateHasChanged);
 
             // Scroll to the bottom of the window and return the current window 'top' value.
-            int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
-
             // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
-            state.TopOfVisibleLog = top;
+            state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
         }
         catch (Exception ex)
         {

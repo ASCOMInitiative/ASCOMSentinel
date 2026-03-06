@@ -69,43 +69,18 @@
         window.dotNetHelperSetupPage = null;
     }
 
-    // Return position information for a control with the supplied element ID
-    GetBoundingClientRect = (elementId) => {
-        let rect = null;
-        try {
-            rect = document.getElementById(elementId).getBoundingClientRect();
-        }
-        catch (err) {
-            rect = null;
-        }
-
-        return rect;
-    };
-
     // Scroll to the bottom of the page
     function ScrollToBottom(elementId) {
         let top = document.getElementById(elementId).scrollHeight;
+
         document.getElementById(elementId).scrollTop = top;
         return top;
     };
 
-    // Get the element's scroll position
-    function getScrollPosition(elementId) {
-        let element = document.getElementById(elementId);
-
-        return {
-            scrollTop: element.scrollTop,
-            scrollLeft: element.scrollLeft,
-            scrollHeight: element.scrollHeight,
-            clientHeight: element.clientHeight
-        };
-    }
-
     // Set element.top for a scroll-able element.
     // When an element is scrolled, this is the offset of the top of the visible scrolled region from the absolute top of the element (which is now invisible because it is scrolled above the visible top of the element.)
-    function setScrollTop(elementId, scrollTop) {
-        let element = document.getElementById(elementId);
-        element.scrollTop = scrollTop;
-    }
+    // function setScrollTop(elementId, scrollTop) {
+    //     document.getElementById(elementId).scrollTop = scrollTop;
+    // }
 
 </script>

@@ -24,7 +24,7 @@
 
 <h1>Application Setup</h1>
 <span>
-    <ObsManButton Click="@UpdateDeviceList" Text="Update Device List" /> 
+    <ObsManButton Click="@UpdateDeviceList" Text="Update Device List" />
     <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:410px;">@statusText</RadzenText>
     <ObsManButton Click="@ResetSettings" Text="Reset To Defaults" />
 </span>
@@ -222,8 +222,8 @@
         if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to reset all settings? This cannot be undone."))
         {
             settings.ResetToDefaults();
-            StartDiscovery();
-            StateHasChanged();
+            await StartDiscovery();
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -237,21 +237,21 @@
 
     protected override async Task OnInitializedAsync()
     {
-        StartDiscovery();
+        await StartDiscovery();
     }
 
-    private void StartDiscovery()
+    private async Task StartDiscovery()
     {
         discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.TraceAlpacaDiscovery ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
             (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
         discovery.AlpacaDevicesUpdated += AlpacaDeviceDiscovered;
         discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
-        discovery.StartDiscovery();
+        discovery.StartDiscovery(2, 100, 32227, 3.0, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);
         statusText = "Alpaca discovery underway";
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
-    protected override async void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
@@ -263,8 +263,8 @@
             int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
             OnResizeSetup(logWidth, logHeight);
-            StateHasChanged();
         }
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task UpdateDeviceList()
@@ -289,33 +289,31 @@
     {
         ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
         ObservingConditionsDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
-
-        logger.LogDebug("AlpacaDiscoveryCompleted", $"AlpacaDiscoveryCompleted - Found {ObservingConditionsDevicesAlpaca.Count} devices");
         SwitchDevices = discovery.GetAscomDevices(DeviceTypes.Switch);
         SafetyMonitorDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
 
         foreach (AscomDevice device in discovery.GetAscomDevices(null))
         {
-            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found Alpaca device: {device.AscomDeviceType} {device.AscomDeviceName}");
+            logger.LogDebug("AlpacaDiscoveryCompleted", $"Found Alpaca device: {device.AscomDeviceType} {device.AscomDeviceName}");
         }
 
         List<ASCOMRegistration> drivers = Profile.GetDrivers(DeviceTypes.Switch);
         foreach (ASCOMRegistration driver in drivers)
         {
-            //logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM Switch device: {driver.Name} ({driver.ProgID})");
+            logger.LogDebug("AlpacaDiscoveryCompleted", $"Found COM Switch device: {driver.Name} ({driver.ProgID})");
         }
 
         drivers = Profile.GetDrivers(DeviceTypes.ObservingConditions);
         foreach (ASCOMRegistration driver in drivers)
         {
-            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
+            logger.LogDebug("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
             ObservingConditionsDevicesCom.Add(driver);
         }
 
         drivers = Profile.GetDrivers(DeviceTypes.SafetyMonitor);
         foreach (ASCOMRegistration driver in drivers)
         {
-            logger.LogMessage("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
+            logger.LogDebug("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
             SafetyMonitorDevicesCom.Add(driver);
         }
 
@@ -357,7 +355,8 @@
 
         foreach (DiscoveredDevice device in observingConditionsDevices)
         {
-            logger.LogMessage("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+            if (device.ObsManDeviceType != ObsManDeviceType.NotSet)
+                logger.LogMessage("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
         }
 
         safetyMonitorDevices.Clear();
@@ -397,10 +396,9 @@
 
         foreach (DiscoveredDevice device in safetyMonitorDevices)
         {
-            logger.LogMessage("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+            if (device.ObsManDeviceType != ObsManDeviceType.NotSet)
+                logger.LogMessage("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
         }
-
-
 
         logger.LogMessage("", $"Discovery complete.");
 
