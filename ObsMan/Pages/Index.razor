@@ -175,6 +175,7 @@
                             PortNumber = device.PortNumber,
                             RemoteDeviceNumber = device.RemoteDeviceNumber,
                             EstablishConnectionTimeout = 2, // Seconds
+                            Logger = settings.TraceAlpacaDiscovery ? logger : null
                         });
                         deviceInstances[device] = alpacaDevice;
                         state.ObservingConditionsDevices.Add(alpacaDevice);
@@ -240,16 +241,17 @@
                             IpAddressString = device.Value.IpAddress,
                             PortNumber = device.Value.PortNumber,
                             RemoteDeviceNumber = device.Value.RemoteDeviceNumber,
-                            EstablishConnectionTimeout = 2 // Seconds
+                            EstablishConnectionTimeout = 2, // Seconds
+                            Logger = settings.TraceAlpacaDiscovery ? logger : null
                         });
                         state.SafetyMonitorDevices[device.Key] = alpacaDevice;
-                        logger.LogMessage("Connect", $"Connect: added a real Alpaca SafetyMonitor device for {device.Value.DisplayName}");
+                        logger.LogDebug("Connect", $"Connect: added a real Alpaca SafetyMonitor device for {device.Value.DisplayName}");
                         break;
 
                     case Protocol.COM: // COM so create a DriverAccess COM client
                         ISafetyMonitorV3 comDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(device.Value.ComProgID);
                         state.SafetyMonitorDevices[device.Key] = comDevice;
-                        logger.LogMessage("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
+                        logger.LogDebug("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
                         break;
 
                     default:
@@ -263,7 +265,7 @@
                     {
                         try
                         {
-                            logger.LogMessage("Property", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
+                            logger.LogDebug("Property", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
                             state.SafetyMonitorDevices[device.Key].Connected = true;
                             logger.LogMessage("Property", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
                         }
@@ -332,7 +334,7 @@
                                 d.Key.ComProgID == configured.ComProgID);
 
                             // Add the matching device instance to the device map so that we can easily find the device for each property later when we need to read values from it.
-                            state.ObservingConditionsDeviceMap.Add(property, device.Value);
+                            state.ObservingConditionsDeviceMap.TryAdd(property, device.Value);
                             logger.LogDebug("Property", $"Added Property: {property} {device.Key.DisplayName} {device.Key.Protocol}");
                         }
                         catch (Exception ex)
