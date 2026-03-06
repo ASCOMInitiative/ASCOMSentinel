@@ -33,6 +33,7 @@
     Lock mapLock = new();
     static bool connectedState = false;
     static bool connectingToDevices = false;
+    bool _disposed = false;
 
     DotNetObjectReference<Index>? objRef;
 
@@ -49,8 +50,7 @@
             // Get the current window size and re-size to this
             int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
-            OnResizeIndex(logWidth, logHeight);
-            StateHasChanged();
+            await OnResizeIndex(logWidth, logHeight);
 
             // Scroll the log window to the bottom of its contents.
             // try
@@ -62,7 +62,7 @@
             //     Console.WriteLine($"OnInitialized-setScrollTop: {ex}");
             // }
 
-            if (settings.AutoConnect & !connectedState)
+            if (settings.AutoConnect && !connectedState)
                 await ConnectedButtonClickHandler();
         }
         // Always scroll after render so new content is visible
@@ -79,14 +79,14 @@
 
             if (connectedState)
             {
-                await Disconnect();
+                Disconnect();
                 await InvokeAsync(StateHasChanged);
-                logger.LogMessage("Disconnect", "Devices disconnected.");
+                //logger.LogMessage("Disconnect", "Devices disconnected.");
             }
             else
             {
-                logger.LogMessage("Connect", "Devices connected");
                 await Connect();
+                //logger.LogMessage("Connect", "Devices connected");
             }
         }
         catch (Exception ex)
@@ -103,7 +103,7 @@
         }
     }
 
-    private async Task Disconnect()
+    private void Disconnect()
     {
         logger.LogMessage("Disconnect", $"Disconnecting from devices...");
 
@@ -131,8 +131,6 @@
                 }
                 state.SafetyMonitorDevices.Clear();
             }
-            //await InvokeAsync(StateHasChanged);
-
         }
         catch { }
         finally
@@ -157,7 +155,7 @@
 
             // Disconnect from any currently connected devices before connecting to the new set of devices.
             if (connectedState)
-                await Disconnect();
+                Disconnect();
 
             List<Task> startTasks = []; // List of tasks to set Connected=true on each device
 
@@ -271,7 +269,7 @@
                         }
                         catch (Exception ex)
                         {
-                            state.SafetyMonitorDevices[device.Key].Dispose();
+                            state.SafetyMonitorDevices[device.Key]?.Dispose();
                             state.SafetyMonitorDevices[device.Key] = null!;
 
                             if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
@@ -286,7 +284,7 @@
                         logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to a safety monitor: {device.Value.DisplayName}");
                         try
                         {
-                            state.SafetyMonitorDevices[device.Key].Dispose();
+                            state.SafetyMonitorDevices[device.Key]?.Dispose();
                             state.SafetyMonitorDevices[device.Key] = null!;
                         }
                         catch { }
@@ -296,9 +294,7 @@
             }
 
             // Wait for all tasks to finish.
-            logger.LogMessage("Connect", $"Waiting for tasks to finish");
             await Task.WhenAll(startTasks);
-            logger.LogMessage("Connect", $"Tasks finished");
 
             // Prune any failed safety monitor devices from the state
             foreach (var key in state.SafetyMonitorDevices.Keys.ToList())
@@ -351,7 +347,6 @@
         finally
         {
             connectedState = true;
-            logger.LogMessage("Connect", $"Connect to devices finished");
         }
     }
 
@@ -377,15 +372,20 @@
 
     private async void OnLogChanged(object? sender, MessageEventArgs e)
     {
+        if (_disposed)
+            return;
+
         try
         {
-
-            // Scroll to the bottom of the window and return the current window 'top' value.
-            // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
-            state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
-            await InvokeAsync(StateHasChanged);
+            // Dispatch both the JS interop call and StateHasChanged onto the Blazor sync context
+            await InvokeAsync(async () =>
+            {
+                state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+                StateHasChanged();
+            });
         }
-        catch (Exception ex) { LogConsole(ex.Message); } // Ignore exceptions here - we don't want the app to crash just because the log window can't scroll for some reason. The log will still be updated, just not scrolled to the bottom.
+        catch (ObjectDisposedException) { } // Component was disposed between the guard check and the call
+        catch (Exception ex) { LogConsole(ex.Message); }
     }
 
     #region Log resize support
@@ -404,7 +404,7 @@
     // This method will be called when the window resizes.
     // It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
     [JSInvokable]
-    public async void OnResizeIndex(int width, int height)
+    public async Task OnResizeIndex(int width, int height)
     {
         try
         {
@@ -433,9 +433,12 @@
 
     public async ValueTask DisposeAsync()
     {
+        _disposed = true;
+        logger.MessageLogChanged -= OnLogChanged;
+
         if (objRef != null)
         {
-            await JSRuntime.InvokeVoidAsync("window.unregisterIndexViewportChangeCallback"); // Optional: add unregister JS
+            await JSRuntime.InvokeVoidAsync("window.unregisterIndexViewportChangeCallback");
             objRef.Dispose();
         }
     }
