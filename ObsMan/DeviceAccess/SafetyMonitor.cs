@@ -85,9 +85,101 @@ namespace ObsMan.DeviceAccess
                             allSafe &= GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe); // All monitors must report safe for overall safety
                         }
                     }
+
+                    // Exit here if any monitor is not safe, no need to check the observing conditions rules if we're already not safe based on the safety monitors
+                    if (!allSafe)
+                        return false;
+
+                    // Check whether any rules are set for this property, and if so evaluate them against the current value of the property. If any rule is satisfied then we're not safe.
+                    foreach (PropertyName property in Globals.ObservingConditionsProperties)
+                    {
+                        // Get the four rule elements into local variables for easier reference
+                        EqualityType equalityType1 = settings.ObservingCondtionsRules[property].EqualityType1;
+                        double value1 = settings.ObservingCondtionsRules[property].Value1;
+                        EqualityType equalityType2 = settings.ObservingCondtionsRules[property].EqualityType2;
+                        double value2 = settings.ObservingCondtionsRules[property].Value2;
+
+                        // Check whether any rules are set, if not, exit early and consider this property as safe. 
+                        if (equalityType1 == EqualityType.NotInUse && equalityType2 == EqualityType.NotInUse)
+                            continue;
+
+                        // Get the current value of this property from the observing conditions device if it exists, if not, consider this property as safe and continue to the next property.
+                        state.ObservingConditionsDeviceMap.TryGetValue(property, out IObservingConditionsV2? observingConditionsDevice);
+                        if (observingConditionsDevice == null)
+                            continue;
+
+                        // Get the current value of this property from the observing conditions device
+                        double currentValue = observingConditionsDevice.CloudCover;
+
+                        // Evaluate the equality 1 rules against the current value of the property
+                        switch (equalityType1)
+                        {
+                            case EqualityType.NotInUse: // No rule set for this property so ignore it
+                                    break; 
+
+                            case EqualityType.LessThan:
+                                if (currentValue < value1)
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
+                                break;
+
+                            case EqualityType.LessOrEqual:
+                                if (currentValue <= value1)
+                                    allSafe=false; // Rule not satisfied, set allSafe to false
+                                break;
+
+                            case EqualityType.Equal:
+                                if (currentValue == value1)
+                                    allSafe=false; // Rule not satisfied, set allSafe to false
+                                break;
+
+                            case EqualityType.GreaterOrEqual:
+                                if (currentValue >= value1)
+                                    allSafe=false; // Rule not satisfied, set allSafe to false
+                                break;
+
+                            case EqualityType.GreaterThan:
+                                if (currentValue > value1)
+                                    allSafe=false; // Rule not satisfied, set allSafe to false
+                                break;
+                        }
+                        if(!allSafe) // No need to evaluate the second rule if the first rule is already not satisfied
+                            break;
+
+                        // Evaluate the equality 2 rules against the current value of the property
+                        switch (equalityType2)
+                        {
+                            case EqualityType.NotInUse: // No rule set for this property so ignore it
+                                break;
+
+                            case EqualityType.LessThan:
+                                if (currentValue < value2)
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
+                                break;
+
+                            case EqualityType.LessOrEqual:
+                                if (currentValue <= value2)
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
+                                break;
+
+                            case EqualityType.Equal:
+                                if (currentValue == value2)
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
+                                break;
+
+                            case EqualityType.GreaterOrEqual:
+                                if (currentValue >= value2)
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
+                                break;
+
+                            case EqualityType.GreaterThan:
+                                if (currentValue > value2)
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
+                                break;
+                        }
+                    }
+
                     return allSafe;
                 }
-
                 throw new ASCOM.NotConnectedException("Observatory Manager safety monitor is not connected.");
             }
         }
