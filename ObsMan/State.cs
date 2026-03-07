@@ -15,6 +15,8 @@
 
         #region public properties
 
+        public List<SafetyState> LastSafetyState { get; set; } = [];
+
         /// <summary>
         /// Current width of the view port window
         /// </summary>

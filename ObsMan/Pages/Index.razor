@@ -52,16 +52,6 @@
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
             await OnResizeIndex(logWidth, logHeight);
 
-            // Scroll the log window to the bottom of its contents.
-            // try
-            // {
-            //     await JSRuntime.InvokeVoidAsync("setScrollTop", "ObsManLog", state.TopOfVisibleLog.ToString());
-            // }
-            // catch (Exception ex)
-            // {
-            //     Console.WriteLine($"OnInitialized-setScrollTop: {ex}");
-            // }
-
             if (settings.AutoConnect && !connectedState)
                 await ConnectedButtonClickHandler();
         }
@@ -71,35 +61,37 @@
 
     private async Task ConnectedButtonClickHandler()
     {
-
-        try
+        if (!connectingToDevices)
         {
-            connectingToDevices = true;
-            await InvokeAsync(StateHasChanged);
-
-            if (connectedState)
+            try
             {
-                Disconnect();
+                connectingToDevices = true;
                 await InvokeAsync(StateHasChanged);
-                //logger.LogMessage("Disconnect", "Devices disconnected.");
-            }
-            else
-            {
-                await Connect();
-                //logger.LogMessage("Connect", "Devices connected");
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError("Connect", $"Overall exception: \r\n{ex}");
-        }
-        finally
-        {
-            connectingToDevices = false;
-            // Scroll to the bottom of the window and return the current window 'top' value.
-            //int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
 
-            await InvokeAsync(StateHasChanged);
+                if (connectedState)
+                {
+                    Disconnect();
+                    await InvokeAsync(StateHasChanged);
+                    //logger.LogMessage("Disconnect", "Devices disconnected.");
+                }
+                else
+                {
+                    await Connect();
+                    //logger.LogMessage("Connect", "Devices connected");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Connect", $"Overall exception: \r\n{ex}");
+            }
+            finally
+            {
+                connectingToDevices = false;
+                // Scroll to the bottom of the window and return the current window 'top' value.
+                //int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+
+                await InvokeAsync(StateHasChanged);
+            }
         }
     }
 
