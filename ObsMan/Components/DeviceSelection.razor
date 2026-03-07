@@ -7,12 +7,12 @@
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;">@PropertyDescription</span>
-    <RadzenDropDown @bind-Value=@bindValue
+    <RadzenDropDown Value=@CurrentValue
                     Data=@DiscoveredDevices
-                    TValue="DiscoveredDevice"
+                    TValue=DiscoveredDevice
                     TextProperty="@nameof(DiscoveredDevice.DisplayName)"
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;"
-                    Change="(args)=>DropDownChanged(args)"
+                    Change="(args)=>DeviceChanged(args)"
                     Name="DropDownBindValue">
         <Template Context="item">
             <span style="color: @(ItemColour(item));font-size:1rem">
@@ -23,6 +23,8 @@
 </div>
 
 @code {
+    EqualityType equalityType1;
+
     /// <summary>
     /// Determines the display color for a given device based on its configuration and protocol.
     /// </summary>
@@ -33,7 +35,7 @@
         // Check if this device is not configured
         if (device.ObsManDeviceType == ObsManDeviceType.NotSet) // Not configured so return red
             return "Red";
-            
+
         // Check whether it is Alpaca or COM
         if (device.PortNumber != 0) // Alpaca device so return blue
             return "DodgerBlue";
@@ -44,18 +46,16 @@
     DiscoveredDevice? bindValue = null;
     int switchNumber = 0;
 
-    private void DropDownChanged(object args)
+    private void DeviceChanged(object args)
     {
         if (args == null)
             return;
         DiscoveredDevice device = (DiscoveredDevice)args;
-        //logger.LogMessage("", $"DropDownChanged - Selected value: {device.DisplayName} {device.Id}");
 
         settings.ConfiguredDevices[Property] = device;
-        //logger.LogMessage("", $"DropDownChanged - Set device");
         settings.Save();
-        //logger.LogMessage("", $"DropDownChanged - Saved settings");
     }
+
 
     [Parameter]
     public IEnumerable<DiscoveredDevice> DiscoveredDevices { get; set; } = Enumerable.Empty<DiscoveredDevice>();
@@ -64,7 +64,7 @@
     public string PropertyDescription { get; set; } = "Not set";
 
     [Parameter]
-    public DiscoveredDevice CurrentValue { get { return bindValue; } set { bindValue = value; } } 
+    public DiscoveredDevice CurrentValue { get { return bindValue; } set { bindValue = value; } }
 
     [Parameter]
     public PropertyName Property { get; set; }

@@ -224,6 +224,23 @@ namespace ObsMan
         // NOTE Values to be persisted must be defined as PROPERTIES rather than FIELDS.
         // If they are not properties they will NOT be included in the serialised JSON string.
 
+        public Dictionary<PropertyName, ObservingConditionsRule> ObservingCondtionsRules { get; set; } =new()
+        {
+            { PropertyName.CloudCover, new ObservingConditionsRule() },
+            { PropertyName.DewPoint, new ObservingConditionsRule() },
+            { PropertyName.Humidity, new ObservingConditionsRule() },
+            { PropertyName.Pressure, new ObservingConditionsRule() },
+            { PropertyName.RainRate, new ObservingConditionsRule() },
+            { PropertyName.SkyBrightness, new ObservingConditionsRule() },
+            { PropertyName.SkyQuality, new ObservingConditionsRule() },
+            { PropertyName.SkyTemperature, new ObservingConditionsRule() },
+            { PropertyName.StarFWHM, new ObservingConditionsRule() },
+            { PropertyName.Temperature, new ObservingConditionsRule() },
+            { PropertyName.WindDirection, new ObservingConditionsRule() },
+            { PropertyName.WindGust, new ObservingConditionsRule() },
+            { PropertyName.WindSpeed, new ObservingConditionsRule() },
+        };
+
         public bool AutoConnect { get; set; } = false;
 
         public TimeSpan PropertyCacheTime { get; set; } = TimeSpan.FromSeconds(1.0); // Seconds to wait before considering cached device property values as expired and retrieving new values from the devices

@@ -1,0 +1,106 @@
+﻿@namespace ObsMan.Components
+
+@inject ObsManLogger logger
+@inject Settings settings
+
+<div>
+    <span style="display:inline-block; width:150px; margin:0px; text-align:left;"><b>@PropertyDescription</b></span>
+
+    <RadzenDropDown Value=@Equality1
+                    Data=@Enum.GetValues(typeof(EqualityType))
+                    TValue="EqualityType"
+                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
+                    Change="(args)=>Equality1Changed(args)"
+                    PopupStyle="max-height:8em); overflow:auto;"
+                    Name="Equality1" />
+
+    <RadzenNumeric Value=@Value1
+                   TValue=double
+                   Step="0.1"
+                   Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
+                   Change="(args) => Value1Changed(args)"
+                   ShowUpDown="false"
+                   Name="Value1" />
+
+    <span style="display:inline-block; width:150px; margin:0px; margin-left:90px; text-align:left;"><b>@PropertyDescription</b></span>
+
+    <RadzenDropDown Value=@Equality2
+                    Data=@Enum.GetValues(typeof(EqualityType))
+                    TValue="EqualityType"
+                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
+                    Change="(args)=>Equality2Changed(args)"
+                    PopupStyle="max-height:8em); overflow:auto;"
+                    Name="Equality2" />
+
+    <RadzenNumeric Value=@Value2
+                   TValue=double
+                   Step="0.1"
+                   Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
+                   Change="(args) => Value2Changed(args)"
+                   ShowUpDown="false"
+                   Name="Value2" />
+
+    <RadzenLabel Text="@Units" Style="margin-left:20px" />
+
+</div>
+
+@code {
+    private void Equality1Changed(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.ObservingCondtionsRules[Property].EqualityType1 = (EqualityType)args;
+        settings.Save();
+    }
+
+    private void Value1Changed(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.ObservingCondtionsRules[Property].Value1 = (double)args;
+        settings.Save();
+    }
+
+    private void Equality2Changed(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.ObservingCondtionsRules[Property].EqualityType2 = (EqualityType)args;
+        settings.Save();
+    }
+
+    private void Value2Changed(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.ObservingCondtionsRules[Property].Value2 = (double)args;
+        settings.Save();
+    }
+
+
+    [Parameter]
+    public string PropertyDescription { get; set; } = "Not set";
+
+    [Parameter]
+    public PropertyName Property { get; set; } 
+
+    [Parameter]
+    public EqualityType Equality1 { get; set; } = EqualityType.NotInUse;
+
+    [Parameter]
+    public double Value1 { get; set; } = double.NaN;
+
+    [Parameter]
+    public EqualityType Equality2 { get; set; } = EqualityType.NotInUse;
+
+    [Parameter]
+    public double Value2 { get; set; } = double.NaN;
+
+    [Parameter]
+    public string Units { get; set; } = "Not set";
+
+}

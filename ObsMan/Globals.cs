@@ -16,10 +16,27 @@
         internal const bool ALPACA_SEARCH_STRICT_CASING = false;
         internal const string USER_AGENT_PRODUCT_NAME = "ObservatoryManager";
 
-        internal const  string SAFETY_MONITOR_DEVICE_NAME = "Observatory Manager - Safety Monitor";
+        internal const string SAFETY_MONITOR_DEVICE_NAME = "Observatory Manager - Safety Monitor";
         internal const string OBSERVING_CONDITIONS_DEVICE_NAME = "Observatory Manager - Observing Conditions";
 
         internal static readonly Lock writeLogLock = new(); // Lock object to synchronize access to the log when resizing
+
+        internal static List<PropertyName> ObservingConditionsProperties = new()
+        {
+            PropertyName.CloudCover,
+            PropertyName.DewPoint,
+            PropertyName.Humidity,
+            PropertyName.Pressure,
+            PropertyName.RainRate,
+            PropertyName.SkyBrightness,
+            PropertyName.SkyQuality,
+            PropertyName.SkyTemperature,
+            PropertyName.StarFWHM,
+            PropertyName.Temperature,
+            PropertyName.WindDirection,
+            PropertyName.WindGust,
+            PropertyName.WindSpeed
+        };
 
     }
 }

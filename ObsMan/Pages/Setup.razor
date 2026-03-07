@@ -28,7 +28,7 @@
     <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:410px;">@statusText</RadzenText>
     <ObsManButton Click="@ResetSettings" Text="Reset To Defaults" />
 </span>
-<RadzenTabs Change=@OnTabChange style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
+<RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
     <Tabs>
 
         @*Observatory manager configuration*@
@@ -158,19 +158,58 @@
                     <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
                     <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
 
-                    <DeviceSelection Property="PropertyName.CloudCover" PropertyDescription="Cloud Cover" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
-                    <DeviceSelection Property="PropertyName.DewPoint" PropertyDescription="Dew Point" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
-                    <DeviceSelection Property="PropertyName.Humidity" PropertyDescription="Humidity" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
-                    <DeviceSelection Property="PropertyName.Pressure" PropertyDescription="Pressure" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
-                    <DeviceSelection Property="PropertyName.RainRate" PropertyDescription="Rain Rate" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
-                    <DeviceSelection Property="PropertyName.SkyBrightness" PropertyDescription="Sky Brightness" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
-                    <DeviceSelection Property="PropertyName.SkyQuality" PropertyDescription="Sky Quality" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
-                    <DeviceSelection Property="PropertyName.SkyTemperature" PropertyDescription="Sky Temperature" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
-                    <DeviceSelection Property="PropertyName.StarFWHM" PropertyDescription="Star FWHM" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
-                    <DeviceSelection Property="PropertyName.Temperature" PropertyDescription="Temperature" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
-                    <DeviceSelection Property="PropertyName.WindDirection" PropertyDescription="Wind Direction" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
-                    <DeviceSelection Property="PropertyName.WindGust" PropertyDescription="Wind Gust" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
-                    <DeviceSelection Property="PropertyName.WindSpeed" PropertyDescription="Wind Speed" DiscoveredDevices=@observingConditionsDevices CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
+                    <DeviceSelection Property="PropertyName.CloudCover"
+                                     PropertyDescription="Cloud Cover"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]"/>
+                    <DeviceSelection Property="PropertyName.DewPoint"
+                                     PropertyDescription="Dew Point"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
+                    <DeviceSelection Property="PropertyName.Humidity"
+                                     PropertyDescription="Humidity"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
+                    <DeviceSelection Property="PropertyName.Pressure"
+                                     PropertyDescription="Pressure"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
+                    <DeviceSelection Property="PropertyName.RainRate"
+                                     PropertyDescription="Rain Rate"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
+                    <DeviceSelection Property="PropertyName.SkyBrightness"
+                                     PropertyDescription="Sky Brightness"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
+                    <DeviceSelection Property="PropertyName.SkyQuality"
+                                     PropertyDescription="Sky Quality"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
+                    <DeviceSelection Property="PropertyName.SkyTemperature"
+                                     PropertyDescription="Sky Temperature"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
+                    <DeviceSelection Property="PropertyName.StarFWHM"
+                                     PropertyDescription="Star FWHM"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
+                    <DeviceSelection Property="PropertyName.Temperature"
+                                     PropertyDescription="Temperature"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
+                    <DeviceSelection Property="PropertyName.WindDirection"
+                                     PropertyDescription="Wind Direction"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
+                    <DeviceSelection Property="PropertyName.WindGust"
+                                     PropertyDescription="Wind Gust"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
+                    <DeviceSelection Property="PropertyName.WindSpeed"
+                                     PropertyDescription="Wind Speed"
+                                     DiscoveredDevices=@observingConditionsDevices
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -205,7 +244,110 @@
             </div>
         </RadzenTabsItem>
 
-        <RadzenTabsItem Text="Safety Monitor Rules">
+        <RadzenTabsItem Text="Observing Conditions Rules">
+            <div class="row" style="margin-top: 10px">
+                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Safety Monitor Trigger Rules for Observing Conditions Properties</h4>
+                    <p style="padding-top:20px;padding-bottom:20px">
+                        The virtual safety monitor will return <b>IsSafe = false</b> when <b>ANY</b> of these conditions are met.
+                    </p>
+
+                    <ObservingConditionsRule Property="PropertyName.CloudCover"
+                                             PropertyDescription="Cloud Cover"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.CloudCover].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.CloudCover].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.CloudCover].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.CloudCover].Value2"
+                                             Units="Percent" />
+                    <ObservingConditionsRule Property="PropertyName.DewPoint"
+                                             PropertyDescription="Dew Point"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.DewPoint].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.DewPoint].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.DewPoint].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.DewPoint].Value2"
+                                             Units="°C" />
+                    <ObservingConditionsRule Property="PropertyName.Humidity"
+                                             PropertyDescription="Humidity"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.Humidity].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.Humidity].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.Humidity].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.Humidity].Value2"
+                                             Units="Percent" />
+                    <ObservingConditionsRule Property="PropertyName.Pressure"
+                                             PropertyDescription="Pressure"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.Pressure].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.Pressure].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.Pressure].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.Pressure].Value2"
+                                             Units="hPa" />
+                    <ObservingConditionsRule Property="PropertyName.RainRate"
+                                             PropertyDescription="Rain Rate"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.RainRate].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.RainRate].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.RainRate].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.RainRate].Value2"
+                                             Units="mm/hr" />
+                    <ObservingConditionsRule Property="PropertyName.SkyBrightness"
+                                             PropertyDescription="Sky Brightness"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].Value2"
+                                             Units="Lux" />
+                    <ObservingConditionsRule Property="PropertyName.SkyQuality"
+                                             PropertyDescription="Sky Quality"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.SkyQuality].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.SkyQuality].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.SkyQuality].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.SkyQuality].Value2"
+                                             Units="mag/arcsec²" />
+                    <ObservingConditionsRule Property="PropertyName.SkyTemperature"
+                                             PropertyDescription="Sky Temperature"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].Value2"
+                                             Units="°C" />
+                    <ObservingConditionsRule Property="PropertyName.StarFWHM"
+                                             PropertyDescription="Star FWHM"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.StarFWHM].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.StarFWHM].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.StarFWHM].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.StarFWHM].Value2"
+                                             Units="ArcSec" />
+                    <ObservingConditionsRule Property="PropertyName.Temperature"
+                                             PropertyDescription="Temperature"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.Temperature].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.Temperature].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.Temperature].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.Temperature].Value2"
+                                             Units="°C" />
+                    <ObservingConditionsRule Property="PropertyName.WindDirection"
+                                             PropertyDescription="Wind Direction"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.WindDirection].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.WindDirection].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.WindDirection].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.WindDirection].Value2"
+                                             Units="Degrees" />
+                    <ObservingConditionsRule Property="PropertyName.WindGust"
+                                             PropertyDescription="Wind Gust"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.WindGust].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.WindGust].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.WindGust].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.WindGust].Value2"
+                                             Units="m/s" />
+                    <ObservingConditionsRule Property="PropertyName.WindSpeed"
+                                             PropertyDescription="Wind Speed"
+                                             Equality1="settings.ObservingCondtionsRules[PropertyName.WindSpeed].EqualityType1"
+                                             Value1="settings.ObservingCondtionsRules[PropertyName.WindSpeed].Value1"
+                                             Equality2="settings.ObservingCondtionsRules[PropertyName.WindSpeed].EqualityType2"
+                                             Value2="settings.ObservingCondtionsRules[PropertyName.WindSpeed].Value2"
+                                             Units="m/s" />
+                </RadzenCard>
+            </div>
+        </RadzenTabsItem>
+
+        <RadzenTabsItem Text="Safety Monitor Rules" Visible="false">
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
@@ -279,21 +421,8 @@
             // Get the current window size and re-size to this
             int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
-            OnResizeSetup(logWidth, logHeight);
+            await OnResizeSetup(logWidth, logHeight);
         }
-        await InvokeAsync(StateHasChanged);
-    }
-
-    // private async Task UpdateDeviceList()
-    // {
-    //     logger.LogDebugConsole("UpdateDeviceList", $"UpdateDeviceList - Starting device discovery...");
-    //     await StartDiscovery();
-    //     logger.LogDebugConsole("UpdateDeviceList", $"UpdateDeviceList - Finished starting device discovery.");
-    // }
-
-    private async void OnTabChange()
-    {
-
     }
 
     private async void AlpacaDiscoveryCompleted(object? caller, EventArgs args)
@@ -462,7 +591,7 @@
     // This method will be called when the window resizes.
     // It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
     [JSInvokable]
-    public async void OnResizeSetup(int width, int height)
+    public async Task OnResizeSetup(int width, int height)
     {
         try
         {
