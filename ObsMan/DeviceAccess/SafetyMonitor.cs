@@ -115,7 +115,7 @@ namespace ObsMan.DeviceAccess
                         switch (equalityType1)
                         {
                             case EqualityType.NotInUse: // No rule set for this property so ignore it
-                                    break; 
+                                break;
 
                             case EqualityType.LessThan:
                                 if (currentValue < value1)
@@ -124,25 +124,25 @@ namespace ObsMan.DeviceAccess
 
                             case EqualityType.LessOrEqual:
                                 if (currentValue <= value1)
-                                    allSafe=false; // Rule not satisfied, set allSafe to false
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
                                 break;
 
                             case EqualityType.Equal:
                                 if (currentValue == value1)
-                                    allSafe=false; // Rule not satisfied, set allSafe to false
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
                                 break;
 
                             case EqualityType.GreaterOrEqual:
                                 if (currentValue >= value1)
-                                    allSafe=false; // Rule not satisfied, set allSafe to false
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
                                 break;
 
                             case EqualityType.GreaterThan:
                                 if (currentValue > value1)
-                                    allSafe=false; // Rule not satisfied, set allSafe to false
+                                    allSafe = false; // Rule not satisfied, set allSafe to false
                                 break;
                         }
-                        if(!allSafe) // No need to evaluate the second rule if the first rule is already not satisfied
+                        if (!allSafe) // No need to evaluate the second rule if the first rule is already not satisfied
                             break;
 
                         // Evaluate the equality 2 rules against the current value of the property
@@ -205,7 +205,7 @@ namespace ObsMan.DeviceAccess
         public short InterfaceVersion => 3;
         public string Name => "Observatory Manager - Name";
 
-        public IList<string> SupportedActions => [];
+        public List<string> SupportedActions => new List<string>(){""};
 
         public string Action(string actionName, string actionParameters)
         {
