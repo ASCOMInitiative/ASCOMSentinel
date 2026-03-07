@@ -432,7 +432,11 @@
 
         if (objRef != null)
         {
-            await JSRuntime.InvokeVoidAsync("window.unregisterIndexViewportChangeCallback");
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("window.unregisterIndexViewportChangeCallback");
+            }
+            catch { }
             objRef.Dispose();
         }
     }

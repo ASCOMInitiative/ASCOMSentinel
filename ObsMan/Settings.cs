@@ -223,6 +223,20 @@ namespace ObsMan
 
         // NOTE Values to be persisted must be defined as PROPERTIES rather than FIELDS.
         // If they are not properties they will NOT be included in the serialised JSON string.
+        public Dictionary<PropertyName, SafetyMonitorState> SafetyMonitorSettings { get; set; } = new()
+        {
+            { PropertyName.SafetyMonitor0, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor1, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor2, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor3, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor4, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor5, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor6, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor7, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor8, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor9, SafetyMonitorState.NotInUse },
+        };
+
 
         public Dictionary<PropertyName, ObservingConditionsRule> ObservingCondtionsRules { get; set; } =new()
         {

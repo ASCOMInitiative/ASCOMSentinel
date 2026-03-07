@@ -161,7 +161,7 @@
                     <DeviceSelection Property="PropertyName.CloudCover"
                                      PropertyDescription="Cloud Cover"
                                      DiscoveredDevices=@observingConditionsDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]"/>
+                                     CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
                     <DeviceSelection Property="PropertyName.DewPoint"
                                      PropertyDescription="Dew Point"
                                      DiscoveredDevices=@observingConditionsDevices
@@ -351,6 +351,36 @@
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                    <SafetyMonitorRule Name="Safety Monitor 0"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor0]"
+                                       Property="PropertyName.SafetyMonitor0" />
+                    <SafetyMonitorRule Name="Safety Monitor 1"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor1]"
+                                       Property="PropertyName.SafetyMonitor1" />
+                    <SafetyMonitorRule Name="Safety Monitor 2"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor2]"
+                                       Property="PropertyName.SafetyMonitor2" />
+                    <SafetyMonitorRule Name="Safety Monitor 3"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor3]"
+                                       Property="PropertyName.SafetyMonitor3" />
+                    <SafetyMonitorRule Name="Safety Monitor 4"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor4]"
+                                       Property="PropertyName.SafetyMonitor4" />
+                    <SafetyMonitorRule Name="Safety Monitor 5"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor5]"
+                                       Property="PropertyName.SafetyMonitor5" />
+                    <SafetyMonitorRule Name="Safety Monitor 6"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor6]"
+                                       Property="PropertyName.SafetyMonitor6" />
+                    <SafetyMonitorRule Name="Safety Monitor 7"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor7]"
+                                       Property="PropertyName.SafetyMonitor7" />
+                    <SafetyMonitorRule Name="Safety Monitor 8"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor8]"
+                                       Property="PropertyName.SafetyMonitor8" />
+                    <SafetyMonitorRule Name="Safety Monitor 9"
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor9]"
+                                       Property="PropertyName.SafetyMonitor9" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -617,8 +647,17 @@
     {
         if (objRef != null)
         {
-            await JSRuntime.InvokeVoidAsync("window.unregisterSetupViewportChangeCallback"); // Optional: add unregister JS
-            objRef.Dispose();
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("window.unregisterSetupViewportChangeCallback"); // Optional: add unregister JS
+            }
+            catch { }
+
+            try
+            {
+                objRef.Dispose();
+            }
+            catch { }
         }
     }
 
