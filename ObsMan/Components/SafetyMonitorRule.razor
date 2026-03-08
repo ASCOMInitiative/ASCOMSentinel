@@ -5,7 +5,7 @@
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;"><b>@Name</b></span>
-    <span style="display:inline-block; width:60px; margin:0px; text-align:left;">state</span>
+    <span style="display:inline-block; width:700px; margin:0px; text-align:left;">@Description</span>
 
     <RadzenDropDown Value=@SafetyMonitorState
                     Data=@Enum.GetValues(typeof(SafetyMonitorState))
@@ -13,19 +13,23 @@
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 115px; text-align:left;color;"
                     Change="(args)=>SafetyMonitorStateChanged(args)"
                     PopupStyle="max-height:8em); overflow:auto;"
-                    Name="Equality1" />
+                    Disabled="@Disabled"
+                    Name="SafetyMonitorState" />
 </div>
 
 
 @code {
     [Parameter]
-    public string Name { get; set; } = "Not set";
+    public string Name { get; set; } = Globals.NOT_SET;
 
     [Parameter]
-    public SafetyMonitorState SafetyMonitorState { get; set; } = SafetyMonitorState.NotInUse;
+    public SafetyMonitorState SafetyMonitorState { get; set; } = SafetyMonitorState.Enabled;
 
     [Parameter]
     public PropertyName Property { get; set; }
+
+    [Parameter]
+    public string Description { get; set; } = Globals.NOT_SET;
 
     private void SafetyMonitorStateChanged(object args)
     {
@@ -34,5 +38,13 @@
 
         settings.SafetyMonitorSettings[Property] = (SafetyMonitorState)args;
         settings.Save();
+    }
+
+    private bool Disabled 
+    {
+        get
+        {
+            return Description == Globals.NOT_SET;
+        }
     }
 }

@@ -83,7 +83,7 @@
 
 
     [Parameter]
-    public string PropertyDescription { get; set; } = "Not set";
+    public string PropertyDescription { get; set; } = Globals.NOT_SET;
 
     [Parameter]
     public PropertyName Property { get; set; } 
@@ -101,6 +101,6 @@
     public double Value2 { get; set; } = double.NaN;
 
     [Parameter]
-    public string Units { get; set; } = "Not set";
+    public string Units { get; set; } = Globals.NOT_SET;
 
 }

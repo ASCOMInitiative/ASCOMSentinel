@@ -1,5 +1,7 @@
-﻿using ASCOM.Common;
+﻿using ASCOM;
+using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
+using Microsoft.OpenApi.Any;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -12,17 +14,6 @@ namespace ObsMan.DeviceAccess
         private readonly State state;
         private readonly ObsManLogger logger;
 
-        PropertyName[] safetyMonitors = [
-            PropertyName.SafetyMonitor0,
-                PropertyName.SafetyMonitor1,
-                PropertyName.SafetyMonitor2,
-                PropertyName.SafetyMonitor3,
-                PropertyName.SafetyMonitor4,
-                PropertyName.SafetyMonitor5,
-                PropertyName.SafetyMonitor6,
-                PropertyName.SafetyMonitor7,
-                PropertyName.SafetyMonitor8,
-                PropertyName.SafetyMonitor9];
 
         public SafetyMonitor(Settings settings, State state, ObsManLogger logger)
         {
@@ -45,7 +36,7 @@ namespace ObsMan.DeviceAccess
         private readonly ConcurrentDictionary<PropertyName, CacheEntry<bool>> _propertyCache = new();
         private readonly ConcurrentDictionary<PropertyName, Lock> _propertyLocks = new();
 
-        /// <summary>Reads a device property value, re-throwing NotImplementedException as-is and wrapping all other exceptions in a NotImplementedException.</summary>
+        /// <summary>Reads a device property value, re-throwing <see cref="ASCOM.NotImplementedException"/> as-is and wrapping all other exceptions in a <see cref="ASCOM.NotImplementedException"/>.</summary>
         /// <remarks>Results (including exceptions) are cached for <see cref="CacheExpiry"/>. Each property has its own lock so concurrent reads of different properties do not block each other.</remarks>
         private bool GetCachedBool(PropertyName propertyName, Func<bool> getValue)
         {
@@ -87,11 +78,37 @@ namespace ObsMan.DeviceAccess
                     state.LastSafetyState.Clear(); // Clear the last safety state list to be populated with any new safety events detected in this call
                     bool allSafe = true;
 
-                    foreach (PropertyName property in safetyMonitors)
+                    // Iterate over the safety monitor configurations
+                    foreach (PropertyName property in Globals.SafetyMonitorNames)
                     {
-                        if (state.SafetyMonitorDevices.TryGetValue(property, out ISafetyMonitorV3? entry))
+                        bool isSafe=false;
+
+                        // Check whether this Alpaca or COM safety monitor device is available for use
+                        if (state.SafetyMonitorDevices.TryGetValue(property, out ISafetyMonitorV3? entry)) // The device 
                         {
-                            bool isSafe = GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe); // All monitors must report safe for overall safety
+                            // Check how we are configured to handle this safety monitor
+                            switch (settings.SafetyMonitorSettings[property])
+                            {
+                                case SafetyMonitorState.Enabled: // The monitor is enabled for normal use so check its value
+                                    try
+                                    {
+                                        isSafe = GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe);
+                                    }
+                                    catch { } // Any error results in isSafe remaining false, and a safety event being added to the list below
+                                    break;
+
+                                case SafetyMonitorState.ForceFalse: // The monitor is configured to always report an UNSAFE condition
+                                    isSafe = false;
+                                    break;
+
+                                case SafetyMonitorState.ForceTrue: // The monitor is configured to always report a SAFE condition
+                                    isSafe = true;
+                                    break;
+
+                                default:
+                                    throw new InvalidValueException($"Unknown safety monitor state {settings.SafetyMonitorSettings[property]} for device {property}.");
+                            }
+
                             if (!isSafe)
                             {
                                 logger.LogMessageConsole("IsSafe", $"Safety monitor {property} reported unsafe.");
@@ -181,7 +198,7 @@ namespace ObsMan.DeviceAccess
                                 break;
 
                             default:
-                                throw new InvalidOperationException($"Unrecognised property name: {property}");
+                                throw new ASCOM.InvalidOperationException($"Unrecognised property name: {property}");
                         }
 
                         // Evaluate the equality 1 rules against the current value of the property
@@ -312,22 +329,22 @@ namespace ObsMan.DeviceAccess
                     return JsonSerializer.Serialize(state.LastSafetyState, _jsonOptions);
             }
 
-            throw new NotImplementedException();
+            throw new ActionNotImplementedException( $"Action not implemented: {actionName}");
         }
 
         public void CommandBlind(string command, bool raw = false)
         {
-            throw new NotImplementedException();
+            throw new ASCOM.NotImplementedException("CommandBlind is not implemented.");
         }
 
         public bool CommandBool(string command, bool raw = false)
         {
-            throw new NotImplementedException();
+            throw new ASCOM.NotImplementedException("CommandBool is not implemented.");
         }
 
         public string CommandString(string command, bool raw = false)
         {
-            throw new NotImplementedException();
+            throw new ASCOM.NotImplementedException("CommandString is not implemented.");
         }
 
         private bool connected = false;

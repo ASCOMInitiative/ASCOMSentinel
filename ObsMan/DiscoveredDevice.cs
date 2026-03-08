@@ -59,10 +59,9 @@ namespace ObsMan
                         return $"{Name} ({ComProgID})";
 
                     default:
-                        return "Not set";
+                        return Globals.NOT_SET;
                 }
             }
         }
-
     }
 }

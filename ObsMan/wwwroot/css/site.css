@@ -106,7 +106,7 @@ fieldset {
 
 /* Override Radzen dropdown CSS custom properties */
 :root {
-    --rz-dropdown-item-hover-background-color: #f0f0f0;
+    --rz-dropdown-item-hover-background-color: #fcfcfc;
     --rz-dropdown-item-selected-background-color: #f0f0f0;
     --rz-dropdown-item-selected-hover-background-color: #f0f0f0;
 }

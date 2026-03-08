@@ -230,16 +230,16 @@
                     <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
                     <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
 
-                    <DeviceSelection Property="PropertyName.SafetyMonitor0" PropertyDescription="Safety monitor 0" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor0]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor1" PropertyDescription="Safety monitor 1" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor1]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor2" PropertyDescription="Safety monitor 2" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor2]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor3" PropertyDescription="Safety monitor 3" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor3]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor4" PropertyDescription="Safety monitor 4" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor4]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor5" PropertyDescription="Safety monitor 5" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor5]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor6" PropertyDescription="Safety monitor 6" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor6]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor7" PropertyDescription="Safety monitor 7" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor7]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor8" PropertyDescription="Safety monitor 8" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor8]" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor9" PropertyDescription="Safety monitor 9" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor9]" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor0" PropertyDescription="Safety monitor 0" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor0]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor1" PropertyDescription="Safety monitor 1" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor1]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor2" PropertyDescription="Safety monitor 2" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor2]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor3" PropertyDescription="Safety monitor 3" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor3]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor4" PropertyDescription="Safety monitor 4" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor4]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor5" PropertyDescription="Safety monitor 5" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor5]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor6" PropertyDescription="Safety monitor 6" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor6]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor7" PropertyDescription="Safety monitor 7" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor7]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor8" PropertyDescription="Safety monitor 8" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor8]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
+                    <DeviceSelection Property="PropertyName.SafetyMonitor9" PropertyDescription="Safety monitor 9" DiscoveredDevices=@safetyMonitorDevices CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor9]" OnDeviceChanged="@OnSafetyMonitorDeviceChanged" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -350,37 +350,48 @@
         <RadzenTabsItem Text="Safety Monitor Rules" Visible="true">
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
-                    <SafetyMonitorRule Name="Safety Monitor 0"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor0]"
-                                       Property="PropertyName.SafetyMonitor0" />
-                    <SafetyMonitorRule Name="Safety Monitor 1"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor1]"
-                                       Property="PropertyName.SafetyMonitor1" />
-                    <SafetyMonitorRule Name="Safety Monitor 2"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor2]"
-                                       Property="PropertyName.SafetyMonitor2" />
-                    <SafetyMonitorRule Name="Safety Monitor 3"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor3]"
-                                       Property="PropertyName.SafetyMonitor3" />
-                    <SafetyMonitorRule Name="Safety Monitor 4"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor4]"
-                                       Property="PropertyName.SafetyMonitor4" />
-                    <SafetyMonitorRule Name="Safety Monitor 5"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor5]"
-                                       Property="PropertyName.SafetyMonitor5" />
-                    <SafetyMonitorRule Name="Safety Monitor 6"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor6]"
-                                       Property="PropertyName.SafetyMonitor6" />
-                    <SafetyMonitorRule Name="Safety Monitor 7"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor7]"
-                                       Property="PropertyName.SafetyMonitor7" />
-                    <SafetyMonitorRule Name="Safety Monitor 8"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor8]"
-                                       Property="PropertyName.SafetyMonitor8" />
-                    <SafetyMonitorRule Name="Safety Monitor 9"
-                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor9]"
-                                       Property="PropertyName.SafetyMonitor9" />
+                    <h4 style="color: #479cc8; margin-bottom: 0;">Safety Monitor Rules</h4>
+                    <p></p>
+                    <SafetyMonitorRule Name="Safety Monitor 0" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor0]" 
+                                       Property="PropertyName.SafetyMonitor0"
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor0].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 1" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor1]" 
+                                       Property="PropertyName.SafetyMonitor1" 
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor1].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 2" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor2]" 
+                                       Property="PropertyName.SafetyMonitor2" 
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor2].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 3" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor3]" 
+                                       Property="PropertyName.SafetyMonitor3" 
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor3].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 4" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor4]" 
+                                       Property="PropertyName.SafetyMonitor4"
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor4].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 5" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor5]" 
+                                       Property="PropertyName.SafetyMonitor5"
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor5].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 6" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor6]" 
+                                       Property="PropertyName.SafetyMonitor6"
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor6].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 7" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor7]" 
+                                       Property="PropertyName.SafetyMonitor7"
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor7].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 8" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor8]" 
+                                       Property="PropertyName.SafetyMonitor8"
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor8].DisplayName" />
+                    <SafetyMonitorRule Name="Safety Monitor 9" 
+                                       SafetyMonitorState="settings.SafetyMonitorSettings[PropertyName.SafetyMonitor9]" 
+                                       Property="PropertyName.SafetyMonitor9" 
+                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor9].DisplayName" />
                 </RadzenCard>
             </div>
         </RadzenTabsItem>
@@ -415,6 +426,8 @@
     DotNetObjectReference<Setup>? objRef;
     LogLevel TraceLevel { get { return settings.LogLevel; } set { settings.LogLevel = value; settings.Save(); } }
     private int WindowWidth { get; set; } = 1280;
+
+    private void OnSafetyMonitorDeviceChanged(DiscoveredDevice device) { }
 
     protected override async Task OnInitializedAsync()
     {

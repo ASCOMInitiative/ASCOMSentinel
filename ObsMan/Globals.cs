@@ -19,8 +19,10 @@
         internal const string SAFETY_MONITOR_DEVICE_NAME = "Observatory Manager - Safety Monitor";
         internal const string OBSERVING_CONDITIONS_DEVICE_NAME = "Observatory Manager - Observing Conditions";
 
-        internal const string SAFETY_EVENT_ACTION_NAME= "GetSafetyState"; 
+        internal const string SAFETY_EVENT_ACTION_NAME = "GetSafetyState";
         internal const string SAFETY_EVENT_ACTION_NAME_LOWERCASE = "getsafetystate"; // Lowercase version of the action name for comparison when strict casing is disabled
+
+        internal const string NOT_SET = "Not set";
 
         internal static readonly Lock writeLogLock = new(); // Lock object to synchronize access to the log when resizing
 
@@ -41,5 +43,18 @@
             PropertyName.WindSpeed
         };
 
+        internal static List<PropertyName> SafetyMonitorNames = new()
+        {
+            PropertyName.SafetyMonitor0,
+            PropertyName.SafetyMonitor1,
+            PropertyName.SafetyMonitor2,
+            PropertyName.SafetyMonitor3,
+            PropertyName.SafetyMonitor4,
+            PropertyName.SafetyMonitor5,
+            PropertyName.SafetyMonitor6,
+            PropertyName.SafetyMonitor7,
+            PropertyName.SafetyMonitor8,
+            PropertyName.SafetyMonitor9
+        };
     }
 }

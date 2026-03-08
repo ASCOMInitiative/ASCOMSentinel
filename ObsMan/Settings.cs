@@ -225,16 +225,16 @@ namespace ObsMan
         // If they are not properties they will NOT be included in the serialised JSON string.
         public Dictionary<PropertyName, SafetyMonitorState> SafetyMonitorSettings { get; set; } = new()
         {
-            { PropertyName.SafetyMonitor0, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor1, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor2, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor3, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor4, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor5, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor6, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor7, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor8, SafetyMonitorState.NotInUse },
-            { PropertyName.SafetyMonitor9, SafetyMonitorState.NotInUse },
+            { PropertyName.SafetyMonitor0, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor1, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor2, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor3, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor4, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor5, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor6, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor7, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor8, SafetyMonitorState.Enabled },
+            { PropertyName.SafetyMonitor9, SafetyMonitorState.Enabled },
         };
 
 

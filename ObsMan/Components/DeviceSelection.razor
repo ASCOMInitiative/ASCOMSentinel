@@ -12,7 +12,7 @@
                     TValue=DiscoveredDevice
                     TextProperty="@nameof(DiscoveredDevice.DisplayName)"
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;"
-                    Change="(args)=>DeviceChanged(args)"
+                    Change="@(async (args) => await DeviceChanged(args))"
                     Name="DropDownBindValue">
         <Template Context="item">
             <span style="color: @(ItemColour(item));font-size:1rem">
@@ -46,14 +46,17 @@
     DiscoveredDevice? bindValue = null;
     int switchNumber = 0;
 
-    private void DeviceChanged(object args)
+    private async Task DeviceChanged(object args)
     {
         if (args == null)
             return;
+
         DiscoveredDevice device = (DiscoveredDevice)args;
 
         settings.ConfiguredDevices[Property] = device;
         settings.Save();
+
+        await OnDeviceChanged.InvokeAsync(device);
     }
 
 
@@ -61,11 +64,14 @@
     public IEnumerable<DiscoveredDevice> DiscoveredDevices { get; set; } = Enumerable.Empty<DiscoveredDevice>();
 
     [Parameter]
-    public string PropertyDescription { get; set; } = "Not set";
+    public string PropertyDescription { get; set; } = Globals.NOT_SET;
 
     [Parameter]
     public DiscoveredDevice CurrentValue { get { return bindValue; } set { bindValue = value; } }
 
     [Parameter]
     public PropertyName Property { get; set; }
+
+    [Parameter]
+    public EventCallback<DiscoveredDevice> OnDeviceChanged { get; set; }
 }
