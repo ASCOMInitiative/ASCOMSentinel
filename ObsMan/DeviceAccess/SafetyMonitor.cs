@@ -81,8 +81,8 @@ namespace ObsMan.DeviceAccess
                     // Iterate over the safety monitor configurations
                     foreach (PropertyName property in Globals.SafetyMonitorNames)
                     {
-                        bool isSafe=false;
-
+                        bool isSafe = false;
+                        string safetyMessage = "";
                         // Check whether this Alpaca or COM safety monitor device is available for use
                         if (state.SafetyMonitorDevices.TryGetValue(property, out ISafetyMonitorV3? entry)) // The device 
                         {
@@ -93,12 +93,14 @@ namespace ObsMan.DeviceAccess
                                     try
                                     {
                                         isSafe = GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe);
+                                        safetyMessage = $"Safety monitor {property} reported unsafe.";
                                     }
                                     catch { } // Any error results in isSafe remaining false, and a safety event being added to the list below
                                     break;
 
                                 case SafetyMonitorState.ForceFalse: // The monitor is configured to always report an UNSAFE condition
                                     isSafe = false;
+                                    safetyMessage = $"Safety monitor {property} is configured to always report unsafe.";
                                     break;
 
                                 case SafetyMonitorState.ForceTrue: // The monitor is configured to always report a SAFE condition
@@ -112,16 +114,12 @@ namespace ObsMan.DeviceAccess
                             if (!isSafe)
                             {
                                 logger.LogMessageConsole("IsSafe", $"Safety monitor {property} reported unsafe.");
-                                state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.Unsafe, SafetyEventType.SafetyIssue, property.ToString(), $"Safety monitor {property} reported unsafe.")); // Add a safety event to the list for any monitor that reports unsafe
+                                state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.Unsafe, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location} - {property}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
                                 allSafe = false;
                             }
                         }
                     }
                     logger.LogMessageConsole("IsSafe", $"Safety monitor state: {allSafe}");
-
-                    // Exit here if any monitor is not safe, no need to check the observing conditions rules if we're already not safe based on the safety monitors
-                    if (!allSafe)
-                        return false;
 
                     // Check whether any rules are set for this property, and if so evaluate them against the current value of the property. If any rule is satisfied then we're not safe.
                     foreach (PropertyName property in Globals.ObservingConditionsProperties)
@@ -329,7 +327,7 @@ namespace ObsMan.DeviceAccess
                     return JsonSerializer.Serialize(state.LastSafetyState, _jsonOptions);
             }
 
-            throw new ActionNotImplementedException( $"Action not implemented: {actionName}");
+            throw new ActionNotImplementedException($"Action not implemented: {actionName}");
         }
 
         public void CommandBlind(string command, bool raw = false)
