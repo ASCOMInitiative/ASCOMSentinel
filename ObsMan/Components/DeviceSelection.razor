@@ -43,7 +43,6 @@
             return "LightSeaGreen";
     }
 
-    DiscoveredDevice? bindValue = null;
     int switchNumber = 0;
 
     private async Task DeviceChanged(object args)
@@ -67,7 +66,7 @@
     public string PropertyDescription { get; set; } = Globals.NOT_SET;
 
     [Parameter]
-    public DiscoveredDevice CurrentValue { get { return bindValue; } set { bindValue = value; } }
+    public DiscoveredDevice CurrentValue { get; set; } = null;
 
     [Parameter]
     public PropertyName Property { get; set; }
