@@ -12,15 +12,15 @@ namespace ObsMan.DeviceAccess
 
         public bool Connected { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public string Description => throw new NotImplementedException();
+        public string Description => $"{Globals.APPLICATION_NAME} - Aggregates a collection of Switch devices into a single virtual device.";
 
-        public string DriverInfo => throw new NotImplementedException();
+        public string DriverInfo => $"{Globals.APPLICATION_NAME} - Version {Globals.APPLICATION_VERSION}";
 
-        public string DriverVersion => throw new NotImplementedException();
+        public string DriverVersion => Globals.APPLICATION_VERSION;
 
         public short InterfaceVersion => throw new NotImplementedException();
 
-        public string Name => throw new NotImplementedException();
+        public string Name => $"{Globals.APPLICATION_NAME} - Switch device";
 
         public IList<string> SupportedActions => throw new NotImplementedException();
 

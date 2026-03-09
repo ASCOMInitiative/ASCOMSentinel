@@ -221,6 +221,8 @@ namespace ObsMan
 
         #region Public persisted properties
 
+        public int AlpacaGetPropertyTimeout { get; set; } = 2; // Seconds to wait for a response when getting a value from an Alpaca device before timing out
+
         // NOTE Values to be persisted must be defined as PROPERTIES rather than FIELDS.
         // If they are not properties they will NOT be included in the serialised JSON string.
         public Dictionary<PropertyName, SafetyMonitorState> SafetyMonitorSettings { get; set; } = new()
@@ -288,13 +290,11 @@ namespace ObsMan
             { PropertyName.SafetyMonitor9, new DiscoveredDevice() }
         };
 
-        public bool TraceAlpacaDiscovery { get; set; } = false;
+        public bool IncludeAlpacaTrace { get; set; } = false;
 
         public int SettingsCompatibilityVersion { get; set; } = SETTINGS_COMPATIBILTY_VERSION;
 
-        public LogLevel LogLevel { get; set; } = LogLevel.Debug;
-
-        public string ServerName { get; set; } = "Observatory Manager";
+        public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
         public string Location { get; set; } = "My Observatory";
 

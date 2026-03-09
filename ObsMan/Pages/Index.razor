@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using ASCOM.Alpaca.Clients
 @using ASCOM.Common.DeviceInterfaces
 @using System.Diagnostics
 
@@ -9,7 +10,7 @@
 
 @implements IAsyncDisposable
 
-<h1>Observatory Manager</h1>
+<h1>@Globals.APPLICATION_NAME</h1>
 <div>
     <RadzenButton Disabled="@connectingToDevices"
                   Click="@ConnectedButtonClickHandler"
@@ -137,6 +138,9 @@
         logger.LogMessage("Connect", $"Connecting to devices...");
         try
         {
+            // Set client retries to 0 for all Alpaca clients to ensure that we get a timely response when a device is not responding. This will not affect COM clients since they do not use the AlpacaClient class.
+            AlpacaClient.SetClientRetries(0);
+
             // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
             List<DiscoveredDevice> uniqueDevices = settings.ConfiguredDevices.Values
                 .Where(d => d.ObsManDeviceType == ObsManDeviceType.ObservingConditions)
@@ -167,8 +171,13 @@
                             PortNumber = device.PortNumber,
                             RemoteDeviceNumber = device.RemoteDeviceNumber,
                             EstablishConnectionTimeout = 2, // Seconds
-                            Logger = settings.TraceAlpacaDiscovery ? logger : null
+                            StandardDeviceResponseTimeout = settings.AlpacaGetPropertyTimeout, // Seconds
+                            Logger = settings.IncludeAlpacaTrace ? logger : null,
+                            UserAgentProductName = "ObsMan",
+                            UserAgentProductVersion = "0.1",
+                            ClientNumber = 10 + (uint)uniqueDevices.IndexOf(device)
                         });
+
                         deviceInstances[device] = alpacaDevice;
                         state.ObservingConditionsDevices.Add(alpacaDevice);
                         logger.LogDebug("Connect", $"Connect: added a real Alpaca ObservingConditions device for {device.DisplayName}");
@@ -233,9 +242,14 @@
                             IpAddressString = device.Value.IpAddress,
                             PortNumber = device.Value.PortNumber,
                             RemoteDeviceNumber = device.Value.RemoteDeviceNumber,
-                            EstablishConnectionTimeout = 2, // Seconds
-                            Logger = settings.TraceAlpacaDiscovery ? logger : null
+                            EstablishConnectionTimeout = 2, //Seconds
+                            StandardDeviceResponseTimeout = settings.AlpacaGetPropertyTimeout, // Seconds
+                            Logger = settings.IncludeAlpacaTrace ? logger : null,
+                            UserAgentProductName = "ObsMan",
+                            UserAgentProductVersion = "0.1",
+                            ClientNumber = device.Key.ToDeviceNumber()
                         });
+
                         state.SafetyMonitorDevices[device.Key] = alpacaDevice;
                         logger.LogDebug("Connect", $"Connect: added a real Alpaca SafetyMonitor device for {device.Value.DisplayName}");
                         break;

@@ -83,6 +83,8 @@ namespace ObsMan.DeviceAccess
                     {
                         bool isSafe = false;
                         string safetyMessage = "";
+                        SafetyEventCondition safetyEventCondition = SafetyEventCondition.Unsafe;
+
                         // Check whether this Alpaca or COM safety monitor device is available for use
                         if (state.SafetyMonitorDevices.TryGetValue(property, out ISafetyMonitorV3? entry)) // The device 
                         {
@@ -95,7 +97,12 @@ namespace ObsMan.DeviceAccess
                                         isSafe = GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe);
                                         safetyMessage = $"Safety monitor {property} reported unsafe.";
                                     }
-                                    catch { } // Any error results in isSafe remaining false, and a safety event being added to the list below
+                                    catch (Exception ex)
+                                    {
+                                        safetyMessage = $"Exception getting {property}: {ex.Message}";
+                                        safetyEventCondition = SafetyEventCondition.DeviceInErrorState;
+                                        logger.LogError($"Exception getting {property}: {ex.Message}\r\n{ex}");
+                                    } // Any error results in isSafe remaining false, and a safety event being added to the list below
                                     break;
 
                                 case SafetyMonitorState.ForceFalse: // The monitor is configured to always report an UNSAFE condition
@@ -114,7 +121,7 @@ namespace ObsMan.DeviceAccess
                             if (!isSafe)
                             {
                                 logger.LogMessageConsole("IsSafe", $"Safety monitor {property} reported unsafe.");
-                                state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.Unsafe, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location} - {property}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                state.LastSafetyState.Add(new SafetyState(safetyEventCondition, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
                                 allSafe = false;
                             }
                         }
@@ -141,154 +148,165 @@ namespace ObsMan.DeviceAccess
 
                         // Get the current value of this property from the observing conditions device
                         double currentValue = 0.0;
-
-                        switch (property)
+                        try
                         {
-                            case PropertyName.CloudCover:
-                                currentValue = observingConditionsDevice.CloudCover;
-                                break;
+                            switch (property)
+                            {
+                                case PropertyName.CloudCover:
+                                    currentValue = observingConditionsDevice.CloudCover;
+                                    break;
 
-                            case PropertyName.DewPoint:
-                                currentValue = observingConditionsDevice.DewPoint;
-                                break;
+                                case PropertyName.DewPoint:
+                                    currentValue = observingConditionsDevice.DewPoint;
+                                    break;
 
-                            case PropertyName.Humidity:
-                                currentValue = observingConditionsDevice.Humidity;
-                                break;
-                            case PropertyName.Temperature:
-                                currentValue = observingConditionsDevice.Temperature;
-                                break;
+                                case PropertyName.Humidity:
+                                    currentValue = observingConditionsDevice.Humidity;
+                                    break;
+                                case PropertyName.Temperature:
+                                    currentValue = observingConditionsDevice.Temperature;
+                                    break;
 
-                            case PropertyName.Pressure:
-                                currentValue = observingConditionsDevice.Pressure;
-                                break;
+                                case PropertyName.Pressure:
+                                    currentValue = observingConditionsDevice.Pressure;
+                                    break;
 
-                            case PropertyName.RainRate:
-                                currentValue = observingConditionsDevice.RainRate;
-                                break;
+                                case PropertyName.RainRate:
+                                    currentValue = observingConditionsDevice.RainRate;
+                                    break;
 
-                            case PropertyName.SkyBrightness:
-                                currentValue = observingConditionsDevice.SkyBrightness;
-                                break;
+                                case PropertyName.SkyBrightness:
+                                    currentValue = observingConditionsDevice.SkyBrightness;
+                                    break;
 
-                            case PropertyName.SkyQuality:
-                                currentValue = observingConditionsDevice.SkyQuality;
-                                break;
+                                case PropertyName.SkyQuality:
+                                    currentValue = observingConditionsDevice.SkyQuality;
+                                    break;
 
-                            case PropertyName.SkyTemperature:
-                                currentValue = observingConditionsDevice.SkyTemperature;
-                                break;
+                                case PropertyName.SkyTemperature:
+                                    currentValue = observingConditionsDevice.SkyTemperature;
+                                    break;
 
-                            case PropertyName.StarFWHM:
-                                currentValue = observingConditionsDevice.StarFWHM;
-                                break;
+                                case PropertyName.StarFWHM:
+                                    currentValue = observingConditionsDevice.StarFWHM;
+                                    break;
 
-                            case PropertyName.WindDirection:
-                                currentValue = observingConditionsDevice.WindDirection;
-                                break;
+                                case PropertyName.WindDirection:
+                                    currentValue = observingConditionsDevice.WindDirection;
+                                    break;
 
-                            case PropertyName.WindSpeed:
-                                currentValue = observingConditionsDevice.WindSpeed;
-                                break;
+                                case PropertyName.WindSpeed:
+                                    currentValue = observingConditionsDevice.WindSpeed;
+                                    break;
 
-                            case PropertyName.WindGust:
-                                currentValue = observingConditionsDevice.WindGust;
-                                break;
+                                case PropertyName.WindGust:
+                                    currentValue = observingConditionsDevice.WindGust;
+                                    break;
 
-                            default:
-                                throw new ASCOM.InvalidOperationException($"Unrecognised property name: {property}");
+                                default:
+                                    throw new ASCOM.InvalidOperationException($"Unrecognised property name: {property}");
+                            }
+
+                            // Evaluate the equality 1 rules against the current value of the property
+                            switch (equalityType1)
+                            {
+                                case EqualityType.NotInUse: // No rule set for this property so ignore it
+                                    break;
+
+                                case EqualityType.LessThan:
+                                    if (currentValue < value1)
+                                    {
+                                        logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is less than {value1}.");
+                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
+                                            property.ToSafetyEventType(),
+                                            $"{Globals.APPLICATION_NAME} at {settings.Location}",
+                                            $"{property} rule 1 violated: Value {currentValue} is less than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
+                                        allSafe = false; // Rule not satisfied, set allSafe to false
+                                    }
+                                    break;
+
+                                case EqualityType.Equal:
+                                    if (currentValue == value1)
+                                    {
+                                        logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is equal to {value1}.");
+                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
+                                            property.ToSafetyEventType(),
+                                            $"{Globals.APPLICATION_NAME} at {settings.Location}",
+                                            $"{property} rule 1 violated: Value {currentValue} is equal to {value1}.")); // Add a safety event to the list for any rule that is not satisfied
+                                        allSafe = false; // Rule not satisfied, set allSafe to false
+                                    }
+                                    break;
+
+                                case EqualityType.GreaterThan:
+                                    if (currentValue > value1)
+                                    {
+                                        logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is greater than {value1}.");
+                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
+                                            property.ToSafetyEventType(),
+                                            $"{Globals.APPLICATION_NAME} at {settings.Location}",
+                                            $"{property} rule 1 violated: Value {currentValue} is greater than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
+                                        allSafe = false; // Rule not satisfied, set allSafe to false
+                                    }
+                                    break;
+                            }
+
+                            // Evaluate the equality 2 rules against the current value of the property
+                            switch (equalityType2)
+                            {
+                                case EqualityType.NotInUse: // No rule set for this property so ignore it
+                                    break;
+
+                                case EqualityType.LessThan:
+                                    if (currentValue < value2)
+                                    {
+                                        logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is less than {value2}.");
+                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
+                                            property.ToSafetyEventType(),
+                                            $"{Globals.APPLICATION_NAME} at {settings.Location}",
+                                            $"{property} rule 2 violated: Value {currentValue} is less than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
+                                        allSafe = false; // Rule not satisfied, set allSafe to false
+                                    }
+                                    break;
+
+                                case EqualityType.Equal:
+                                    if (currentValue == value2)
+                                    {
+                                        logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is equal {value2}.");
+                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
+                                            property.ToSafetyEventType(),
+                                            $"{Globals.APPLICATION_NAME} at {settings.Location}",
+                                            $"{property} rule 2 violated: Value {currentValue} is equal to {value2}.")); // Add a safety event to the list for any rule that is not satisfied
+                                        allSafe = false; // Rule not satisfied, set allSafe to false
+                                    }
+                                    break;
+
+                                case EqualityType.GreaterThan:
+                                    if (currentValue > value2)
+                                    {
+                                        logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is greater than {value2}.");
+                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
+                                            property.ToSafetyEventType(),
+                                            $"{Globals.APPLICATION_NAME} at {settings.Location}",
+                                            $"{property} rule 2 violated: Value {currentValue} is greater than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
+                                        allSafe = false; // Rule not satisfied, set allSafe to false
+                                    }
+                                    break;
+                            }
                         }
-
-                        // Evaluate the equality 1 rules against the current value of the property
-                        switch (equalityType1)
+                        catch(Exception ex)
                         {
-                            case EqualityType.NotInUse: // No rule set for this property so ignore it
-                                break;
-
-                            case EqualityType.LessThan:
-                                if (currentValue < value1)
-                                {
-                                    logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is less than {value1}.");
-                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
-                                        property.ToSafetyEventType(),
-                                        $"{settings.ServerName}",
-                                        $"Observing conditions rule 1 violated: {property} value {currentValue} is less than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
-                                    allSafe = false; // Rule not satisfied, set allSafe to false
-                                }
-                                break;
-
-                            case EqualityType.Equal:
-                                if (currentValue == value1)
-                                {
-                                    logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is equal to {value1}.");
-                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
-                                        property.ToSafetyEventType(),
-                                        $"{settings.ServerName}",
-                                        $"Observing conditions rule 1 violated: {property} value {currentValue} is equal to {value1}.")); // Add a safety event to the list for any rule that is not satisfied
-                                    allSafe = false; // Rule not satisfied, set allSafe to false
-                                }
-                                break;
-
-                            case EqualityType.GreaterThan:
-                                if (currentValue > value1)
-                                {
-                                    logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is greater than {value1}.");
-                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
-                                        property.ToSafetyEventType(),
-                                        $"{settings.ServerName}",
-                                        $"Observing conditions rule 1 violated: {property} value {currentValue} is greater than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
-                                    allSafe = false; // Rule not satisfied, set allSafe to false
-                                }
-                                break;
-                        }
-
-                        // Evaluate the equality 2 rules against the current value of the property
-                        switch (equalityType2)
-                        {
-                            case EqualityType.NotInUse: // No rule set for this property so ignore it
-                                break;
-
-                            case EqualityType.LessThan:
-                                if (currentValue < value2)
-                                {
-                                    logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is less than {value2}.");
-                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
-                                        property.ToSafetyEventType(),
-                                        $"{settings.ServerName}",
-                                        $"Observing conditions rule 2 violated: {property} value {currentValue} is less than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
-                                    allSafe = false; // Rule not satisfied, set allSafe to false
-                                }
-                                break;
-
-                            case EqualityType.Equal:
-                                if (currentValue == value2)
-                                {
-                                    logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is equal {value2}.");
-                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
-                                        property.ToSafetyEventType(),
-                                        $"{settings.ServerName}",
-                                        $"Observing conditions rule 2 violated: {property} value {currentValue} is equal to {value2}.")); // Add a safety event to the list for any rule that is not satisfied
-                                    allSafe = false; // Rule not satisfied, set allSafe to false
-                                }
-                                break;
-
-                            case EqualityType.GreaterThan:
-                                if (currentValue > value2)
-                                {
-                                    logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is greater than {value2}.");
-                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
-                                        property.ToSafetyEventType(),
-                                        $"{settings.ServerName}",
-                                        $"Observing conditions rule 2 violated: {property} value {currentValue} is greater than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
-                                    allSafe = false; // Rule not satisfied, set allSafe to false
-                                }
-                                break;
+                            logger.LogMessageConsole("IsSafe", $"Exception getting value for {property} - {ex.Message}.");
+                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState,
+                                property.ToSafetyEventType(),
+                                $"{Globals.APPLICATION_NAME} at {settings.Location}",
+                                $"Exception getting value for {property} - {ex.Message}.")); // Add a safety event to the list for any rule that is not satisfied
+                            allSafe = false; // Rule not satisfied, set allSafe to false
                         }
                     }
 
                     return allSafe;
                 }
-                throw new ASCOM.NotConnectedException("Observatory Manager safety monitor is not connected.");
+                throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
             }
         }
 
@@ -304,14 +322,14 @@ namespace ObsMan.DeviceAccess
             }
         }
 
-        public string Description => "Observatory Manager - Description";
+        public string Description => $"{Globals.APPLICATION_NAME} - Aggregates a collection of SafetyMonitor devices into a single virtual device.";
 
-        public string DriverInfo => "Observatory Manager - Driver Info";
+        public string DriverInfo => $"{Globals.APPLICATION_NAME} - Version {Globals.APPLICATION_VERSION}";
 
-        public string DriverVersion => "0.1";
+        public string DriverVersion => Globals.APPLICATION_VERSION;
 
         public short InterfaceVersion => 3;
-        public string Name => "Observatory Manager - Name";
+        public string Name => $"{Globals.APPLICATION_NAME} - Safety monitor device";
 
         public IList<string> SupportedActions => [Globals.SAFETY_EVENT_ACTION_NAME];
 

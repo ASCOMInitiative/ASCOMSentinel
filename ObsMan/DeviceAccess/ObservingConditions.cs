@@ -270,14 +270,14 @@ namespace ObsMan.DeviceAccess
             }
         }
 
-        public string Description => "Observatory Manager - Description";
+        public string Description => $"{Globals.APPLICATION_NAME} - Aggregates  a collection of ObservingConditions devices into a single virtual device.";
 
-        public string DriverInfo => "Observatory Manager - Driver Info";
+        public string DriverInfo => $"{Globals.APPLICATION_NAME} - Version {Globals.APPLICATION_VERSION}";
 
-        public string DriverVersion => "0.1";
+        public string DriverVersion => Globals.APPLICATION_VERSION;
 
         public short InterfaceVersion => 2;
-        public string Name => "Observatory Manager - Name";
+        public string Name => $"{Globals.APPLICATION_NAME} - Observing Conditions device";
 
         public IList<string> SupportedActions => [];
 

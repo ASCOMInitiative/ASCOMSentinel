@@ -49,7 +49,7 @@
                                 </div>
                                 <div style="margin-bottom:10px">
                                     <span style="display:inline-block;min-width:@alignPoint;">Server Location:</span>
-                                    <input type="text" style="width:21ch;" @bind="SrvLocation">
+                                    <input type="text" style="width:50ch;" @bind="SrvLocation">
                                 </div>
                                 <div style="margin-bottom:10px">
                                     <span style="display:inline-block;min-width:@alignPoint;">Allow Remote Access:</span>
@@ -140,6 +140,21 @@
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Auto connect:</label>
                                     <input type="checkbox" @bind="AutoConnect">
+                                </div>
+                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Alpaca Devices</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Connection timeout (seconds):</label>
+                                    <RadzenNumeric Value=@settings.AlpacaGetPropertyTimeout
+                                                   TValue=int
+                                                   Step="1"
+                                                   Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
+                                                   Change="(args) => AlpacaGetPropertyTimeoutChanged(args)"
+                                                   ShowUpDown="false"
+                                                   Name="Value2" />
+                                </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Trace Alpaca Calls (debug only):</label>
+                                    <RadzenCheckBox TValue="bool" Value=@settings.IncludeAlpacaTrace Change=@(args => settings.IncludeAlpacaTrace = args) Name="CheckBox2" />
                                 </div>
 
                             </RadzenCard>
@@ -449,6 +464,16 @@
 
     private bool discoveryUnderway = false;
 
+
+    private async Task AlpacaGetPropertyTimeoutChanged(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.AlpacaGetPropertyTimeout = (int)args;
+        settings.Save();
+    }
+
     private async Task ResetSettings()
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to reset all settings? This cannot be undone."))
@@ -480,7 +505,7 @@
         {
 
             discoveryUnderway = true;
-            discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.TraceAlpacaDiscovery ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
+            discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.IncludeAlpacaTrace ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
                 (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
             discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
             discovery.StartDiscovery(1, 10, 32227, 2.0, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);

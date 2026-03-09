@@ -5,9 +5,9 @@
 @using ObsMan.Components
 @using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
-<PageTitle>Observatory Manager Log</PageTitle>
+<PageTitle>@Globals.APPLICATION_NAME Log</PageTitle>
 
-<h1>Observatory Manager</h1>
+<h1>@Globals.APPLICATION_NAME</h1>
 
 <RadzenMediaQuery Query="(max-width: 1330px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials2, matches)) />
 <RadzenMediaQuery Query="(min-width: 1331px) and (max-width: 1650px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials3, matches)) />
