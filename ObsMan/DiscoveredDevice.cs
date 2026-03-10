@@ -1,10 +1,4 @@
-﻿using ASCOM;
-using ASCOM.Com;
-using ASCOM.Common;
-using ASCOM.Common.DeviceInterfaces;
-using Microsoft.AspNetCore.Mvc.Formatters;
-
-namespace ObsMan
+﻿namespace ObsMan
 {
     public class DiscoveredDevice
     {

@@ -142,12 +142,12 @@
             AlpacaClient.SetClientRetries(0);
 
             // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
-            List<DiscoveredDevice> uniqueDevices = settings.ConfiguredDevices.Values
+            List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
                 .Where(d => d.ObsManDeviceType == ObsManDeviceType.ObservingConditions)
                 .DistinctBy(d => (d.ObsManDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
 
             // Define a dictionary to hold the unique device instances
-            Dictionary<DiscoveredDevice, IObservingConditionsV2> deviceInstances = new();
+            Dictionary<DiscoveredDevice, IObservingConditionsV2> observingConditionsDeviceInstances = new();
 
             // Disconnect from any currently connected devices before connecting to the new set of devices.
             if (connectedState)
@@ -156,7 +156,7 @@
             List<Task> startTasks = []; // List of tasks to set Connected=true on each device
 
             // Iterate over the unique devices and create an instance for each one, then add it to the dictionary.
-            foreach (DiscoveredDevice device in uniqueDevices)
+            foreach (DiscoveredDevice device in uniqueObservingConditionsDevices)
             {
                 //logger.LogMessage("Connect", $"Connecting to {device.DisplayName} at {device.IpAddress}:{device.PortNumber} using {device.Protocol} protocol");
 
@@ -175,21 +175,22 @@
                             Logger = settings.IncludeAlpacaTrace ? logger : null,
                             UserAgentProductName = "ObsMan",
                             UserAgentProductVersion = "0.1",
-                            ClientNumber = 10 + (uint)uniqueDevices.IndexOf(device)
+                            ClientNumber = 10 + (uint)uniqueObservingConditionsDevices.IndexOf(device)
                         });
 
-                        deviceInstances[device] = alpacaDevice;
+                        observingConditionsDeviceInstances[device] = alpacaDevice;
                         state.ObservingConditionsDevices.Add(alpacaDevice);
                         logger.LogDebug("Connect", $"Connect: added a real Alpaca ObservingConditions device for {device.DisplayName}");
                         break;
 
+#if WINDOWS
                     case Protocol.COM: // COM so create a DriverAccess COM client
                         IObservingConditionsV2 comDevice = new ASCOM.Com.DriverAccess.ObservingConditions(device.ComProgID);
-                        deviceInstances[device] = comDevice;
+                        observingConditionsDeviceInstances[device] = comDevice;
                         state.ObservingConditionsDevices.Add(comDevice);
                         logger.LogDebug("Connect", $"Connect: added a real COM ObservingConditions device for {device.DisplayName}");
                         break;
-
+#endif
                     default:
                         throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Protocol}");
                 }
@@ -199,12 +200,14 @@
                 Task task = Task.Run(async () =>
                 {
                     Stopwatch sw = Stopwatch.StartNew();
+                    bool connectSucceeded = false;
                     Task connectTask = Task.Run(() =>
                     {
                         try
                         {
                             logger.LogDebug("Property", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
-                            deviceInstances[device].Connected = true;
+                            observingConditionsDeviceInstances[device].Connected = true;
+                            connectSucceeded = true;
                             logger.LogMessage("Property", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
                         }
                         catch (Exception ex)
@@ -213,13 +216,25 @@
                                 logger.LogError("", $"Exception setting Connected true for {device.DisplayName} {device.Protocol} - {ex.Message}\r\n{ex}");
                             else
                                 logger.LogError("", $"Unable to set Connected true for {device.DisplayName} - {ex.Message}");
+
+                            // Set a flag that the instance from the device map should be considered invalid
+                            connectSucceeded = false;
                         }
                     });
 
-                    if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
+                    // Wait for either the connect to succeed or the timeout to expire.
+                    // If the timeout expires before the connect succeeds, dispose of the device instance and set it to null so that it is not used later on when we try to read properties from it.
+                    if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaGetPropertyTimeout))) != connectTask)
                     {
-                        logger.LogError("Connect", $"Timeout ({sw.Elapsed.TotalSeconds:0.0}s) connecting to {device.DisplayName}");
-                        try { deviceInstances[device].Dispose(); deviceInstances[device] = null!; } catch { }
+                        logger.LogError("Connect", $"Timeout ({sw.Elapsed.TotalSeconds:0.0}s) connecting to {device.DisplayName}.");
+                        try { observingConditionsDeviceInstances[device]?.Dispose(); observingConditionsDeviceInstances[device] = null!; } catch { }
+                    }
+
+                    // If the connect did not succeed for any reason, dispose of the device instance and set it to null so that it is not used later on when we try to read properties from it.
+                    if (!connectSucceeded)
+                    {
+                        try { observingConditionsDeviceInstances[device]?.Dispose(); observingConditionsDeviceInstances[device] = null!; } catch { }
+                        logger.LogError("Connect", $"Failed to connect to {device.DisplayName} after {sw.Elapsed.TotalSeconds:0.0}s.");
                     }
                 });
 
@@ -254,11 +269,13 @@
                         logger.LogDebug("Connect", $"Connect: added a real Alpaca SafetyMonitor device for {device.Value.DisplayName}");
                         break;
 
+#if WINDOWS
                     case Protocol.COM: // COM so create a DriverAccess COM client
                         ISafetyMonitorV3 comDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(device.Value.ComProgID);
                         state.SafetyMonitorDevices[device.Key] = comDevice;
                         logger.LogDebug("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
                         break;
+#endif
 
                     default:
                         throw new InvalidOperationException($"Index.Connect - Invalid protocol: {device.Value.Protocol}");
@@ -304,15 +321,7 @@
             // Wait for all tasks to finish.
             await Task.WhenAll(startTasks);
 
-            // Prune any failed safety monitor devices from the state
-            foreach (var key in state.SafetyMonitorDevices.Keys.ToList())
-            {
-                if (state.SafetyMonitorDevices[key] == null)
-                {
-                    state.SafetyMonitorDevices.Remove(key);
-                }
-            }
-
+            // Create a mapping between ObservingConditions properties and devices.
             lock (mapLock)
             {
                 // Clear the mapping between ObservingConditions properties and devices, then re-populate it based on the configured device definitions and the instances we just created.
@@ -331,7 +340,7 @@
                         try
                         {
                             // Find the matching device instance based on the configured device for this property
-                            KeyValuePair<DiscoveredDevice, IObservingConditionsV2> device = deviceInstances.First(d =>
+                            KeyValuePair<DiscoveredDevice, IObservingConditionsV2> device = observingConditionsDeviceInstances.FirstOrDefault(d =>
                                 d.Key.Protocol == configured.Protocol &&
                                 d.Key.ObsManDeviceType == configured.ObsManDeviceType &&
                                 d.Key.IpAddress == configured.IpAddress &&
@@ -339,9 +348,13 @@
                                 d.Key.RemoteDeviceNumber == configured.RemoteDeviceNumber &&
                                 d.Key.ComProgID == configured.ComProgID);
 
-                            // Add the matching device instance to the device map so that we can easily find the device for each property later when we need to read values from it.
-                            state.ObservingConditionsDeviceMap.TryAdd(property, device.Value);
-                            logger.LogDebug("Property", $"Added Property: {property} {device.Key.DisplayName} {device.Key.Protocol}");
+                            // Check whether a device was returned
+                            if (device.Value is not null) // A device was returned so add a map value.
+                            {
+                                // Add the matching device instance to the device map so that we can easily find the device for each property later when we need to read values from it.
+                                state.ObservingConditionsDeviceMap.TryAdd(property, device.Value);
+                                logger.LogDebug("Property", $"Added Property: {property} {device.Key.DisplayName} {device.Key.Protocol}");
+                            }
                         }
                         catch (Exception ex)
                         {

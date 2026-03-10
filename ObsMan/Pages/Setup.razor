@@ -14,7 +14,6 @@
 
 @using ASCOM.Alpaca
 @using ASCOM.Alpaca.Discovery
-@using ASCOM.Com
 @using ASCOM.Common
 @using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 @using ObsMan.Components
@@ -154,7 +153,7 @@
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Trace Alpaca Calls (debug only):</label>
-                                    <RadzenCheckBox TValue="bool" Value=@settings.IncludeAlpacaTrace Change=@(args => settings.IncludeAlpacaTrace = args) Name="CheckBox2" />
+                                    <RadzenCheckBox TValue="bool" Value=@settings.IncludeAlpacaTrace Change=@(args => IncludeAlpacaTraceChanged(args)) Name="CheckBox2" />
                                 </div>
 
                             </RadzenCard>
@@ -455,15 +454,21 @@
 
 @code {
     private List<AscomDevice> ObservingConditionsDevicesAlpaca { get; set; } = new();
-    private List<ASCOMRegistration> ObservingConditionsDevicesCom { get; set; } = new();
-    private List<AscomDevice> SwitchDevices { get; set; } = new();
     private List<AscomDevice> SafetyMonitorDevicesAlpaca { get; set; } = new();
-    private List<ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
+    private List<AscomDevice> SwitchDevicesAlpaca { get; set; } = new();
+
+#if WINDOWS
+    private List<ASCOM.Com.ASCOMRegistration> ObservingConditionsDevicesCom { get; set; } = new();
+    private List<AscomDevice> SwitchDevicesCom { get; set; } = new();
+    private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
+#endif
+
     private List<DiscoveredDevice> observingConditionsDevices = new List<DiscoveredDevice>();
     private List<DiscoveredDevice> safetyMonitorDevices = new List<DiscoveredDevice>();
 
     private bool discoveryUnderway = false;
 
+    private bool asd;
 
     private async Task AlpacaGetPropertyTimeoutChanged(object args)
     {
@@ -471,6 +476,15 @@
             return;
 
         settings.AlpacaGetPropertyTimeout = (int)args;
+        settings.Save();
+    }
+
+    private async Task IncludeAlpacaTraceChanged(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.IncludeAlpacaTrace = (bool)args;
         settings.Save();
     }
 
@@ -539,10 +553,15 @@
         {
 
             ObservingConditionsDevicesAlpaca.Clear();
-            ObservingConditionsDevicesCom.Clear();
-            SwitchDevices.Clear();
+            SwitchDevicesAlpaca.Clear();
             SafetyMonitorDevicesAlpaca.Clear();
+
+#if WINDOWS
+            ObservingConditionsDevicesCom.Clear();
+            SwitchDevicesCom.Clear();
             SafetyMonitorDevicesCom.Clear();
+#endif
+
             observingConditionsDevices.Clear();
             safetyMonitorDevices.Clear();
 
@@ -551,37 +570,26 @@
 
             ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
             ObservingConditionsDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
-            SwitchDevices = discovery.GetAscomDevices(DeviceTypes.Switch);
+            SwitchDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.Switch);
             SafetyMonitorDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
 
-            foreach (AscomDevice device in discovery.GetAscomDevices(null))
+#if WINDOWS
+            foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.Switch))
             {
-                // logger.LogDebug("AlpacaDiscoveryCompleted", $"Found Alpaca device: {device.AscomDeviceType} {device.AscomDeviceName}");
             }
 
-            List<ASCOMRegistration> drivers = Profile.GetDrivers(DeviceTypes.Switch);
-            foreach (ASCOMRegistration driver in drivers)
+            foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.ObservingConditions))
             {
-                // logger.LogDebug("AlpacaDiscoveryCompleted", $"Found COM Switch device: {driver.Name} ({driver.ProgID})");
-            }
-
-            drivers = Profile.GetDrivers(DeviceTypes.ObservingConditions);
-            foreach (ASCOMRegistration driver in drivers)
-            {
-                // logger.LogDebug("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
                 ObservingConditionsDevicesCom.Add(driver);
             }
 
-            drivers = Profile.GetDrivers(DeviceTypes.SafetyMonitor);
-            foreach (ASCOMRegistration driver in drivers)
+            foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.SafetyMonitor))
             {
-                // logger.LogDebug("AlpacaDiscoveryCompleted", $"Found COM ObservingConditions device: {driver.Name} ({driver.ProgID})");
                 SafetyMonitorDevicesCom.Add(driver);
             }
+#endif
 
             // Add discovered Alpaca devices
-            // logger.LogDebug("", $"GetDeviceNames - Found {ObservingConditionsDevicesAlpaca.Count()} devices.");
-
             foreach (AscomDevice device in ObservingConditionsDevicesAlpaca)
             {
                 // Exclude the observatory manager observing conditions device from the list
@@ -600,7 +608,8 @@
                 }
             }
 
-            foreach (ASCOMRegistration device in ObservingConditionsDevicesCom)
+#if WINDOWS
+            foreach (ASCOM.Com.ASCOMRegistration device in ObservingConditionsDevicesCom)
             {
                 // logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
                 observingConditionsDevices.Add(new DiscoveredDevice
@@ -611,6 +620,7 @@
                     ComProgID = device.ProgID
                 });
             }
+#endif
 
             foreach (DiscoveredDevice device in observingConditionsDevices)
             {
@@ -638,7 +648,8 @@
                 }
             }
 
-            foreach (ASCOMRegistration device in SafetyMonitorDevicesCom)
+#if WINDOWS
+            foreach (ASCOM.Com.ASCOMRegistration device in SafetyMonitorDevicesCom)
             {
                 logger.LogDebugConsole("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
                 safetyMonitorDevices.Add(new DiscoveredDevice
@@ -650,6 +661,7 @@
                 });
             }
 
+#endif
             foreach (DiscoveredDevice device in safetyMonitorDevices)
             {
                 if (device.ObsManDeviceType != ObsManDeviceType.NotSet)

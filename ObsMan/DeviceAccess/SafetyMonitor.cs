@@ -72,7 +72,6 @@ namespace ObsMan.DeviceAccess
         {
             get
             {
-                logger.LogMessageConsole("IsSafe", $"Called - Connected: {Connected}");
                 if (Connected)
                 {
                     state.LastSafetyState.Clear(); // Clear the last safety state list to be populated with any new safety events detected in this call
@@ -81,9 +80,7 @@ namespace ObsMan.DeviceAccess
                     // Iterate over the safety monitor configurations
                     foreach (PropertyName property in Globals.SafetyMonitorNames)
                     {
-                        bool isSafe = false;
                         string safetyMessage = "";
-                        SafetyEventCondition safetyEventCondition = SafetyEventCondition.Unsafe;
 
                         // Check whether this Alpaca or COM safety monitor device is available for use
                         if (state.SafetyMonitorDevices.TryGetValue(property, out ISafetyMonitorV3? entry)) // The device 
@@ -94,41 +91,59 @@ namespace ObsMan.DeviceAccess
                                 case SafetyMonitorState.Enabled: // The monitor is enabled for normal use so check its value
                                     try
                                     {
-                                        isSafe = GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe);
-                                        safetyMessage = $"Safety monitor {property} reported unsafe.";
+                                        if (state.SafetyMonitorDevices[property] is not null) // The device connected OK
+                                        {
+                                            bool isSafe = GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe);
+                                            if (!isSafe)
+                                            {
+                                                safetyMessage = $"Safety monitor {property} reported an UNSAFE condition.";
+                                                logger.LogWarningConsole("IsSafe", safetyMessage);
+                                                state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.Unsafe, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                                allSafe = false;
+                                            }
+                                        }
+                                        else // The device failed to connect so report an error
+                                        {
+                                            safetyMessage = $"{settings.ConfiguredDevices[property].DisplayName} ({property}) failed to connect.";
+                                            logger.LogErrorConsole("IsSafe", safetyMessage);
+                                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                            allSafe = false;
+                                        }
                                     }
-                                    catch (Exception ex)
+                                    catch (Exception ex)  // Any error results in isSafe remaining false, and a safety event being added to the list below
                                     {
                                         safetyMessage = $"Exception getting {property}: {ex.Message}";
-                                        safetyEventCondition = SafetyEventCondition.DeviceInErrorState;
-                                        logger.LogError($"Exception getting {property}: {ex.Message}\r\n{ex}");
-                                    } // Any error results in isSafe remaining false, and a safety event being added to the list below
+                                        logger.LogErrorConsole("IsSafe", safetyMessage);
+                                        if (settings.LogLevel <= ASCOM.Common.Interfaces.LogLevel.Debug)
+                                            logger.LogMessageConsole("IsSafe", $"Full exception:\r\n{ex}");
+
+                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                        allSafe = false;
+                                    }
                                     break;
 
-                                case SafetyMonitorState.ForceFalse: // The monitor is configured to always report an UNSAFE condition
-                                    isSafe = false;
-                                    safetyMessage = $"Safety monitor {property} is configured to always report unsafe.";
+                                case SafetyMonitorState.ForceFalse: // The monitor is configured always to report an UNSAFE condition
+                                    // Add a safety event to the list when the response is forced to UNSAFE
+                                    safetyMessage = $"Safety monitor {property} is configured to report UNSAFE regardless of the state of the device.";
+                                    logger.LogWarningConsole("IsSafe", safetyMessage);
+                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.ForcedToState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                    allSafe = false;
                                     break;
 
-                                case SafetyMonitorState.ForceTrue: // The monitor is configured to always report a SAFE condition
-                                    isSafe = true;
+                                case SafetyMonitorState.ForceTrue: // The monitor is configured always to report a SAFE condition
+                                    // Add a safety event to the list when the response is forced to SAFE
+                                    safetyMessage = $"Safety monitor {property} is configured to report SAFE regardless of the state of the device.";
+                                    logger.LogWarningConsole("IsSafe", safetyMessage);
+                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.ForcedToState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
                                     break;
 
                                 default:
                                     throw new InvalidValueException($"Unknown safety monitor state {settings.SafetyMonitorSettings[property]} for device {property}.");
                             }
-
-                            if (!isSafe)
-                            {
-                                logger.LogMessageConsole("IsSafe", $"Safety monitor {property} reported unsafe.");
-                                state.LastSafetyState.Add(new SafetyState(safetyEventCondition, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
-                                allSafe = false;
-                            }
                         }
                     }
-                    logger.LogMessageConsole("IsSafe", $"Safety monitor state: {allSafe}");
 
-                    // Check whether any rules are set for this property, and if so evaluate them against the current value of the property. If any rule is satisfied then we're not safe.
+                    // Check whether any observing conditions rules are set for this property, and if so evaluate them against the current value of the property. If any rule is satisfied then we're not safe.
                     foreach (PropertyName property in Globals.ObservingConditionsProperties)
                     {
                         // Get the four rule elements into local variables for easier reference
@@ -150,6 +165,7 @@ namespace ObsMan.DeviceAccess
                         double currentValue = 0.0;
                         try
                         {
+                            // Get the property's current value from the device
                             switch (property)
                             {
                                 case PropertyName.CloudCover:
@@ -216,7 +232,7 @@ namespace ObsMan.DeviceAccess
                                 case EqualityType.LessThan:
                                     if (currentValue < value1)
                                     {
-                                        logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is less than {value1}.");
+                                        logger.LogWarningConsole("IsSafe", $"Observing conditions {property} value {currentValue} is less than {value1}.");
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
@@ -228,7 +244,7 @@ namespace ObsMan.DeviceAccess
                                 case EqualityType.Equal:
                                     if (currentValue == value1)
                                     {
-                                        logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is equal to {value1}.");
+                                        logger.LogWarningConsole("IsSafe", $"Observing conditions {property} value {currentValue} is equal to {value1}.");
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
@@ -240,7 +256,7 @@ namespace ObsMan.DeviceAccess
                                 case EqualityType.GreaterThan:
                                     if (currentValue > value1)
                                     {
-                                        logger.LogMessageConsole("IsSafe", $"Observing conditions {property} value {currentValue} is greater than {value1}.");
+                                        logger.LogWarningConsole("IsSafe", $"Observing conditions {property} value {currentValue} is greater than {value1}.");
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
@@ -259,7 +275,7 @@ namespace ObsMan.DeviceAccess
                                 case EqualityType.LessThan:
                                     if (currentValue < value2)
                                     {
-                                        logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is less than {value2}.");
+                                        logger.LogWarningConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is less than {value2}.");
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
@@ -271,7 +287,7 @@ namespace ObsMan.DeviceAccess
                                 case EqualityType.Equal:
                                     if (currentValue == value2)
                                     {
-                                        logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is equal {value2}.");
+                                        logger.LogWarningConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is equal {value2}.");
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
@@ -283,7 +299,7 @@ namespace ObsMan.DeviceAccess
                                 case EqualityType.GreaterThan:
                                     if (currentValue > value2)
                                     {
-                                        logger.LogMessageConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is greater than {value2}.");
+                                        logger.LogWarningConsole("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is greater than {value2}.");
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
@@ -293,9 +309,9 @@ namespace ObsMan.DeviceAccess
                                     break;
                             }
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
-                            logger.LogMessageConsole("IsSafe", $"Exception getting value for {property} - {ex.Message}.");
+                            logger.LogErrorConsole("IsSafe", $"Exception getting value for {property} - {ex.Message}.");
                             state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState,
                                 property.ToSafetyEventType(),
                                 $"{Globals.APPLICATION_NAME} at {settings.Location}",
@@ -335,13 +351,12 @@ namespace ObsMan.DeviceAccess
 
         public string Action(string actionName, string actionParameters)
         {
-            logger.LogMessageConsole("Action", $"Called with name: {actionName}, parameters: {actionParameters}");
+            logger.LogDebugConsole("Action", $"Called with name: {actionName}, parameters: {actionParameters}");
             actionName = actionName.Trim().ToLowerInvariant();
             switch (actionName)
             {
                 case Globals.SAFETY_EVENT_ACTION_NAME_LOWERCASE:
-                    logger.LogMessageConsole("Action", $"Returning JSON string.");
-                    //return JsonSerializer.Serialize(state.LastSafetyState);
+                    logger.LogDebug("Action", $"Returning JSON string.");
                     return JsonSerializer.Serialize(state.LastSafetyState, _jsonOptions);
             }
 

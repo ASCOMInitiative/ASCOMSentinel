@@ -161,6 +161,11 @@ namespace ObsMan
             LogMessage(method, LogLevel.Debug, message, logToScreen: false);
         }
 
+        public void LogWarningConsole(string method, string message)
+        {
+            LogMessage(method, LogLevel.Warning, message, logToScreen: false);
+        }
+
         public void LogErrorConsole(string method, string message)
         {
             LogMessage(method, LogLevel.Error, message, logToScreen: false);

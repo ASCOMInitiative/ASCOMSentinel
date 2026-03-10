@@ -36,14 +36,9 @@
 
         public bool Connected { get; set; } = false;
 
-
-
         public List<IObservingConditionsV2> ObservingConditionsDevices { get; set; } = [];
 
         public Dictionary<PropertyName, IObservingConditionsV2> ObservingConditionsDeviceMap { get; set; } = [];
-
-
-
 
         public Dictionary<PropertyName, ISafetyMonitorV3> SafetyMonitorDevices { get; set ; } = [];
 
