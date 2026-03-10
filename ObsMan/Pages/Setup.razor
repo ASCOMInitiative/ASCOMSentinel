@@ -145,7 +145,7 @@
                                                    TValue=int
                                                    Step="1"
                                                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
-                                                   Change="(args) => AlpacaGetPropertyTimeoutChanged(args)"
+                                                   Change="async (args) => await AlpacaGetPropertyTimeoutChanged(args)"
                                                    ShowUpDown="false"
                                                    Name="Value2" />
                                 </div>
@@ -364,53 +364,53 @@
                                      PropertyDescription="Safety monitor 0"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor0]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor0)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor0)" />
 
                     <DeviceSelection Property="PropertyName.SafetyMonitor1"
                                      PropertyDescription="Safety monitor 1"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor1]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor1)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor1)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor2"
                                      PropertyDescription="Safety monitor 2"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor2]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor2)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor2)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor3"
                                      PropertyDescription="Safety monitor 3"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor3]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor3)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor3)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor4"
                                      PropertyDescription="Safety monitor 4"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor4]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor4)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor4)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor5"
                                      PropertyDescription="Safety monitor 5"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor5]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor5)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor5)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor6"
                                      PropertyDescription="Safety monitor 6"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor6]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor6)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor6)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor7"
                                      PropertyDescription="Safety monitor 7"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor7]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor7)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor7)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor8"
                                      PropertyDescription="Safety monitor 8"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor8]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor8)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor8)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor9"
                                      PropertyDescription="Safety monitor 9"
                                      DiscoveredDevices=@safetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor9]"
-                                     OnDeviceChanged="async (device) => OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor9)" />
+                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor9)" />
                 </RadzenCard>
             </div>
             <div>
@@ -532,10 +532,8 @@
 
     private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
     {
-        logger.LogMessageConsole("", $"Safety monitor device changed for {propertyName}. New value: {device.DisplayName}");
         settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
         await InvokeAsync(StateHasChanged);
-        logger.LogMessageConsole("", $"Safety monitor device changed for {propertyName}. New value: {device.DisplayName} Completed");
     }
 
     protected override async Task OnInitializedAsync()
