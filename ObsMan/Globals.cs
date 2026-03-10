@@ -2,7 +2,7 @@
 {
     internal static class Globals
     {
-        internal const string APPLICATION_NAME = "Observatory Manager";
+        internal const string APPLICATION_NAME = "ASCOM Watchtower";
         internal const string APPLICATION_VERSION = "0.1";
         internal const string MANUFACTURER_VERSION = "0.0.1"; // Manufacturer version
 
@@ -25,7 +25,9 @@
         internal const string SAFETY_EVENT_ACTION_NAME = "GetSafetyState";
         internal const string SAFETY_EVENT_ACTION_NAME_LOWERCASE = "getsafetystate"; // Lowercase version of the action name for comparison when strict casing is disabled
 
-        internal const string NOT_SET = "Not set";
+        internal const string NOT_SET = "Not configured";
+
+        internal const string APPLICATION_BLUE = "#479cc8";
 
         internal static readonly Lock writeLogLock = new(); // Lock object to synchronize access to the log when resizing
 

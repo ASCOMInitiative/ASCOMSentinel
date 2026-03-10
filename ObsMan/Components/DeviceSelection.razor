@@ -5,12 +5,13 @@
 @inject Settings settings
 
 <div>
-    <span style="display:inline-block; width:150px; margin:0px; text-align:left;">@PropertyDescription</span>
+    <span style="display:inline-block; width:150px; margin:0px; text-align:left; font-weight:700">@PropertyDescription</span>
     <RadzenDropDown Value=@CurrentValue
                     Data=@DiscoveredDevices
                     TValue=DiscoveredDevice
                     TextProperty="@nameof(DiscoveredDevice.DisplayName)"
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;"
+                    PopupStyle="max-height:15em); overflow:auto;"
                     Change="@(async (args) => await DeviceChanged(args))"
                     Name="DropDownBindValue">
         <Template Context="item">

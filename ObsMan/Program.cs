@@ -100,7 +100,6 @@ namespace ObsMan
             {
                 logger.LogMessage("", "Turning off Authentication to allow password reset.");
                 settings.UseAuth = false;
-                settings.Save();
                 logger.LogMessage("", "Authentication off, you can change the password and then re-enable Authentication.");
             }
 

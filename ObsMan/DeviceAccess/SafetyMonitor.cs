@@ -338,7 +338,7 @@ namespace ObsMan.DeviceAccess
             }
         }
 
-        public string Description => $"{Globals.APPLICATION_NAME} - Aggregates a collection of SafetyMonitor devices into a single virtual device.";
+        public string Description => $"{Globals.APPLICATION_NAME} - Aggregates a collection of SafetyMonitor devices into a single composite device.";
 
         public string DriverInfo => $"{Globals.APPLICATION_NAME} - Version {Globals.APPLICATION_VERSION}";
 

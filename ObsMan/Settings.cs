@@ -221,7 +221,7 @@ namespace ObsMan
 
         #region Public persisted properties
 
-        public int AlpacaGetPropertyTimeout { get; set; } = 2; // Seconds to wait for a response when getting a value from an Alpaca device before timing out
+        public int AlpacaGetPropertyTimeout { get; set { if (field != value) { field = value; Save(); } } } = 2; // Seconds to wait for a response when getting a value from an Alpaca device before timing out
 
         // NOTE Values to be persisted must be defined as PROPERTIES rather than FIELDS.
         // If they are not properties they will NOT be included in the serialised JSON string.
@@ -257,11 +257,11 @@ namespace ObsMan
             { PropertyName.WindSpeed, new ObservingConditionsRule() },
         };
 
-        public bool AutoConnect { get; set; } = false;
+        public bool AutoConnect { get; set { if (field != value) { field = value; Save(); } } } = false;
 
-        public TimeSpan PropertyCacheTime { get; set; } = TimeSpan.FromSeconds(1.0); // Seconds to wait before considering cached device property values as expired and retrieving new values from the devices
+        public TimeSpan PropertyCacheTime { get; set { if (field != value) { field = value; Save(); } } } = TimeSpan.FromSeconds(1.0); // Seconds to wait before considering cached device property values as expired and retrieving new values from the devices
 
-        public int AlpacaConnectTimeout { get; set; } = 10; // Seconds to wait for a response when connecting to an Alpaca device before timing out
+        public int AlpacaConnectTimeout { get; set { if (field != value) { field = value; Save(); } } } = 10; // Seconds to wait for a response when connecting to an Alpaca device before timing out
 
         public Dictionary<PropertyName, DiscoveredDevice> ConfiguredDevices { get; set; } = new()
         {
@@ -290,28 +290,28 @@ namespace ObsMan
             { PropertyName.SafetyMonitor9, new DiscoveredDevice() }
         };
 
-        public bool IncludeAlpacaTrace { get; set; } = false;
+        public bool IncludeAlpacaTrace { get; set { if (field != value) { field = value; Save(); } } } = false;
 
         public int SettingsCompatibilityVersion { get; set; } = SETTINGS_COMPATIBILTY_VERSION;
 
-        public LogLevel LogLevel { get; set; } = LogLevel.Information;
+        public LogLevel LogLevel { get; set { if (field != value) { field = value; Save(); } } } = LogLevel.Information;
 
-        public string Location { get; set; } = "My Observatory";
+        public string Location { get; set { if (field != value) { field = value; Save(); } } } = "My Observatory";
 
-        public string UniqueIdSafetyMonitor { get; set; } = Guid.NewGuid().ToString();
-        public string UniqueIdSwitch { get; set; } = Guid.NewGuid().ToString();
+        public string UniqueIdSafetyMonitor { get; set { if (field != value) { field = value; Save(); } } } = Guid.NewGuid().ToString();
+        public string UniqueIdSwitch { get; set { if (field != value) { field = value; Save(); } } } = Guid.NewGuid().ToString();
 
-        public string UniqueIdObservingConditions { get; set; } = Guid.NewGuid().ToString();
+        public string UniqueIdObservingConditions { get; set { if (field != value) { field = value; Save(); } } } = Guid.NewGuid().ToString();
 
-        public ushort ServerPort { get; set; } = (ushort)Globals.DEFAULT_ALPACA_PORT;
-        public bool AllowRemoteAccess { get; set; } = true;
-        public bool AllowDiscovery { get; set; } = true;
-        public bool LocalRespondOnlyToLocalHost { get; set; } = true;
-        public bool PreventRemoteDisconnects { get; set; } = false;
-        public bool RunInStrictAlpacaMode { get; set; } = true;
-        public bool UseAuth { get; set; } = false;
-        public string UserName { get; set; } = "User";
-        public string Password { get; set; } = string.Empty;
+        public ushort ServerPort { get; set { if (field != value) { field = value; Save(); } } } = (ushort)Globals.DEFAULT_ALPACA_PORT;
+        public bool AllowRemoteAccess { get; set { if (field != value) { field = value; Save(); } } } = true;
+        public bool AllowDiscovery { get; set { if (field != value) { field = value; Save(); } } } = true;
+        public bool LocalRespondOnlyToLocalHost { get; set { if (field != value) { field = value; Save(); } } } = true;
+        public bool PreventRemoteDisconnects { get; set { if (field != value) { field = value; Save(); } } } = false;
+        public bool RunInStrictAlpacaMode { get; set { if (field != value) { field = value; Save(); } } } = true;
+        public bool UseAuth { get; set { if (field != value) { field = value; Save(); } } } = false;
+        public string UserName { get; set { if (field != value) { field = value; Save(); } } } = "User";
+        public string Password { get; set { if (field != value) { field = value; Save(); } } } = string.Empty;
 
         #endregion
 

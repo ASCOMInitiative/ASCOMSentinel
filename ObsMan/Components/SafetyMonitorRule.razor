@@ -7,29 +7,44 @@
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;"><b>@Name</b></span>
     <span style="display:inline-block; width:700px; margin:0px; text-align:left;">@Description</span>
 
-    <RadzenDropDown Value=@SafetyMonitorState
+    <RadzenDropDown Value=@settings.SafetyMonitorSettings[Property]
                     Data=@Enum.GetValues(typeof(SafetyMonitorState))
                     TValue="SafetyMonitorState"
-                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 115px; text-align:left;color;"
+                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 115px; text-align:left;"
                     Change="(args)=>SafetyMonitorStateChanged(args)"
-                    PopupStyle="max-height:8em); overflow:auto;"
+                    PopupStyle="max-height:8em; overflow:auto;"
                     Disabled="@Disabled"
-                    Name="SafetyMonitorState" />
+                    Name="SafetyMonitorState">
+        <Template Context="item">
+            <span style="color: @(ItemColour(item));font-size:1rem">
+                @item.ToString()
+            </span>
+        </Template>
+    </RadzenDropDown>
 </div>
-
-
 @code {
     [Parameter]
     public string Name { get; set; } = Globals.NOT_SET;
-
-    [Parameter]
-    public SafetyMonitorState SafetyMonitorState { get; set; } = SafetyMonitorState.Enabled;
 
     [Parameter]
     public PropertyName Property { get; set; }
 
     [Parameter]
     public string Description { get; set; } = Globals.NOT_SET;
+
+    /// <summary>
+    /// Determines the display color for a given device based on its configuration and protocol.
+    /// </summary>
+    /// <param name="device">The device.</param>
+    /// <returns>A string representing the color.</returns>
+    private string ItemColour(SafetyMonitorState state)
+    {
+        // Check if this device is not configured
+        if (state == SafetyMonitorState.Enabled) // Not configured so return red
+            return Globals.APPLICATION_BLUE;
+
+            return "red";
+    }
 
     private void SafetyMonitorStateChanged(object args)
     {
@@ -38,9 +53,10 @@
 
         settings.SafetyMonitorSettings[Property] = (SafetyMonitorState)args;
         settings.Save();
+        StateHasChanged();
     }
 
-    private bool Disabled 
+    private bool Disabled
     {
         get
         {

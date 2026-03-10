@@ -4,15 +4,19 @@
 @inject Settings settings
 
 <div>
-    <span style="display:inline-block; width:150px; margin:0px; text-align:left;"><b>@PropertyDescription</b></span>
+    <span style="display:inline-block; width:150px; margin:0px; text-align:left;font-weight:700">@PropertyDescription</span>
 
     <RadzenDropDown Value=@Equality1
                     Data=@Enum.GetValues(typeof(EqualityType))
                     TValue="EqualityType"
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
                     Change="(args)=>Equality1Changed(args)"
-                    PopupStyle="max-height:8em); overflow:auto;"
-                    Name="Equality1" />
+                    PopupStyle="max-height:400px; overflow:auto;"
+                    Name="Equality1">
+        <Template Context="item">
+            <span style="color:dodgerblue; font-size:1rem">@item.ToString()</span>
+        </Template>
+    </RadzenDropDown>
 
     <RadzenNumeric Value=@Value1
                    TValue=double
@@ -22,15 +26,20 @@
                    ShowUpDown="false"
                    Name="Value1" />
 
-    <span style="display:inline-block; width:150px; margin:0px; margin-left:90px; text-align:left;"><b>@PropertyDescription</b></span>
+    <span style="display:inline-block; width:150px; margin:0px; margin-left:150px; text-align:left;font-weight:700">@PropertyDescription</span>
 
     <RadzenDropDown Value=@Equality2
                     Data=@Enum.GetValues(typeof(EqualityType))
                     TValue="EqualityType"
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
                     Change="(args)=>Equality2Changed(args)"
-                    PopupStyle="max-height:8em); overflow:auto;"
-                    Name="Equality2" />
+                    PopupStyle="max-height:400px; overflow:auto;"
+                    Name="Equality2" >
+        <Template Context="item">
+            <span style="color:dodgerblue; font-size:1rem">@item.ToString()</span>
+        </Template>
+    </RadzenDropDown>
+
 
     <RadzenNumeric Value=@Value2
                    TValue=double
