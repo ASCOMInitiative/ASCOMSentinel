@@ -1,7 +1,9 @@
 ﻿using ASCOM.Tools;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using System.Xml.Linq;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
@@ -42,6 +44,8 @@ namespace ObsMan
         {
             LogMessage(LogLevel.Debug, "Settings () Initiator");
             Status = "Default settings in use.";
+            //string folderName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Globals.APPLICATION_FOLDER_NAME);
+            //SettingsFileName = Path.Combine(folderName, Globals.SETTINGS_FILENAME);
         }
 
         /// <summary>
@@ -50,7 +54,7 @@ namespace ObsMan
         /// <param name="logger">Data logger instance.</param>
         public Settings(string configurationFile)
         {
-            LogMessage(LogLevel.Debug, "Settings (string configurationFile) Initiator");
+            LogMessage(LogLevel.Debug, $"Settings(configurationFile) Initiator - {(string.IsNullOrEmpty(configurationFile) ? "Using default file location" : $"Using supplied file location: {configurationFile}")}");
             try
             {
                 // Get the full settings file name including path
@@ -71,7 +75,7 @@ namespace ObsMan
                     // Read the file contents into a string
                     LogMessage(LogLevel.Debug, "File exists, about to read it...");
                     string serialisedSettingsString = File.ReadAllText(SettingsFileName);
-                    LogMessage(LogLevel.Debug, $"Serialised settings:\r\n{serialisedSettingsString}");
+                    //LogMessage(LogLevel.Debug, $"Serialised settings:\r\n{serialisedSettingsString}");
 
                     // Make a basic check to see if this file is a beta / pre-release version that doesn't have a version number. If so replace with a new version
                     LogMessage(LogLevel.Debug, $"Found compatibility version element...");
@@ -95,7 +99,9 @@ namespace ObsMan
                                 try
                                 {
                                     // De-serialise the settings string into a Settings object
-                                    Settings settings = JsonSerializer.Deserialize<Settings>(serialisedSettingsString, jsonSerialisationOptions) ?? new Settings();
+                                    Settings? settings = JsonSerializer.Deserialize<Settings>(serialisedSettingsString, jsonSerialisationOptions);
+                                    if (settings is null)
+                                        settings = new Settings();
 
                                     // Test whether the retrieved settings match the requirements of this version of Observatory Manager
                                     if (settings.SettingsCompatibilityVersion == Settings.SETTINGS_COMPATIBILTY_VERSION) // Version numbers match so all is well
@@ -221,8 +227,6 @@ namespace ObsMan
 
         #region Public persisted properties
 
-        public int AlpacaGetPropertyTimeout { get; set { if (field != value) { field = value; Save(); } } } = 2; // Seconds to wait for a response when getting a value from an Alpaca device before timing out
-
         // NOTE Values to be persisted must be defined as PROPERTIES rather than FIELDS.
         // If they are not properties they will NOT be included in the serialised JSON string.
         public Dictionary<PropertyName, SafetyMonitorState> SafetyMonitorSettings { get; set; } = new()
@@ -238,9 +242,7 @@ namespace ObsMan
             { PropertyName.SafetyMonitor8, SafetyMonitorState.Enabled },
             { PropertyName.SafetyMonitor9, SafetyMonitorState.Enabled },
         };
-
-
-        public Dictionary<PropertyName, ObservingConditionsRule> ObservingCondtionsRules { get; set; } =new()
+        public Dictionary<PropertyName, ObservingConditionsRule> ObservingCondtionsRules { get; set; } = new()
         {
             { PropertyName.CloudCover, new ObservingConditionsRule() },
             { PropertyName.DewPoint, new ObservingConditionsRule() },
@@ -256,13 +258,6 @@ namespace ObsMan
             { PropertyName.WindGust, new ObservingConditionsRule() },
             { PropertyName.WindSpeed, new ObservingConditionsRule() },
         };
-
-        public bool AutoConnect { get; set { if (field != value) { field = value; Save(); } } } = false;
-
-        public TimeSpan PropertyCacheTime { get; set { if (field != value) { field = value; Save(); } } } = TimeSpan.FromSeconds(1.0); // Seconds to wait before considering cached device property values as expired and retrieving new values from the devices
-
-        public int AlpacaConnectTimeout { get; set { if (field != value) { field = value; Save(); } } } = 10; // Seconds to wait for a response when connecting to an Alpaca device before timing out
-
         public Dictionary<PropertyName, DiscoveredDevice> ConfiguredDevices { get; set; } = new()
         {
             { PropertyName.CloudCover, new DiscoveredDevice() },
@@ -290,28 +285,26 @@ namespace ObsMan
             { PropertyName.SafetyMonitor9, new DiscoveredDevice() }
         };
 
-        public bool IncludeAlpacaTrace { get; set { if (field != value) { field = value; Save(); } } } = false;
-
+        public int AlpacaGetPropertyTimeout { get; set; } = 2; // Seconds to wait for a response when getting a value from an Alpaca device before timing out
+        public bool AutoConnect { get; set; } = false;
+        public TimeSpan PropertyCacheTime { get; set; } = TimeSpan.FromSeconds(1.0); // Seconds to wait before considering cached device property values as expired and retrieving new values from the devices
+        public int AlpacaConnectTimeout { get; set; } = 10; // Seconds to wait for a response when connecting to an Alpaca device before timing out
+        public bool IncludeAlpacaTrace { get; set; } = false;
         public int SettingsCompatibilityVersion { get; set; } = SETTINGS_COMPATIBILTY_VERSION;
-
-        public LogLevel LogLevel { get; set { if (field != value) { field = value; Save(); } } } = LogLevel.Information;
-
-        public string Location { get; set { if (field != value) { field = value; Save(); } } } = "My Observatory";
-
-        public string UniqueIdSafetyMonitor { get; set { if (field != value) { field = value; Save(); } } } = Guid.NewGuid().ToString();
-        public string UniqueIdSwitch { get; set { if (field != value) { field = value; Save(); } } } = Guid.NewGuid().ToString();
-
-        public string UniqueIdObservingConditions { get; set { if (field != value) { field = value; Save(); } } } = Guid.NewGuid().ToString();
-
-        public ushort ServerPort { get; set { if (field != value) { field = value; Save(); } } } = (ushort)Globals.DEFAULT_ALPACA_PORT;
-        public bool AllowRemoteAccess { get; set { if (field != value) { field = value; Save(); } } } = true;
-        public bool AllowDiscovery { get; set { if (field != value) { field = value; Save(); } } } = true;
-        public bool LocalRespondOnlyToLocalHost { get; set { if (field != value) { field = value; Save(); } } } = true;
-        public bool PreventRemoteDisconnects { get; set { if (field != value) { field = value; Save(); } } } = false;
-        public bool RunInStrictAlpacaMode { get; set { if (field != value) { field = value; Save(); } } } = true;
-        public bool UseAuth { get; set { if (field != value) { field = value; Save(); } } } = false;
-        public string UserName { get; set { if (field != value) { field = value; Save(); } } } = "User";
-        public string Password { get; set { if (field != value) { field = value; Save(); } } } = string.Empty;
+        public LogLevel LogLevel { get; set; } = LogLevel.Information;
+        public string Location { get; set; } = "My Observatory";
+        public string UniqueIdSafetyMonitor { get; set; } = Guid.NewGuid().ToString();
+        public string UniqueIdSwitch { get; set; } = Guid.NewGuid().ToString();
+        public string UniqueIdObservingConditions { get; set; } = Guid.NewGuid().ToString();
+        public ushort ServerPort { get; set; } = (ushort)Globals.DEFAULT_ALPACA_PORT;
+        public bool AllowRemoteAccess { get; set; } = true;
+        public bool AllowDiscovery { get; set; } = true;
+        public bool LocalRespondOnlyToLocalHost { get; set; } = true;
+        public bool PreventRemoteDisconnects { get; set; } = false;
+        public bool RunInStrictAlpacaMode { get; set; } = true;
+        public bool UseAuth { get; set; } = false;
+        public string UserName { get; set; } = "User";
+        public string Password { get; set; } = string.Empty;
 
         #endregion
 
@@ -469,10 +462,11 @@ namespace ObsMan
 
                 // Create serialised settings string containing current settings values
                 string serialisedSettingsString = JsonSerializer.Serialize<Settings>(this, jsonSerialisationOptions);
-                LogMessage(LogLevel.Debug, $"PersistSettings - Serialised settings:\r\n{serialisedSettingsString}");
+                // LogMessage(LogLevel.Debug, $"PersistSettings - Serialised settings:\r\n{serialisedSettingsString}");
 
                 // Create the settings folder if it doesn't exist
                 Directory.CreateDirectory(Path.GetDirectoryName(SettingsFileName) ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Globals.APPLICATION_FOLDER_NAME));
+                LogMessage(LogLevel.Debug, $"PersistSettings - Created directory. Writing to {SettingsFileName}");
 
                 // Persist the settings to file
                 File.WriteAllText(SettingsFileName, serialisedSettingsString);

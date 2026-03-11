@@ -38,9 +38,14 @@
 
         public List<IObservingConditionsV2> ObservingConditionsDevices { get; set; } = [];
 
+        public List<DiscoveredDevice> DiscoveredObservingConditionsDevices = new List<DiscoveredDevice>();
+        public List<DiscoveredDevice> DiscoveredSafetyMonitorDevices = new List<DiscoveredDevice>();
+        public bool DiscoveryUnderway { get; set; } = false;
+        public bool DiscoveryHasRun { get; set; } = false;
+
         public Dictionary<PropertyName, IObservingConditionsV2> ObservingConditionsDeviceMap { get; set; } = [];
 
-        public Dictionary<PropertyName, ISafetyMonitorV3> SafetyMonitorDevices { get; set ; } = [];
+        public Dictionary<PropertyName, ISafetyMonitorV3> SafetyMonitorDevices { get; set; } = [];
 
 
         public Dictionary<int, ISwitchV3> SwitchDevices { get; set; } = [];

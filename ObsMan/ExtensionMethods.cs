@@ -79,5 +79,16 @@ namespace ObsMan
                     throw new ASCOM.InvalidValueException($"Property name: {propertyName} is not defined");
             }
         }
+
+        public static string ToRoundedString(this double value)
+        {
+            double abs = Math.Abs(value);
+            return abs switch
+            {
+                < 1.0 => value.ToString("F3"),
+                <= 100.0 => value.ToString("F2"),
+                _ => value.ToString("F1")
+            };
+        }
     }
 }

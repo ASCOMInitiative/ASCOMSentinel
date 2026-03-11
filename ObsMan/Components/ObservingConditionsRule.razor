@@ -54,9 +54,17 @@
 </div>
 
 @code {
+    private bool _initialized;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            _initialized = true;
+    }
+
     private void Equality1Changed(object args)
     {
-        if (args == null)
+        if (!_initialized || args == null)
             return;
 
         settings.ObservingCondtionsRules[Property].EqualityType1 = (EqualityType)args;
@@ -65,7 +73,7 @@
 
     private void Value1Changed(object args)
     {
-        if (args == null)
+        if (!_initialized || args == null)
             return;
 
         settings.ObservingCondtionsRules[Property].Value1 = (double)args;
@@ -74,7 +82,7 @@
 
     private void Equality2Changed(object args)
     {
-        if (args == null)
+        if (!_initialized || args == null)
             return;
 
         settings.ObservingCondtionsRules[Property].EqualityType2 = (EqualityType)args;
@@ -83,7 +91,7 @@
 
     private void Value2Changed(object args)
     {
-        if (args == null)
+        if (!_initialized || args == null)
             return;
 
         settings.ObservingCondtionsRules[Property].Value2 = (double)args;

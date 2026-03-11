@@ -236,7 +236,7 @@ namespace ObsMan.DeviceAccess
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
-                                            $"{property} rule 1 violated: Value {currentValue} is less than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
+                                            $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is less than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
                                         allSafe = false; // Rule not satisfied, set allSafe to false
                                     }
                                     break;
@@ -248,7 +248,7 @@ namespace ObsMan.DeviceAccess
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
-                                            $"{property} rule 1 violated: Value {currentValue} is equal to {value1}.")); // Add a safety event to the list for any rule that is not satisfied
+                                            $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is equal to {value1}.")); // Add a safety event to the list for any rule that is not satisfied
                                         allSafe = false; // Rule not satisfied, set allSafe to false
                                     }
                                     break;
@@ -260,7 +260,7 @@ namespace ObsMan.DeviceAccess
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
-                                            $"{property} rule 1 violated: Value {currentValue} is greater than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
+                                            $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is greater than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
                                         allSafe = false; // Rule not satisfied, set allSafe to false
                                     }
                                     break;
@@ -279,7 +279,7 @@ namespace ObsMan.DeviceAccess
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
-                                            $"{property} rule 2 violated: Value {currentValue} is less than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
+                                            $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is less than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
                                         allSafe = false; // Rule not satisfied, set allSafe to false
                                     }
                                     break;
@@ -291,7 +291,7 @@ namespace ObsMan.DeviceAccess
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
-                                            $"{property} rule 2 violated: Value {currentValue} is equal to {value2}.")); // Add a safety event to the list for any rule that is not satisfied
+                                            $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is equal to {value2}.")); // Add a safety event to the list for any rule that is not satisfied
                                         allSafe = false; // Rule not satisfied, set allSafe to false
                                     }
                                     break;
@@ -303,7 +303,7 @@ namespace ObsMan.DeviceAccess
                                         state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
                                             property.ToSafetyEventType(),
                                             $"{Globals.APPLICATION_NAME} at {settings.Location}",
-                                            $"{property} rule 2 violated: Value {currentValue} is greater than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
+                                            $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is greater than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
                                         allSafe = false; // Rule not satisfied, set allSafe to false
                                     }
                                     break;

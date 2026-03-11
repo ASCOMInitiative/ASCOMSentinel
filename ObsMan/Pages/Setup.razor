@@ -23,7 +23,7 @@
 
 <h1>Application Setup</h1>
 <span>
-    <ObsManButton Click="@StartDiscovery" Text="Update Device List" Disabled="@discoveryUnderway" />
+    <ObsManButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.DiscoveryUnderway" />
     <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:410px;">@statusText</RadzenText>
     <ObsManButton Click="@ResetSettings" Text="Reset To Defaults" />
 </span>
@@ -176,55 +176,55 @@
 
                     <DeviceSelection Property="PropertyName.CloudCover"
                                      PropertyDescription="Cloud Cover"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
                     <DeviceSelection Property="PropertyName.DewPoint"
                                      PropertyDescription="Dew Point"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
                     <DeviceSelection Property="PropertyName.Humidity"
                                      PropertyDescription="Humidity"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
                     <DeviceSelection Property="PropertyName.Pressure"
                                      PropertyDescription="Pressure"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
                     <DeviceSelection Property="PropertyName.RainRate"
                                      PropertyDescription="Rain Rate"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
                     <DeviceSelection Property="PropertyName.SkyBrightness"
                                      PropertyDescription="Sky Brightness"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
                     <DeviceSelection Property="PropertyName.SkyQuality"
                                      PropertyDescription="Sky Quality"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
                     <DeviceSelection Property="PropertyName.SkyTemperature"
                                      PropertyDescription="Sky Temperature"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
                     <DeviceSelection Property="PropertyName.StarFWHM"
                                      PropertyDescription="Star FWHM"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
                     <DeviceSelection Property="PropertyName.Temperature"
                                      PropertyDescription="Temperature"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
                     <DeviceSelection Property="PropertyName.WindDirection"
                                      PropertyDescription="Wind Direction"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
                     <DeviceSelection Property="PropertyName.WindGust"
                                      PropertyDescription="Wind Gust"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
                     <DeviceSelection Property="PropertyName.WindSpeed"
                                      PropertyDescription="Wind Speed"
-                                     DiscoveredDevices=@observingConditionsDevices
+                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
                 </RadzenCard>
             </div>
@@ -362,53 +362,53 @@
 
                     <DeviceSelection Property="PropertyName.SafetyMonitor0"
                                      PropertyDescription="Safety monitor 0"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor0]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor0)" />
 
                     <DeviceSelection Property="PropertyName.SafetyMonitor1"
                                      PropertyDescription="Safety monitor 1"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor1]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor1)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor2"
                                      PropertyDescription="Safety monitor 2"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor2]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor2)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor3"
                                      PropertyDescription="Safety monitor 3"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor3]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor3)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor4"
                                      PropertyDescription="Safety monitor 4"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor4]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor4)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor5"
                                      PropertyDescription="Safety monitor 5"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor5]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor5)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor6"
                                      PropertyDescription="Safety monitor 6"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor6]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor6)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor7"
                                      PropertyDescription="Safety monitor 7"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor7]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor7)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor8"
                                      PropertyDescription="Safety monitor 8"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor8]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor8)" />
                     <DeviceSelection Property="PropertyName.SafetyMonitor9"
                                      PropertyDescription="Safety monitor 9"
-                                     DiscoveredDevices=@safetyMonitorDevices
+                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor9]"
                                      OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor9)" />
                 </RadzenCard>
@@ -463,9 +463,16 @@
 </RadzenTabs>
 
 @code {
-    private List<AscomDevice> ObservingConditionsDevicesAlpaca { get; set; } = new();
-    private List<AscomDevice> SafetyMonitorDevicesAlpaca { get; set; } = new();
-    private List<AscomDevice> SwitchDevicesAlpaca { get; set; } = new();
+    const string alignPoint = "250px"; // Right alignment for settings values in the general settings tab
+
+    private string statusText = "";
+    private AlpacaDiscovery? discovery;
+    private DotNetObjectReference<Setup>? objRef;
+
+    private int windowWidth { get; set; } = 1280;
+    private List<AscomDevice> observingConditionsDevicesAlpaca { get; set; } = new();
+    private List<AscomDevice> safetyMonitorDevicesAlpaca { get; set; } = new();
+    private List<AscomDevice> switchDevicesAlpaca { get; set; } = new();
 
 #if WINDOWS
     private List<ASCOM.Com.ASCOMRegistration> ObservingConditionsDevicesCom { get; set; } = new();
@@ -473,90 +480,11 @@
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
 
-    private List<DiscoveredDevice> observingConditionsDevices = new List<DiscoveredDevice>();
-    private List<DiscoveredDevice> safetyMonitorDevices = new List<DiscoveredDevice>();
-
-    private bool discoveryUnderway = false;
-
-    private bool asd;
-
-    private async Task AlpacaGetPropertyTimeoutChanged(object args)
-    {
-        if (args == null)
-            return;
-
-        settings.AlpacaGetPropertyTimeout = (int)args;
-    }
-
-    private bool IncludeAlpacaTraceChanged
-    {
-        get
-        {
-            return settings.IncludeAlpacaTrace;
-        }
-        set
-        {
-            settings.IncludeAlpacaTrace = value;
-        }
-    }
-
-    private async Task ResetSettings()
-    {
-        if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to reset all settings? This cannot be undone."))
-        {
-            settings.ResetToDefaults();
-            await StartDiscovery();
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    string statusText = "";
-
-    const string alignPoint = "250px"; // Right alignment for settings values in the general settings tab
-    AlpacaDiscovery? discovery;
-    DotNetObjectReference<Setup>? objRef;
-
-    LogLevel TraceLevel
-    {
-        get
-        {
-            return settings.LogLevel;
-        }
-        set
-        {
-            settings.LogLevel = value;
-        }
-    }
-
-    private int WindowWidth { get; set; } = 1280;
-
-    private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
-    {
-        settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
-        await InvokeAsync(StateHasChanged);
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        await StartDiscovery();
-    }
-
-    private async Task StartDiscovery()
-    {
-        try
+        if (!state.DiscoveryHasRun)
         {
-
-            discoveryUnderway = true;
-            discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.IncludeAlpacaTrace ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
-                (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
-            discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
-            discovery.StartDiscovery(1, 10, 32227, 2.0, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);
-            statusText = "Alpaca discovery underway";
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (Exception ex)
-        {
-            logger.LogErrorConsole("StartDiscovery", $"Exception during discovery: {ex.Message}\r\n{ex}");
+            await StartDiscovery();
         }
     }
 
@@ -575,14 +503,85 @@
         }
     }
 
+    private bool IncludeAlpacaTraceChanged
+    {
+        get
+        {
+            return settings.IncludeAlpacaTrace;
+        }
+        set
+        {
+            settings.IncludeAlpacaTrace = value;
+            settings.Save();
+        }
+    }
+
+    private async Task AlpacaGetPropertyTimeoutChanged(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.AlpacaGetPropertyTimeout = (int)args;
+        settings.Save();
+    }
+
+    private async Task ResetSettings()
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to reset all settings? This cannot be undone."))
+        {
+            settings.ResetToDefaults();
+            await StartDiscovery();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private LogLevel TraceLevel
+    {
+        get
+        {
+            return settings.LogLevel;
+        }
+        set
+        {
+            settings.LogLevel = value;
+            settings.Save();
+        }
+    }
+
+    private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
+    {
+        settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
+        settings.Save();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task StartDiscovery()
+    {
+        try
+        {
+
+            state.DiscoveryUnderway = true;
+            discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.IncludeAlpacaTrace ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
+                (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
+            discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
+            discovery.StartDiscovery(1, 10, 32227, 2.0, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);
+            statusText = "Alpaca discovery underway";
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            logger.LogErrorConsole("StartDiscovery", $"Exception during discovery: {ex.Message}\r\n{ex}");
+        }
+    }
+
     private async void AlpacaDiscoveryCompleted(object? caller, EventArgs args)
     {
         try
         {
 
-            ObservingConditionsDevicesAlpaca.Clear();
-            SwitchDevicesAlpaca.Clear();
-            SafetyMonitorDevicesAlpaca.Clear();
+            observingConditionsDevicesAlpaca.Clear();
+            switchDevicesAlpaca.Clear();
+            safetyMonitorDevicesAlpaca.Clear();
 
 #if WINDOWS
             ObservingConditionsDevicesCom.Clear();
@@ -590,16 +589,16 @@
             SafetyMonitorDevicesCom.Clear();
 #endif
 
-            observingConditionsDevices.Clear();
-            safetyMonitorDevices.Clear();
+            state.DiscoveredObservingConditionsDevices.Clear();
+            state.DiscoveredSafetyMonitorDevices.Clear();
 
-            observingConditionsDevices.Add(new DiscoveredDevice());
-            safetyMonitorDevices.Add(new DiscoveredDevice());
+            state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice());
+            state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice());
 
             ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
-            ObservingConditionsDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
-            SwitchDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.Switch);
-            SafetyMonitorDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
+            observingConditionsDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
+            switchDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.Switch);
+            safetyMonitorDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
 
 #if WINDOWS
             foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.Switch))
@@ -618,13 +617,13 @@
 #endif
 
             // Add discovered Alpaca devices
-            foreach (AscomDevice device in ObservingConditionsDevicesAlpaca)
+            foreach (AscomDevice device in observingConditionsDevicesAlpaca)
             {
                 // Exclude our observing conditions device from the list
                 if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
                 {
                     logger.LogDebugConsole("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-                    observingConditionsDevices.Add(new DiscoveredDevice
+                    state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
                     {
                         ObsManDeviceType = ObsManDeviceType.ObservingConditions,
                         Protocol = Protocol.Alpaca,
@@ -640,7 +639,7 @@
             foreach (ASCOM.Com.ASCOMRegistration device in ObservingConditionsDevicesCom)
             {
                 // logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
-                observingConditionsDevices.Add(new DiscoveredDevice
+                state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
                 {
                     ObsManDeviceType = ObsManDeviceType.ObservingConditions,
                     Protocol = Protocol.COM,
@@ -650,22 +649,22 @@
             }
 #endif
 
-            foreach (DiscoveredDevice device in observingConditionsDevices)
+            foreach (DiscoveredDevice device in state.DiscoveredObservingConditionsDevices)
             {
                 if (device.ObsManDeviceType != ObsManDeviceType.NotSet)
                     logger.LogMessageConsole("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
             }
 
             // Add discovered Alpaca devices
-            // logger.LogDebug("", $"GetDeviceNames - Found {SafetyMonitorDevicesAlpaca.Count()} Alpaca safety monitor devices.");
+            // logger.LogDebug("", $"GetDeviceNames - Found {safetyMonitorDevicesAlpaca.Count()} Alpaca safety monitor devices.");
 
-            foreach (AscomDevice device in SafetyMonitorDevicesAlpaca)
+            foreach (AscomDevice device in safetyMonitorDevicesAlpaca)
             {
                 // Exclude our safety monitor device from the list
                 if (device.AscomDeviceName != Globals.SAFETY_MONITOR_DEVICE_NAME)
                 {
                     logger.LogDebugConsole("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-                    safetyMonitorDevices.Add(new DiscoveredDevice
+                    state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
                     {
                         Protocol = Protocol.Alpaca,
                         ObsManDeviceType = ObsManDeviceType.SafetyMonitor,
@@ -680,7 +679,7 @@
             foreach (ASCOM.Com.ASCOMRegistration device in SafetyMonitorDevicesCom)
             {
                 logger.LogDebugConsole("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
-                safetyMonitorDevices.Add(new DiscoveredDevice
+                state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
                 {
                     Protocol = Protocol.COM,
                     ObsManDeviceType = ObsManDeviceType.SafetyMonitor,
@@ -690,7 +689,7 @@
             }
 
 #endif
-            foreach (DiscoveredDevice device in safetyMonitorDevices)
+            foreach (DiscoveredDevice device in state.DiscoveredSafetyMonitorDevices)
             {
                 if (device.ObsManDeviceType != ObsManDeviceType.NotSet)
                     logger.LogMessageConsole("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
@@ -700,29 +699,6 @@
 
             statusText = "Discovery completed";
             await InvokeAsync(StateHasChanged);
-
-            // alpacaDiscoveryProgress += $"Discovery complete!";
-            // ResizeStatusArea();
-            // ascomDevices = new();
-            // foreach (AscomDevice device in discovery.GetAscomDevices(Enum.Parse<ObsManDeviceTypes>(selectedObsManDeviceTypeString)))
-            // {
-            //     ascomDevices.Add(new AlpacaDeviceListItem($"{device.AscomDeviceName} ({device.IpAddress})", device));
-
-            //     Make this device the current device in the UI list if it is an Alpaca device and the device name, IP address and IP port all match the currently selected device values.
-            //     if (
-            //         (configuration.Settings.DeviceTechnology == DeviceTechnology.Alpaca) &
-            //         (device.AscomDeviceName == configuration.Settings.AlpacaDevice.AscomDeviceName) &
-            //         (device.IpAddress == configuration.Settings.AlpacaDevice.IpAddress) &
-            //         (device.IpPort == configuration.Settings.AlpacaDevice.IpPort)
-            //         ) ascomDevice = device;
-            // }
-            // discoveryInProgress = false;
-            // configuration.Settings.OperationInProgress = false;
-            // state.RaiseUiHasChangedEvent();
-
-            // ascomDevices.Sort((a, b) => a.DisplayName.CompareTo(b.DisplayName));
-
-            // await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
@@ -730,7 +706,8 @@
         }
         finally
         {
-            discoveryUnderway = false;
+            state.DiscoveryUnderway = false;
+            state.DiscoveryHasRun = true;
             await InvokeAsync(StateHasChanged);
             logger.LogDebugConsole("", $"Discovery underway is now false.");
         }
@@ -746,7 +723,7 @@
             // Calculate the number of rows that will fit in the available height
             int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
             // logger.LogDebug("OnResizeSetup", $"Window size: {width} x {height}");
-            WindowWidth = width;
+            windowWidth = width;
             state.WindowWidth = width;
 
             // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
@@ -761,24 +738,6 @@
         }
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (objRef != null)
-        {
-            try
-            {
-                await JSRuntime.InvokeVoidAsync("window.unregisterSetupViewportChangeCallback"); // Optional: add unregister JS
-            }
-            catch { }
-
-            try
-            {
-                objRef.Dispose();
-            }
-            catch { }
-        }
-    }
-
     #region Server settings
 
     // Server Settings - properties persist immediately to settings on change
@@ -786,7 +745,7 @@
     private string SrvLocation
     {
         get => settings.Location;
-        set { settings.Location = value; }
+        set { settings.Location = value; settings.Save(); }
     }
 
     private bool SrvRemoteAccess
@@ -797,6 +756,7 @@
             if (settings.AllowRemoteAccess != value)
             {
                 settings.AllowRemoteAccess = value;
+                settings.Save();
                 Program.Main(Array.Empty<string>());
             }
         }
@@ -810,6 +770,7 @@
             if (settings.ServerPort != value)
             {
                 settings.ServerPort = value;
+                settings.Save();
                 Program.Main(Array.Empty<string>());
             }
         }
@@ -818,19 +779,19 @@
     private bool SrvStrictAPIMode
     {
         get => settings.RunInStrictAlpacaMode;
-        set { settings.RunInStrictAlpacaMode = value; }
+        set { settings.RunInStrictAlpacaMode = value; settings.Save();}
     }
 
     private bool SrvPreventRemoteDisconnects
     {
         get => settings.PreventRemoteDisconnects;
-        set { settings.PreventRemoteDisconnects = value; }
+        set { settings.PreventRemoteDisconnects = value; settings.Save(); }
     }
 
     private bool SrvDiscovery
     {
         get => settings.AllowDiscovery;
-        set { settings.AllowDiscovery = value; }
+        set { settings.AllowDiscovery = value; settings.Save(); }
     }
 
     private bool SrvLocalHostOnlyOnHost
@@ -842,7 +803,7 @@
     private bool SrvRequireAuthorization
     {
         get => settings.UseAuth;
-        set { settings.UseAuth = value; }
+        set { settings.UseAuth = value; settings.Save(); }
     }
 
     private bool SrvDisableAuth => !SrvRequireAuthorization;
@@ -855,6 +816,7 @@
             if (!string.IsNullOrWhiteSpace(value))
             {
                 settings.UserName = value;
+                settings.Save();
             }
         }
     }
@@ -886,6 +848,7 @@
         if (_srvPassword == _srvPassword2)
         {
             settings.Password = Hash.GetStoragePassword(_srvPassword);
+            settings.Save();
             _srvPasswordStatus = "Password saved.";
         }
         else
@@ -897,7 +860,7 @@
     private bool AutoConnect
     {
         get => settings.AutoConnect;
-        set { settings.AutoConnect = value; }
+        set { settings.AutoConnect = value; settings.Save() ; }
     }
 
     private LogLevel SrvLoggingLevel
@@ -906,6 +869,7 @@
         set
         {
             settings.LogLevel = value;
+            settings.Save();
             Program.logger?.SetMinimumLoggingLevel(value);
         }
     }
@@ -916,6 +880,28 @@
     private void SrvShutdown()
     {
         Program.Lifetime?.StopApplication();
+    }
+
+    #endregion
+
+    #region Dispose pattern
+
+    public async ValueTask DisposeAsync()
+    {
+        if (objRef != null)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("window.unregisterSetupViewportChangeCallback"); // Optional: add unregister JS
+            }
+            catch { }
+
+            try
+            {
+                objRef.Dispose();
+            }
+            catch { }
+        }
     }
 
     #endregion

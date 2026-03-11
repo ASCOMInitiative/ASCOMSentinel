@@ -24,6 +24,13 @@
 
 @code {
     EqualityType equalityType1;
+    private bool _initialized;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            _initialized = true;
+    }
 
     /// <summary>
     /// Determines the display color for a given device based on its configuration and protocol.
@@ -47,7 +54,7 @@
 
     private async Task DeviceChanged(object args)
     {
-        if (args == null)
+        if (!_initialized || args == null)
             return;
 
         DiscoveredDevice device = (DiscoveredDevice)args;

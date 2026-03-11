@@ -16,17 +16,42 @@
 <body>
     @RenderBody()
 
-    <div id="blazor-error-ui">
-        <environment include="Staging,Production">
-            An error has occurred. This application may no longer respond until reloaded.
-        </environment>
-        <environment include="Development">
-            An unhandled exception has occurred. See browser dev tools for details.
-        </environment>
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+    <!-- Replaces the default blazor-error-ui; shown if window.close() is blocked by the browser -->
+    <div id="server-stopped-overlay"
+         style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+                background:#1a1a2e; color:#eee; font-family:sans-serif;
+                align-items:center; justify-content:center; z-index:9999; flex-direction:column;">
+        <h2 style="margin-bottom:0.5rem;">Server has stopped</h2>
+        <p style="color:#aaa;">You may close this window.</p>
     </div>
+    <div id="components-reconnect-modal" style="display:none!important"></div>
 
-    <script src="_framework/blazor.server.js"></script>
+    <script autostart="false" src="_framework/blazor.server.js"></script>
+    <script>
+        Blazor.start({
+            circuit: {
+                reconnectionOptions: {
+                    maxRetries: 0   // Do not attempt to reconnect — server has shut down intentionally
+                },
+                reconnectionHandler: {
+                    onConnectionDown: function (options, error) {
+                        // Attempt to close the window; this works if the tab was opened via window.open()
+                        window.open('', '_self', '');
+                        window.close();
+
+                        // Fallback: if the browser blocked window.close(), show the overlay
+                        setTimeout(function () {
+                            var overlay = document.getElementById('server-stopped-overlay');
+                            if (overlay) overlay.style.display = 'flex';
+                        }, 500);
+                    },
+                    onConnectionUp: function () {
+                        var overlay = document.getElementById('server-stopped-overlay');
+                        if (overlay) overlay.style.display = 'none';
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

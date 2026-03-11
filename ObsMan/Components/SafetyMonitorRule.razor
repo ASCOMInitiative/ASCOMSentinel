@@ -23,6 +23,14 @@
     </RadzenDropDown>
 </div>
 @code {
+    private bool _initialized;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            _initialized = true;
+    }
+
     [Parameter]
     public string Name { get; set; } = Globals.NOT_SET;
 
@@ -48,7 +56,7 @@
 
     private void SafetyMonitorStateChanged(object args)
     {
-        if (args == null)
+        if (!_initialized || args == null)
             return;
 
         settings.SafetyMonitorSettings[Property] = (SafetyMonitorState)args;

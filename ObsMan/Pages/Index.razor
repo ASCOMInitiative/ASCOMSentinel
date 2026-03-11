@@ -31,12 +31,11 @@
 
 @code
 {
-    Lock mapLock = new();
-    static bool connectedState = false;
-    static bool connectingToDevices = false;
-    bool _disposed = false;
-
-    DotNetObjectReference<Index>? objRef;
+    private Lock mapLock = new();
+    private static bool connectedState = false;
+    private static bool connectingToDevices = false;
+    private bool _disposed = false;
+    private DotNetObjectReference<Index>? objRef;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

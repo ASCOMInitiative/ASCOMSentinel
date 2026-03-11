@@ -31,7 +31,7 @@ namespace ObsMan
         internal const string ServerVersion = Globals.APPLICATION_VERSION;
 
         internal static State state = new();
-        internal static Settings settings = new Settings("");
+        internal static Settings settings = new Settings(string.Empty);
         internal static ObsManLogger logger = new(state, settings);
 
         internal static IHostApplicationLifetime? Lifetime;
@@ -100,6 +100,7 @@ namespace ObsMan
             {
                 logger.LogMessage("", "Turning off Authentication to allow password reset.");
                 settings.UseAuth = false;
+                settings.Save();
                 logger.LogMessage("", "Authentication off, you can change the password and then re-enable Authentication.");
             }
 
@@ -164,7 +165,10 @@ namespace ObsMan
 
             // Add services to the container.
             builder.Services.AddRazorPages();
-            builder.Services.AddServerSideBlazor();
+            builder.Services.AddServerSideBlazor(options =>
+                {
+                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(10);
+                });
 
             //Set default behaviors for Alpaca APIs
             ASCOM.Alpaca.Razor.StartupHelpers.ConfigureAlpacaAPIBehavoir(builder.Services);
