@@ -28,29 +28,15 @@
                 background:rgba(0,0,0,0.75); z-index:9999;">
         <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
                     background:#2a2a4e; color:#eee; font-family:sans-serif; border-radius:8px;
-                    padding:2rem 2.5rem; max-width:420px; width:90%; text-align:center;
+                    padding:2rem 2.5rem; max-width:550px; width:90%; text-align:center;
                     box-shadow:0 4px 24px rgba(0,0,0,0.6);">
-            <h2 style="margin:0 0 0.75rem;">Server connection lost</h2>
-            <p style="color:#bbb; margin:0 0 1.5rem;">
-                The server has stopped. Would you like to wait for it to restart, or close this window?
-            </p>
-            <div id="server-stopped-buttons">
-                <button onclick="waitForServer()"
-                        style="margin:0.25rem; padding:0.5rem 1.25rem; border:none; border-radius:4px;
-                               background:#1b6ec2; color:#fff; font-size:1rem; cursor:pointer;">
-                    Wait for restart
-                </button>
-                <button onclick="closeBrowser()"
-                        style="margin:0.25rem; padding:0.5rem 1.25rem; border:none; border-radius:4px;
-                               background:#555; color:#fff; font-size:1rem; cursor:pointer;">
-                    Close browser
-                </button>
-            </div>
-            <p id="server-waiting-message" style="display:none; color:#aaa; margin:0.5rem 0 0;">
-                Waiting for server to restart&hellip;
+            <h2 style="margin:0 0 0.75rem;">The @Globals.APPLICATION_NAME Server has stopped</h2>
+            <p style="color:#bbb; margin:0 0 0.5rem;">
+                This window will attempt to close in <span id="countdown-seconds"
+                    style="font-size:1.4rem; font-weight:bold; color:#fff;">5</span> seconds.
             </p>
             <p id="server-close-message" style="display:none; color:#aaa; margin:0.5rem 0 0;">
-                You may close this window.
+                Unable to close automatically, please close this window manually.
             </p>
         </div>
     </div>
@@ -58,43 +44,32 @@
     <script autostart="false" src="_framework/blazor.server.js"></script>
     <script>
         var serverStopped = false;
-        var serverPollInterval = null;
+        var countdownInterval = null;
 
         function handleServerStopped() {
             if (serverStopped) return;
             serverStopped = true;
 
-            // Show the dialogue asking the user what to do
             var overlay = document.getElementById('server-stopped-overlay');
             if (overlay) overlay.style.display = 'block';
-        }
 
-        function waitForServer() {
-            document.getElementById('server-stopped-buttons').style.display = 'none';
-            document.getElementById('server-waiting-message').style.display = 'block';
+            var seconds = 5;
+            countdownInterval = setInterval(function () {
+                seconds--;
+                var counter = document.getElementById('countdown-seconds');
+                if (counter) counter.textContent = seconds;
 
-            // Poll until the server responds, then reload to get a fresh Blazor circuit
-            serverPollInterval = setInterval(function () {
-                fetch(window.location.href, { method: 'HEAD', cache: 'no-cache' })
-                    .then(function (response) {
-                        if (response.ok) {
-                            clearInterval(serverPollInterval);
-                            window.location.reload();
-                        }
-                    })
-                    .catch(function () { /* server still unavailable — keep polling */ });
-            }, 2000);
-        }
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
 
-        function closeBrowser() {
-            document.getElementById('server-stopped-buttons').style.display = 'none';
+                    // Attempt to close — succeeds in Chromium when the tab was opened programmatically
+                    window.open('', '_self', '');
+                    window.close();
 
-            // Attempt to close — succeeds in Chromium when the tab was opened programmatically
-            window.open('', '_self', '');
-            window.close();
-
-            // If window.close() was blocked by the browser, tell the user
-            document.getElementById('server-close-message').style.display = 'block';
+                    // If window.close() was blocked by the browser, tell the user
+                    document.getElementById('server-close-message').style.display = 'block';
+                }
+            }, 1000);
         }
 
         // Primary mechanism: MutationObserver watches for Blazor adding CSS classes to the
@@ -124,9 +99,9 @@
                     onConnectionDown: function (options, error) { handleServerStopped(); },
                     onConnectionUp: function () {
                         if (serverStopped) {
-                            // Server came back within Blazor's own retry window — reload
-                            // to get a fresh circuit rather than resuming a potentially stale one
-                            clearInterval(serverPollInterval);
+                            // Server came back within Blazor's own retry window — cancel
+                            // the countdown and reload to get a fresh circuit
+                            clearInterval(countdownInterval);
                             window.location.reload();
                         }
                     }
