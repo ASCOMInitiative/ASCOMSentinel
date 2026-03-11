@@ -31,12 +31,9 @@
                     padding:2rem 2.5rem; max-width:550px; width:90%; text-align:center;
                     box-shadow:0 4px 24px rgba(0,0,0,0.6);">
             <h2 style="margin:0 0 0.75rem;">The @Globals.APPLICATION_NAME Server has stopped</h2>
-            <p style="color:#bbb; margin:0 0 0.5rem;">
+            <p id="countdown-message" style="color:#bbb; margin:0 0 0.5rem;">
                 This window will attempt to close in <span id="countdown-seconds"
                     style="font-size:1.4rem; font-weight:bold; color:#fff;">5</span> seconds.
-            </p>
-            <p id="server-close-message" style="display:none; color:#aaa; margin:0.5rem 0 0;">
-                Unable to close automatically, please close this window manually.
             </p>
         </div>
     </div>
@@ -66,8 +63,8 @@
                     window.open('', '_self', '');
                     window.close();
 
-                    // If window.close() was blocked by the browser, tell the user
-                    document.getElementById('server-close-message').style.display = 'block';
+                    // If window.close() was blocked by the browser, replace the countdown text
+                    document.getElementById('countdown-message').textContent = 'Unable to close automatically, please close this window manually.';
                 }
             }, 1000);
         }
