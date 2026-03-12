@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ObsMan\ObsMan.csproj" />
+    <ProjectReference Include="..\ObsMan\Sentinel.csproj" />
   </ItemGroup>
 
 </Project>

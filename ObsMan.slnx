@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="ObsMan.Tests/ObsMan.Tests.csproj" />
-  <Project Path="ObsMan/ObsMan.csproj" />
+  <Project Path="ObsMan.Tests/Sentinel.Tests.csproj" />
+  <Project Path="ObsMan/Sentinel.csproj" />
 </Solution>
