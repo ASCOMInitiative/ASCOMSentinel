@@ -286,7 +286,7 @@ namespace ObsMan
         };
 
         public int AlpacaGetPropertyTimeout { get; set; } = 2; // Seconds to wait for a response when getting a value from an Alpaca device before timing out
-        public bool AutoConnect { get; set; } = false;
+        public bool AutoConnect { get; set; } = true;
         public TimeSpan PropertyCacheTime { get; set; } = TimeSpan.FromSeconds(1.0); // Seconds to wait before considering cached device property values as expired and retrieving new values from the devices
         public int AlpacaConnectTimeout { get; set; } = 10; // Seconds to wait for a response when connecting to an Alpaca device before timing out
         public bool IncludeAlpacaTrace { get; set; } = false;
@@ -300,7 +300,7 @@ namespace ObsMan
         public bool AllowRemoteAccess { get; set; } = true;
         public bool AllowDiscovery { get; set; } = true;
         public bool LocalRespondOnlyToLocalHost { get; set; } = true;
-        public bool PreventRemoteDisconnects { get; set; } = false;
+        public bool PreventRemoteDisconnects { get; set; } = true;
         public bool RunInStrictAlpacaMode { get; set; } = true;
         public bool UseAuth { get; set; } = false;
         public string UserName { get; set; } = "User";

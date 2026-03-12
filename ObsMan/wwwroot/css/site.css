@@ -85,7 +85,7 @@ fieldset {
     margin-bottom: 10px;
 }
 
-    fieldset legend {
+fieldset legend {
         background: #002157;
         color: #fff;
         padding: 3px 3px;
@@ -114,4 +114,9 @@ fieldset {
 /* Normal item background (not covered by a Radzen variable) */
 .rz-dropdown-item {
     background-color: #f0f0f0;
+}
+
+.indentedlist {
+    display:inline-block;
+    min-width:300px;
 }

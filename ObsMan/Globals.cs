@@ -2,7 +2,7 @@
 {
     internal static class Globals
     {
-        internal const string APPLICATION_NAME = "ASCOM Watchtower";
+        internal const string APPLICATION_NAME = "ASCOM Sentinel";
         internal const string APPLICATION_VERSION = "0.1";
         internal const string MANUFACTURER_VERSION = "0.0.1"; // Manufacturer version
 

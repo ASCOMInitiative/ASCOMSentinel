@@ -35,17 +35,74 @@
                     <RadzenTabsItem Text="Application Settings">
                         <div class="row" style="margin-top: 10px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color:cornflowerblue">General</h4>
                                 <div style="margin-bottom:10px">
-                                    <span style="display:inline-block;min-width:250px;">Trace Level:</span>
-                                    <RadzenDropDown @bind-Value=@TraceLevel Data=@Enum.GetValues(typeof(LogLevel)) Style="margin-top:20px;margin-left:0px; margin-right:0px; " />
+                                    <span class="indentedlist">Location:</span>
+                                    <RadzenTextBox Value="@SrvLocation" Style="width:50ch; border: 1px solid black;" Change=@(args => OnLocationChange(args, "TextBox")) />
                                 </div>
                                 <div style="margin-bottom:10px">
-                                    <span style="display:inline-block;min-width:250px;">Server Location:</span>
-                                    <input type="text" style="width:50ch;" @bind="SrvLocation" />
+                                    <span class="indentedlist">Application IP Port:</span>
+                                    <RadzenNumeric Value=@SrvServerPort
+                                                   TValue=ushort
+                                                   Step="1"
+                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 140px; text-align:left; border: 1px solid black;"
+                                                   Change=@(args => @ServerPortChanged(args))
+                                                   Min="1"
+                                                   ShowUpDown="true"
+                                                   Name="SrvServerPort" />
+                                    <span> (Requires restart)</span>
                                 </div>
+
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Always keep devices connected:</label>
+                                    <input type="checkbox" @bind="SrvPreventRemoteDisconnects" />
+                                </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Connect to devices when started:</label>
+                                    <input type="checkbox" @bind="AutoConnect" />
+                                </div>
+
+                                <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Connections</h4>
+
+                                <div style="margin-bottom: 0px; margin-top: 0px">
+                                    <label class="indentedlist">Alpaca communication timeout:</label>
+                                    <RadzenNumeric Value=@settings.AlpacaGetPropertyTimeout
+                                                   TValue=int
+                                                   Step="1"
+                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 140px; text-align:left; border: 1px solid black;"
+                                                   Change=@(args => AlpacaGetPropertyTimeoutChanged(args))
+                                                   Min="1"
+                                                   ShowUpDown="true"
+                                                   Name="Value2" />
+                                    <span> (seconds) - Requires devices to be disconnected and reconnected.</span>
+                                </div>
+        
                                 <div style="margin-bottom:10px">
-                                    <span style="display:inline-block;min-width:250px;">Server (Alpaca) Port:</span>
-                                    <input type="number" @bind="SrvServerPort" min="1" max="65535" style="width:20ch;" />
+                                    <span style="display:inline-block;min-width:250px;">Allow access by clients on all bound addresses (Unchecked = localhost only):</span>
+                                    <input type="checkbox" value="@SrvRemoteAccess" onchange="@ServerRemoteAccessChanged" />
+                                    <span> (Requires restart)</span>
+                                </div>
+
+                                <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Discovery</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Enable discovery:</label>
+                                    <input type="checkbox" @bind="SrvDiscovery" />
+                                </div>
+                                <div style="margin-bottom: 10px">
+                                    <label>Only respond on the localhost address when a client on the host machine broadcasts on all available network addresses.</label>
+                                    <input type="checkbox" @bind="SrvLocalHostOnlyOnHost" />
+                                </div>
+                                <h4 style="color:cornflowerblue; margin-top:24px; margin-bottom:0px;">Debug settings</h4>
+                                <div style="margin-bottom:10px">
+                                    <span class="indentedlist">Trace Level:</span>
+                                    <RadzenDropDown @bind-Value=@TraceLevel 
+                                        Data=@Enum.GetValues(typeof(LogLevel)) 
+                                        PopupStyle="max-height:15em); overflow:auto;" 
+                                        Style="margin-top:00px;margin-left:0px; margin-right:0px; border: 1px solid black;" />
+                                </div>
+                                <div style="margin-bottom:10px; margin-top:10px">
+                                    <label>Show Alpaca client trace messages (Only functional when Trace level is Debug or Verbose.):</label>
+                                    <input type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
                                 </div>
                             </RadzenCard>
                         </div>
@@ -84,26 +141,9 @@
                         </div>
                     </RadzenTabsItem>
 
-                    <RadzenTabsItem Text="Other Settings">
+                    <RadzenTabsItem Text="Security Settings">
                         <div class="row" style="margin-top: 10px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                                <h4 style="color: #479cc8; margin-bottom: 0;">Driver Settings</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Prevent Disconnects:</label>
-                                    <input type="checkbox" @bind="SrvPreventRemoteDisconnects" />
-                                </div>
-
-                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Alpaca Discovery Settings</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Allow Discovery:</label>
-                                    <input type="checkbox" @bind="SrvDiscovery" />
-                                </div>
-                                <div style="margin-bottom: 10px">
-                                    <label>Respond to localhost on loopback only:</label>
-                                    <input type="checkbox" @bind="SrvLocalHostOnlyOnHost" />
-                                </div>
-
-                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Security Settings</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Require Authorization:</label>
                                     <input type="checkbox" @bind="SrvRequireAuthorization" />
@@ -124,26 +164,6 @@
                                 {
                                     <p style="color: @PasswordStatusColor">@_srvPasswordStatus</p>
                                 }
-                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Connection</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Auto connect:</label>
-                                    <input type="checkbox" @bind="AutoConnect" />
-                                </div>
-                                <h4 style="color: #479cc8; margin-top: 20px; margin-bottom: 0;">Alpaca Devices</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Connection timeout (seconds):</label>
-                                    <RadzenNumeric Value=@settings.AlpacaGetPropertyTimeout
-                                                   TValue=int
-                                                   Step="1"
-                                                   Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
-                                                   Change="async (args) => await AlpacaGetPropertyTimeoutChanged(args)"
-                                                   ShowUpDown="false"
-                                                   Name="Value2" />
-                                </div>
-                                <div style="margin-bottom:10px; margin-top:10px">
-                                    <label>Trace Alpaca Calls (debug only):</label>
-                                    <input type="checkbox" @bind="IncludeAlpacaTraceChanged" />
-                                </div>
                             </RadzenCard>
                         </div>
                     </RadzenTabsItem>
@@ -467,6 +487,16 @@
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
 
+    private async Task ServerRemoteAccessChanged(ChangeEventArgs e)
+    {
+        if (e.Value is null)
+            return;
+
+        SrvRemoteAccess = (bool)e.Value;
+        statusText = "Requires restart";
+        await InvokeAsync(StateHasChanged);
+    }
+
     protected override async Task OnInitializedAsync()
     {
         if (!state.DiscoveryHasRun)
@@ -490,6 +520,12 @@
         }
     }
 
+    private void OnLocationChange(string value, string name)
+    {
+        SrvLocation = value;
+    }
+
+
     private bool IncludeAlpacaTraceChanged
     {
         get
@@ -510,6 +546,17 @@
 
         settings.AlpacaGetPropertyTimeout = (int)args;
         settings.Save();
+        statusText = " Devices must be disconnected and reconnected";
+    }
+
+    private async Task ServerPortChanged(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.ServerPort = (ushort)args;
+        settings.Save();
+        statusText = "Requires restart";
     }
 
     private async Task ResetSettings()
@@ -744,7 +791,6 @@
             {
                 settings.AllowRemoteAccess = value;
                 settings.Save();
-                Program.Main(Array.Empty<string>());
             }
         }
     }
@@ -758,7 +804,6 @@
             {
                 settings.ServerPort = value;
                 settings.Save();
-                Program.Main(Array.Empty<string>());
             }
         }
     }
