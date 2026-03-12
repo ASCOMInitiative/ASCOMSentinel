@@ -595,7 +595,7 @@
 
     private async Task OnObservingConditionsDeviceChanged()
     {
-        statusText = "Devices must be disconnected and reconnected for this change to have effect.";
+        statusText = "Devices must be disconnected and reconnected for this change to take effect.";
         await InvokeAsync(StateHasChanged);
     }
     private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
@@ -603,7 +603,7 @@
         settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
         settings.Save();
 
-        statusText = "Devices must be disconnected and reconnected for this change to have effect.";
+        statusText = "Devices must be disconnected and reconnected for this change to take effect.";
         await InvokeAsync(StateHasChanged);
     }
 
