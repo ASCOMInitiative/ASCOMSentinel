@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace ObsMan
+namespace Sentinel
 {
     public static class ExtensionMethods
     {

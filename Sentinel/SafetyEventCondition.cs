@@ -1,4 +1,4 @@
-﻿namespace ObsMan
+﻿namespace Sentinel
 {
     /// <summary>
     /// Specifies the nature of the safety rule that triggered this event.

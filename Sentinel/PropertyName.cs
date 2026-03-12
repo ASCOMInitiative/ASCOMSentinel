@@ -1,4 +1,4 @@
-﻿namespace ObsMan
+﻿namespace Sentinel
 {
     public enum PropertyName
     {

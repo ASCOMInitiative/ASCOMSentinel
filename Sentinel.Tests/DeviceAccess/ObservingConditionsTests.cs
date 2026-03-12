@@ -1,12 +1,12 @@
 using ASCOM.Common.DeviceInterfaces;
-using ObsMan;
-using ObsMan.DeviceAccess;
+using Sentinel;
+using Sentinel.DeviceAccess;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using Xunit;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
-namespace ObsMan.Tests.DeviceAccess;
+namespace Sentinel.Tests.DeviceAccess;
 
 public class ObservingConditionsTests
 {
@@ -23,7 +23,7 @@ public class ObservingConditionsTests
 
     private readonly Settings _settings;
     private readonly State _state;
-    private readonly ObsManLogger _logger;
+    private readonly SentinelLogger _logger;
     private readonly FakeWeatherDevice _fakeDevice;
     private readonly ObservingConditions _sut;
 
@@ -34,7 +34,7 @@ public class ObservingConditionsTests
         _settings.PropertyCacheTime = TimeSpan.FromMilliseconds(CacheWindowMs);
 
         _state = new State();
-        _logger = new ObsManLogger(_state, _settings);
+        _logger = new SentinelLogger(_state, _settings);
 
         _fakeDevice = new FakeWeatherDevice();
 

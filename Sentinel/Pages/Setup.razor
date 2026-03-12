@@ -3,12 +3,12 @@
 @page "/setup/v1/SafetyMonitor/0/setup";
 @page "/setup/v1/Switch/0/setup";
 
-@namespace ObsMan
+@namespace Sentinel
 
 @implements IAsyncDisposable
 
 @inject Settings settings;
-@inject ObsManLogger logger;
+@inject SentinelLogger logger;
 @inject IJSRuntime JSRuntime
 @inject State state;
 
@@ -16,16 +16,16 @@
 @using ASCOM.Alpaca.Discovery
 @using ASCOM.Common
 @using LogLevel = ASCOM.Common.Interfaces.LogLevel;
-@using ObsMan.Components
+@using Sentinel.Components
 @using System.Reflection
 
 <PageTitle>Application Setup</PageTitle>
 
 <h1>Application Setup</h1>
 <span>
-    <ObsManButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.DiscoveryUnderway" />
+    <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.DiscoveryUnderway" />
     <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;">@statusText</RadzenText>
-    <ObsManButton Click="@ResetSettings" Text="Reset To Defaults" />
+    <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" />
 </span>
 <RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
     <Tabs>
@@ -677,7 +677,7 @@
                     logger.LogDebugConsole("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                     state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
                     {
-                        ObsManDeviceType = ObsManDeviceType.ObservingConditions,
+                        SentinelDeviceType = SentinelDeviceType.ObservingConditions,
                         Protocol = Protocol.Alpaca,
                         Name = device.AscomDeviceName,
                         IpAddress = device.IpAddress,
@@ -693,7 +693,7 @@
                 // logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
                 state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
                 {
-                    ObsManDeviceType = ObsManDeviceType.ObservingConditions,
+                    SentinelDeviceType = SentinelDeviceType.ObservingConditions,
                     Protocol = Protocol.COM,
                     Name = device.Name,
                     ComProgID = device.ProgID
@@ -703,8 +703,8 @@
 
             foreach (DiscoveredDevice device in state.DiscoveredObservingConditionsDevices)
             {
-                if (device.ObsManDeviceType != ObsManDeviceType.NotSet)
-                    logger.LogMessageConsole("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+                if (device.SentinelDeviceType != SentinelDeviceType.NotSet)
+                    logger.LogMessageConsole("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
             }
 
             // Add discovered Alpaca devices
@@ -719,7 +719,7 @@
                     state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
                     {
                         Protocol = Protocol.Alpaca,
-                        ObsManDeviceType = ObsManDeviceType.SafetyMonitor,
+                        SentinelDeviceType = SentinelDeviceType.SafetyMonitor,
                         Name = device.AscomDeviceName,
                         IpAddress = device.IpAddress,
                         PortNumber = device.IpPort
@@ -734,7 +734,7 @@
                 state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
                 {
                     Protocol = Protocol.COM,
-                    ObsManDeviceType = ObsManDeviceType.SafetyMonitor,
+                    SentinelDeviceType = SentinelDeviceType.SafetyMonitor,
                     Name = device.Name,
                     ComProgID = device.ProgID
                 });
@@ -743,8 +743,8 @@
 #endif
             foreach (DiscoveredDevice device in state.DiscoveredSafetyMonitorDevices)
             {
-                if (device.ObsManDeviceType != ObsManDeviceType.NotSet)
-                    logger.LogMessageConsole("", $"Discovered device: {device.ObsManDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+                if (device.SentinelDeviceType != SentinelDeviceType.NotSet)
+                    logger.LogMessageConsole("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
             }
 
             logger.LogMessageConsole("", $"Discovery complete.");

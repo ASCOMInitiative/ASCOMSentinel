@@ -6,16 +6,16 @@ using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace ObsMan.DeviceAccess
+namespace Sentinel.DeviceAccess
 {
     public class SafetyMonitor : ISafetyMonitorV3
     {
         private readonly Settings settings;
         private readonly State state;
-        private readonly ObsManLogger logger;
+        private readonly SentinelLogger logger;
 
 
-        public SafetyMonitor(Settings settings, State state, ObsManLogger logger)
+        public SafetyMonitor(Settings settings, State state, SentinelLogger logger)
         {
             ArgumentNullException.ThrowIfNull(settings);
             ArgumentNullException.ThrowIfNull(state);

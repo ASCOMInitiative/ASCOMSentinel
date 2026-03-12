@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace ObsMan
+namespace Sentinel
 {
     public sealed class ConsoleLoggerProvider:ILoggerProvider
     {

@@ -1,7 +1,7 @@
 ﻿using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
 
-namespace ObsMan
+namespace Sentinel
 {
     public class Device : ISafetyMonitorV3, IObservingConditionsV2, ISwitchV3, IDisposable
     {
@@ -37,7 +37,7 @@ namespace ObsMan
 
 		public Guid UniqueId { get; set; } = Guid.Empty;
 
-        public ObsManDeviceType ObsManDeviceType { get; set; } = ObsManDeviceType.NotSet;
+        public SentinelDeviceType SentinelDeviceType { get; set; } = SentinelDeviceType.NotSet;
 
         public DeviceTechnology DeviceTechnology { get; set; } = DeviceTechnology.NotSet;
 

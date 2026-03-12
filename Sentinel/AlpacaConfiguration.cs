@@ -1,6 +1,6 @@
 ﻿using ASCOM.Alpaca;
 
-namespace ObsMan
+namespace Sentinel
 {
     internal class AlpacaConfiguration : IAlpacaConfiguration
     {

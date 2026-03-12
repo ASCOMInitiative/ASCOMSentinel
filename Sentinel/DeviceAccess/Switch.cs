@@ -1,6 +1,6 @@
 ﻿using ASCOM.Common.DeviceInterfaces;
 
-namespace ObsMan.DeviceAccess
+namespace Sentinel.DeviceAccess
 {
     public class Switch : ISwitchV3
     {

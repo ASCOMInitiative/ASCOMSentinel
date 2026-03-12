@@ -1,4 +1,4 @@
-﻿namespace ObsMan
+﻿namespace Sentinel
 {
     using ASCOM.Common.DeviceInterfaces;
     using System.Text;

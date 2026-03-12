@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-namespace ObsMan
+namespace Sentinel
 {
 
     /// <summary>

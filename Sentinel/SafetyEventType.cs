@@ -1,5 +1,5 @@
 ﻿
-namespace ObsMan
+namespace Sentinel
 {
     /// <summary>
     /// Specifies the types of safety-related environmental events that can be monitored or reported.

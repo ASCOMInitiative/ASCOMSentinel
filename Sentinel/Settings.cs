@@ -7,7 +7,7 @@ using System.Threading.RateLimiting;
 using System.Xml.Linq;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
-namespace ObsMan
+namespace Sentinel
 {
     public class Settings : IDisposable
     {

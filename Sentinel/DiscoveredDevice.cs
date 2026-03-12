@@ -1,4 +1,4 @@
-﻿namespace ObsMan
+﻿namespace Sentinel
 {
     public class DiscoveredDevice
     {
@@ -10,7 +10,7 @@
         /// <summary>
         /// Device type for this device.
         /// </summary>
-        public ObsManDeviceType ObsManDeviceType { get; set; } = ObsManDeviceType.NotSet;
+        public SentinelDeviceType SentinelDeviceType { get; set; } = SentinelDeviceType.NotSet;
 
         /// <summary>
         /// Device name.

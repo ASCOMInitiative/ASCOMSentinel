@@ -1,7 +1,7 @@
-﻿@namespace ObsMan.Components
+﻿@namespace Sentinel.Components
 @using ASCOM.Alpaca.Discovery
 
-@inject ObsManLogger logger
+@inject SentinelLogger logger
 @inject Settings settings
 
 <div>
@@ -40,7 +40,7 @@
     private string ItemColour(DiscoveredDevice device)
     {
         // Check if this device is not configured
-        if (device.ObsManDeviceType == ObsManDeviceType.NotSet) // Not configured so return red
+        if (device.SentinelDeviceType == SentinelDeviceType.NotSet) // Not configured so return red
             return "Red";
 
         // Check whether it is Alpaca or COM

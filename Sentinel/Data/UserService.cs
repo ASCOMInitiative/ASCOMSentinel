@@ -1,6 +1,6 @@
 ﻿using ASCOM.Alpaca;
 
-namespace ObsMan.Data
+namespace Sentinel.Data
 {
 	internal class UserService : IUserService
 	{

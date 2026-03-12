@@ -4,21 +4,21 @@ using ASCOM.Tools;
 using ILogger = ASCOM.Common.Interfaces.ILogger;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
-namespace ObsMan
+namespace Sentinel
 {
-    public class ObsManLogger : TraceLogger, ITraceLogger, ILogger
+    public class SentinelLogger : TraceLogger, ITraceLogger, ILogger
     {
         State state;
         Settings settings;
 
-        public ObsManLogger(State state, Settings settings) : base("ObsMan", true)
+        public SentinelLogger(State state, Settings settings) : base("Sentinel", true)
         {
             this.state = state;
             this.settings = settings;
             SetMinimumLoggingLevel(settings.LogLevel);
         }
 
-        public ObsManLogger(string logFileName, State state, Settings settings) : base("ObsMan", true)
+        public SentinelLogger(string logFileName, State state, Settings settings) : base("Sentinel", true)
         {
             this.state = state;
             this.settings = settings;

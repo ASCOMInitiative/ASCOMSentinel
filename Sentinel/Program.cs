@@ -11,13 +11,13 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace ObsMan
+namespace Sentinel
 {
     public class Program
     {
         //ToDo
         //Fill this with your driver name
-        internal const string DriverID = "ObsMan.Alpaca";
+        internal const string DriverID = "Sentinel.Alpaca";
 
         //Change this to a unique value
         //You should offer a way for the end user to customize this via the command line so it can be changed in the case of a collision.
@@ -32,7 +32,7 @@ namespace ObsMan
 
         internal static State state = new();
         internal static Settings settings = new Settings(string.Empty);
-        internal static ObsManLogger logger = new(state, settings);
+        internal static SentinelLogger logger = new(state, settings);
 
         internal static IHostApplicationLifetime? Lifetime;
 
@@ -194,7 +194,7 @@ namespace ObsMan
             });
 
             // Add a Logger singleton
-            builder.Services.AddSingleton<ObsManLogger>(provider =>
+            builder.Services.AddSingleton<SentinelLogger>(provider =>
             {
                 return logger;
             });

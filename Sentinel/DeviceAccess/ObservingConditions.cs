@@ -2,13 +2,13 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
-namespace ObsMan.DeviceAccess
+namespace Sentinel.DeviceAccess
 {
     public class ObservingConditions : IObservingConditionsV2
     {
         private readonly Settings settings;
         private readonly State state;
-        private readonly ObsManLogger logger;
+        private readonly SentinelLogger logger;
 
         // Record defining a cache entry for double and string results (e.g. property values and SensorDescription values)
         private record CacheEntry<T>(T Value, Exception? Exception, DateTime Timestamp);
@@ -21,7 +21,7 @@ namespace ObsMan.DeviceAccess
         private readonly ConcurrentDictionary<PropertyName, CacheEntry<string>> _sensorDescriptionCache = new();
         private readonly ConcurrentDictionary<PropertyName, Lock> _sensorDescriptionLocks = new();
 
-        public ObservingConditions(Settings settings, State state, ObsManLogger logger)
+        public ObservingConditions(Settings settings, State state, SentinelLogger logger)
         {
             ArgumentNullException.ThrowIfNull(settings);
             ArgumentNullException.ThrowIfNull(state);

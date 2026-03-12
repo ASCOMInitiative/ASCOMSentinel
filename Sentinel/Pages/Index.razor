@@ -4,7 +4,7 @@
 @using System.Diagnostics
 
 @inject State state;
-@inject ObsManLogger logger;
+@inject SentinelLogger logger;
 @inject IJSRuntime JSRuntime
 @inject Settings settings
 
@@ -21,9 +21,9 @@
 </div>
 
 <div style="height:100%;min-height:100%;">
-    <RadzenTextArea Id="ObsManLog"
+    <RadzenTextArea Id="SentinelLog"
                     Style='font-family: "Lucida Console", "Courier New", monospace; font-size: 14px; line-height: 18px; padding-bottom: 0px; width:100%;'
-                    Name="ObsManLog"
+                    Name="SentinelLog"
                     @bind-Value=@ApplicationLog
                     Rows="@LastnumberOfLogLines()"
                     Cols="250" ReadOnly=true />
@@ -56,7 +56,7 @@
                 await ConnectedButtonClickHandler();
         }
         // Always scroll after render so new content is visible
-        state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+        state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
     }
 
     private async Task ConnectedButtonClickHandler()
@@ -88,7 +88,7 @@
             {
                 connectingToDevices = false;
                 // Scroll to the bottom of the window and return the current window 'top' value.
-                //int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+                //int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
 
                 await InvokeAsync(StateHasChanged);
             }
@@ -142,8 +142,8 @@
 
             // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
             List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
-                .Where(d => d.ObsManDeviceType == ObsManDeviceType.ObservingConditions)
-                .DistinctBy(d => (d.ObsManDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+                .Where(d => d.SentinelDeviceType == SentinelDeviceType.ObservingConditions)
+                .DistinctBy(d => (d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
 
             // Define a dictionary to hold the unique device instances
             Dictionary<DiscoveredDevice, IObservingConditionsV2> observingConditionsDeviceInstances = new();
@@ -172,7 +172,7 @@
                             EstablishConnectionTimeout = 2, // Seconds
                             StandardDeviceResponseTimeout = settings.AlpacaGetPropertyTimeout, // Seconds
                             Logger = settings.IncludeAlpacaTrace ? logger : null,
-                            UserAgentProductName = "ObsMan",
+                            UserAgentProductName = "Sentinel",
                             UserAgentProductVersion = "0.1",
                             ClientNumber = 10 + (uint)uniqueObservingConditionsDevices.IndexOf(device)
                         });
@@ -244,7 +244,7 @@
             // Create SafetyMonitor devices
             foreach (KeyValuePair<PropertyName, DiscoveredDevice> device in settings.ConfiguredDevices)
             {
-                if (device.Value.ObsManDeviceType != ObsManDeviceType.SafetyMonitor)
+                if (device.Value.SentinelDeviceType != SentinelDeviceType.SafetyMonitor)
                     continue;
 
                 switch (device.Value.Protocol)
@@ -259,7 +259,7 @@
                             EstablishConnectionTimeout = 2, //Seconds
                             StandardDeviceResponseTimeout = settings.AlpacaGetPropertyTimeout, // Seconds
                             Logger = settings.IncludeAlpacaTrace ? logger : null,
-                            UserAgentProductName = "ObsMan",
+                            UserAgentProductName = "Sentinel",
                             UserAgentProductVersion = "0.1",
                             ClientNumber = device.Key.ToDeviceNumber()
                         });
@@ -333,7 +333,7 @@
 
                     // Get the discovered device information for this property, ignoring devices that are not configured
                     DiscoveredDevice configured = settings.ConfiguredDevices[property];
-                    if (configured.ObsManDeviceType == ObsManDeviceType.ObservingConditions)
+                    if (configured.SentinelDeviceType == SentinelDeviceType.ObservingConditions)
                     {
                         //logger.LogMessage("Property", $"Looking for match Property: {property}");
                         try
@@ -341,7 +341,7 @@
                             // Find the matching device instance based on the configured device for this property
                             KeyValuePair<DiscoveredDevice, IObservingConditionsV2> device = observingConditionsDeviceInstances.FirstOrDefault(d =>
                                 d.Key.Protocol == configured.Protocol &&
-                                d.Key.ObsManDeviceType == configured.ObsManDeviceType &&
+                                d.Key.SentinelDeviceType == configured.SentinelDeviceType &&
                                 d.Key.IpAddress == configured.IpAddress &&
                                 d.Key.PortNumber == configured.PortNumber &&
                                 d.Key.RemoteDeviceNumber == configured.RemoteDeviceNumber &&
@@ -400,7 +400,7 @@
             // Dispatch both the JS interop call and StateHasChanged onto the Blazor sync context
             await InvokeAsync(async () =>
             {
-                state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+                state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
                 StateHasChanged();
             });
         }
@@ -439,7 +439,7 @@
 
             // Scroll to the bottom of the window and return the current window 'top' value.
             // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
-            state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "ObsManLog");
+            state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
         }
         catch (Exception ex)
         {

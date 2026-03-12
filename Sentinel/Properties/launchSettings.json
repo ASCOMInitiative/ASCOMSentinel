@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "ObsMan": {
+    "Sentinel": {
       "commandName": "Project",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

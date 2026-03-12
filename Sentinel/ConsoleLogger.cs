@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 
-namespace ObsMan
+namespace Sentinel
 {
     public sealed class ConsoleLogger : ILogger
     {

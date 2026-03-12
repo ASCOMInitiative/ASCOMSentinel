@@ -1,5 +1,5 @@
 ﻿using System;
-namespace ObsMan
+namespace Sentinel
 {
     public class MessageEventArgs : EventArgs
     {

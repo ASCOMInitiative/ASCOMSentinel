@@ -1,6 +1,6 @@
-﻿namespace ObsMan
+﻿namespace Sentinel
 {
-    public enum ObsManDeviceType
+    public enum SentinelDeviceType
     {
         NotSet,
         ObservingConditions,
