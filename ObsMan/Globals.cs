@@ -27,8 +27,6 @@
 
         internal const string NOT_SET = "Not configured";
 
-        internal const string APPLICATION_BLUE = "#479cc8";
-
         internal static readonly Lock writeLogLock = new(); // Lock object to synchronize access to the log when resizing
 
         internal static List<PropertyName> ObservingConditionsProperties = new()
