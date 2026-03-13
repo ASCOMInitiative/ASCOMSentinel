@@ -15,6 +15,11 @@
 
         #region public properties
 
+        public bool Connected { get; set; } = false;
+        public bool ConnectingToDevices { get; set; } = false;
+
+
+
         public List<SafetyState> LastSafetyState { get; set; } = [];
 
         /// <summary>
@@ -33,8 +38,6 @@
         public int LastNumberOfLogLines { get; set; } = 0;
 
         public StringBuilder ApplicationLog { get; set; } = new StringBuilder(Globals.MAXIMUM_LOG_SIZE_CHARACTERS, Globals.MAXIMUM_LOG_SIZE_CHARACTERS).Append($"{Globals.WELCOME_MESSAGE}\r\n");
-
-        public bool Connected { get; set; } = false;
 
         public List<IObservingConditionsV2> ObservingConditionsDevices { get; set; } = [];
 
@@ -72,6 +75,11 @@
         }
 
         public event EventHandler? OnConfigurationChanged;
+
+        /// <summary>
+        /// Set by Index.razor so that other components (e.g. NavMenu) can trigger the connect/disconnect flow.
+        /// </summary>
+        public Func<Task>? ConnectRequested { get; set; }
 
     }
 }

@@ -12,9 +12,9 @@
 
 <h1>@Globals.APPLICATION_NAME</h1>
 <div>
-    <RadzenButton Disabled="@connectingToDevices"
+    <RadzenButton Disabled="@state.ConnectingToDevices"
                   Click="@ConnectedButtonClickHandler"
-                  Text="@( connectingToDevices ? (!connectedState ? "Connecting to devices" : "Disconnecting from devices") : (connectedState ? "Disconnect from devices" : "Connect to devices"))"
+                  Text="@( state.ConnectingToDevices ? (!state.Connected ? "Connecting to devices" : "Disconnecting from devices") : (state.Connected ? "Disconnect from devices" : "Connect to devices"))"
                   Style="margin-left:30px;border-radius:20px; margin-right:30px" />
     @settings.Status
     <p />
@@ -32,8 +32,6 @@
 @code
 {
     private Lock mapLock = new();
-    private static bool connectedState = false;
-    private static bool connectingToDevices = false;
     private bool _disposed = false;
     private DotNetObjectReference<Index>? objRef;
 
@@ -42,6 +40,7 @@
         if (firstRender)
         {
             logger.MessageLogChanged += OnLogChanged;
+            state.ConnectRequested = ConnectedButtonClickHandler;
 
             // Subscribe to the OnResized event. This will do work when the browser is resized.
             objRef = DotNetObjectReference.Create(this);
@@ -52,23 +51,23 @@
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
             await OnResizeIndex(logWidth, logHeight);
 
-            if (settings.AutoConnect && !connectedState)
+            if (settings.AutoConnect && !state.Connected)
                 await ConnectedButtonClickHandler();
         }
         // Always scroll after render so new content is visible
         state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
     }
 
-    private async Task ConnectedButtonClickHandler()
+    public async Task ConnectedButtonClickHandler()
     {
-        if (!connectingToDevices)
+        if (!state.ConnectingToDevices)
         {
             try
             {
-                connectingToDevices = true;
+                state.ConnectingToDevices = true;
                 await InvokeAsync(StateHasChanged);
 
-                if (connectedState)
+                if (state.Connected)
                 {
                     Disconnect();
                     await InvokeAsync(StateHasChanged);
@@ -86,7 +85,7 @@
             }
             finally
             {
-                connectingToDevices = false;
+                state.ConnectingToDevices = false;
                 // Scroll to the bottom of the window and return the current window 'top' value.
                 //int top = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
 
@@ -128,7 +127,7 @@
         finally
         {
             logger.LogMessage("Disconnect", $"All devices disconnected");
-            connectedState = false;
+            state.Connected = false;
         }
     }
 
@@ -149,7 +148,7 @@
             Dictionary<DiscoveredDevice, IObservingConditionsV2> observingConditionsDeviceInstances = new();
 
             // Disconnect from any currently connected devices before connecting to the new set of devices.
-            if (connectedState)
+            if (state.Connected)
                 Disconnect();
 
             List<Task> startTasks = []; // List of tasks to set Connected=true on each device
@@ -366,7 +365,7 @@
         catch { }
         finally
         {
-            connectedState = true;
+            state.Connected = true;
         }
     }
 
@@ -455,6 +454,7 @@
     {
         _disposed = true;
         logger.MessageLogChanged -= OnLogChanged;
+        state.ConnectRequested = null;
 
         if (objRef != null)
         {
