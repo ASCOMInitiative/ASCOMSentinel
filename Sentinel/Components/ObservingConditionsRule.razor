@@ -2,6 +2,7 @@
 
 @inject SentinelLogger logger
 @inject Settings settings
+@inject State state
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;font-weight:700">@PropertyDescription</span>
@@ -12,9 +13,10 @@
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
                     Change="(args)=>Equality1Changed(args)"
                     PopupStyle="max-height:400px; overflow:auto;"
+                    Disabled="IsDisabled()"
                     Name="Equality1">
         <Template Context="item">
-            <span style="color:dodgerblue; font-size:1rem">@item.ToString()</span>
+            <span style="color:@((item == EqualityType.NotInUse ? "dodgerblue" : "red")); font-size:1rem;">@(((EqualityType)item).ToFormattedEqualityType())</span>
         </Template>
     </RadzenDropDown>
 
@@ -24,9 +26,13 @@
                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
                    Change="(args) => Value1Changed(args)"
                    ShowUpDown="false"
+                   Disabled="IsDisabled()"
+                   Format="0.00"
                    Name="Value1" />
 
-    <span style="display:inline-block; width:150px; margin:0px; margin-left:150px; text-align:left;font-weight:700">@PropertyDescription</span>
+    <RadzenLabel Text="@Units" Style="margin-left:20px;margin-right:0px;width:150px;color:gray;" />
+
+    <span style="display:inline-block; width:150px; margin:0px; margin-left:0px; text-align:left;font-weight:700">@PropertyDescription</span>
 
     <RadzenDropDown Value=@Equality2
                     Data=@Enum.GetValues(typeof(EqualityType))
@@ -34,9 +40,10 @@
                     Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
                     Change="(args)=>Equality2Changed(args)"
                     PopupStyle="max-height:400px; overflow:auto;"
-                    Name="Equality2" >
+                    Disabled="IsDisabled()"
+                    Name="Equality2">
         <Template Context="item">
-            <span style="color:dodgerblue; font-size:1rem">@item.ToString()</span>
+            <span style="color:@(item == EqualityType.NotInUse ? "dodgerblue" : "red"); font-size:1rem">@item.ToString()</span>
         </Template>
     </RadzenDropDown>
 
@@ -47,14 +54,53 @@
                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 140px; text-align:left;"
                    Change="(args) => Value2Changed(args)"
                    ShowUpDown="false"
+                   Disabled="IsDisabled()"
+                   Format="0.00"
                    Name="Value2" />
 
-    <RadzenLabel Text="@Units" Style="margin-left:20px" />
+    <RadzenLabel Text="@Units" Style="margin-left:20px;color:grey;" />
 
 </div>
 
 @code {
+    [Parameter]
+    public string PropertyDescription { get; set; } = Globals.NOT_SET;
+
+    [Parameter]
+    public PropertyName Property { get; set; }
+
+    [Parameter]
+    public EqualityType Equality1 { get; set; } = EqualityType.NotInUse;
+
+    [Parameter]
+    public double Value1 { get; set; } = double.NaN;
+
+    [Parameter]
+    public EqualityType Equality2 { get; set; } = EqualityType.NotInUse;
+
+    [Parameter]
+    public double Value2 { get; set; } = double.NaN;
+
+    [Parameter]
+    public string Units { get; set; } = Globals.NOT_SET;
+
+    [Parameter]
+    public bool Enabled { get; set; } = false;
+
     private bool _initialized;
+
+
+    private bool IsDisabled()
+    {
+        try
+        {
+            return state.ObservingConditionsDeviceMap[Property] is null;
+        }
+        catch (Exception)
+        {
+            return true;
+        }
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -97,27 +143,4 @@
         settings.ObservingCondtionsRules[Property].Value2 = (double)args;
         settings.Save();
     }
-
-
-    [Parameter]
-    public string PropertyDescription { get; set; } = Globals.NOT_SET;
-
-    [Parameter]
-    public PropertyName Property { get; set; } 
-
-    [Parameter]
-    public EqualityType Equality1 { get; set; } = EqualityType.NotInUse;
-
-    [Parameter]
-    public double Value1 { get; set; } = double.NaN;
-
-    [Parameter]
-    public EqualityType Equality2 { get; set; } = EqualityType.NotInUse;
-
-    [Parameter]
-    public double Value2 { get; set; } = double.NaN;
-
-    [Parameter]
-    public string Units { get; set; } = Globals.NOT_SET;
-
 }

@@ -403,7 +403,9 @@ namespace Sentinel.DeviceAccess
             {
                 await Task.Delay(500);
                 Connecting = false;
-                Connected = false;
+
+                if (!settings.PreventRemoteDisconnects)
+                    Connected = false;
             });
         }
 

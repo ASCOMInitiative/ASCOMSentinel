@@ -10,22 +10,22 @@ namespace Sentinel
     /// systems that monitor environmental conditions to determine or report safety status.</remarks>
     public enum SafetyEventType
     {
-        CloudCover,
-        DewPoint,
-        Humidity,
-        Pressure,
-        RainRate,
-        SkyBrightness,
-        SkyQuality,
-        SkyTemperature,
-        StarFWHM,
-        Temperature,
-        WindDirection,
-        WindGust,
-        WindSpeed,
-        SafetyIssue,
-        SecurityIssue,
-        PowerIssue,
-        Other
+        CloudCover = 0,
+        DewPoint = 1,
+        Humidity = 2,
+        Pressure = 3,
+        RainRate = 4,
+        SkyBrightness = 5,
+        SkyQuality = 6,
+        SkyTemperature = 7,
+        StarFWHM = 8,
+        Temperature = 9,
+        WindDirection = 10,
+        WindGust = 11,
+        WindSpeed = 12,
+        SafetyIssue = 13,
+        SecurityIssue = 14,
+        PowerIssue = 15,
+        Other = 16
     }
 }

@@ -23,6 +23,21 @@
 </div>
 
 @code {
+    [Parameter]
+    public IEnumerable<DiscoveredDevice> DiscoveredDevices { get; set; } = Enumerable.Empty<DiscoveredDevice>();
+
+    [Parameter]
+    public string PropertyDescription { get; set; } = Globals.NOT_SET;
+
+    [Parameter]
+    public DiscoveredDevice? CurrentValue { get; set; } = null;
+
+    [Parameter]
+    public PropertyName Property { get; set; }
+
+    [Parameter]
+
+    public EventCallback<DiscoveredDevice> OnDeviceChanged { get; set; }
     private bool _initialized;
 
     protected override void OnAfterRender(bool firstRender)
@@ -63,18 +78,4 @@
     }
 
 
-    [Parameter]
-    public IEnumerable<DiscoveredDevice> DiscoveredDevices { get; set; } = Enumerable.Empty<DiscoveredDevice>();
-
-    [Parameter]
-    public string PropertyDescription { get; set; } = Globals.NOT_SET;
-
-    [Parameter]
-    public DiscoveredDevice? CurrentValue { get; set; } = null;
-
-    [Parameter]
-    public PropertyName Property { get; set; }
-
-    [Parameter]
-    public EventCallback<DiscoveredDevice> OnDeviceChanged { get; set; }
 }

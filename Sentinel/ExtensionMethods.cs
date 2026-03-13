@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using ASCOM;
+using System.Runtime.CompilerServices;
 
 namespace Sentinel
 {
@@ -23,6 +24,27 @@ namespace Sentinel
 
                 default:
                     throw new ArgumentException($"Unknown logging level: {logLevel}");
+            }
+        }
+
+        public static string ToFormattedEqualityType(this EqualityType equalityType)
+        {
+            switch(equalityType)
+            {
+                case EqualityType.LessThan:
+                        return "Less than";
+
+                case EqualityType.NotInUse:
+                    return "Not in use";
+
+                case EqualityType.Equal:
+                    return "Equal";
+
+                case EqualityType.GreaterThan:
+                    return "Greater than";
+
+                default:
+                    throw new InvalidValueException($"ToFormattedEqualityType - {equalityType} is not a known equality type.");
             }
         }
 

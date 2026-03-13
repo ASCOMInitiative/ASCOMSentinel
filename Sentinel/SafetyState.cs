@@ -10,17 +10,17 @@ namespace Sentinel
     public class SafetyState
     {
         /// <summary>
-        /// The condition that triggered the safety event.
-        /// </summary>
-        public SafetyEventCondition EventCondition { get; set; }
-
-        /// <summary>
-        /// The category or type of the safety event.
+        /// The type of safety event that triggered the condition.
         /// </summary>
         public SafetyEventType EventType { get; set; }
 
         /// <summary>
-        /// The component that generated the event.
+        /// The rule that triggered the safety event.
+        /// </summary>
+        public SafetyEventCondition EventCondition { get; set; }
+
+        /// <summary>
+        /// The name of the application, device, or driver that generated the event.
         /// </summary>
         public string EventSource { get; set; }
 

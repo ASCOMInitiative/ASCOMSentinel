@@ -13,42 +13,36 @@
         /// The property has fallen below the safety threshold defined for this property.
         /// </summary>
         /// <remarks>Only for ObservingConditions devices.</remarks>
-        BelowLimit,
+        BelowLimit = 0,
 
         /// <summary>
         /// The property has reached the safety threshold defined for this property.
         /// </summary>
         /// <remarks>Only for ObservingConditions devices.</remarks>
-        EqualLimit,
+        EqualLimit = 1,
 
         /// <summary>
         /// The property has exceeded the safety threshold defined for this property.
         /// </summary>
         /// <remarks>Only for ObservingConditions devices.</remarks>
-        AboveLimit,
+        AboveLimit = 2,
 
         /// <summary>
         /// The property is in an unsafe state.
         /// </summary>
         /// <remarks>Only for SafetyMonitor devices.</remarks>
-        Unsafe,
+        Unsafe = 3,
 
         /// <summary>
         /// The property has been forced to a specific state or value.
         /// </summary>
         /// <remarks>For all devices.</remarks>
-        ForcedToState,
+        ForcedToState = 4,
 
         /// <summary>
         /// The device is in an error state.
         /// </summary>
         /// <remarks>For all devices.</remarks>
-        DeviceInErrorState,
-
-        /// <summary>
-        /// The property is not available.
-        /// </summary>
-        /// <remarks>Never return this value from a device, it is only included for display purposes. Use one of the other values to indicate the state of the property.</remarks>
-        NotAvailable
+        DeviceInErrorState = 5,
     }
 }

@@ -131,7 +131,7 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
-                if (state.ObservingConditionsDeviceMap[PropertyName.CloudCover]  == null)
+                if (state.ObservingConditionsDeviceMap[PropertyName.CloudCover] == null)
                     throw new ASCOM.NotImplementedException($"CloudCover is not implemented in this observing conditions device.");
 
                 return GetCachedDouble(PropertyName.CloudCover, () => state.ObservingConditionsDeviceMap[PropertyName.CloudCover].CloudCover);
@@ -325,7 +325,9 @@ namespace Sentinel.DeviceAccess
             {
                 await Task.Delay(500);
                 Connecting = false;
-                Connected = false;
+
+                if (!settings.PreventRemoteDisconnects)
+                    Connected = false;
             });
         }
 

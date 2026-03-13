@@ -258,7 +258,7 @@
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Define observing conditions rules that will trigger the composite Safety Monitor to return IsSafe = false.</h4>
                     <div style="margin-top:16px;">
-                        The composite safety monitor will return <b>IsSafe = false</b> when <b>ANY</b> of these conditions are met.
+                        Zero, one or two rules may be enabled for each observing conditions property. The composite safety monitor will return <b>IsSafe = false</b> when <b>ONE or MORE</b> rules are triggered.
                     </div>
 
                     <ObservingConditionsRule Property="PropertyName.CloudCover"
@@ -353,9 +353,6 @@
                                              Value2="settings.ObservingCondtionsRules[PropertyName.WindSpeed].Value2"
                                              Units="m/s" />
                 </RadzenCard>
-            </div>
-            <div>
-                Zero, one or two rules may be selected for each observing conditions property.
             </div>
         </RadzenTabsItem>
 
