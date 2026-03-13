@@ -23,7 +23,6 @@
 </div>
 
 @code {
-    EqualityType equalityType1;
     private bool _initialized;
 
     protected override void OnAfterRender(bool firstRender)
@@ -50,8 +49,6 @@
             return "LightSeaGreen";
     }
 
-    int switchNumber = 0;
-
     private async Task DeviceChanged(object args)
     {
         if (!_initialized || args == null)
@@ -73,7 +70,7 @@
     public string PropertyDescription { get; set; } = Globals.NOT_SET;
 
     [Parameter]
-    public DiscoveredDevice CurrentValue { get; set; } = null;
+    public DiscoveredDevice? CurrentValue { get; set; } = null;
 
     [Parameter]
     public PropertyName Property { get; set; }

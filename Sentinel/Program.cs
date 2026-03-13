@@ -69,7 +69,7 @@ namespace Sentinel
                     Assembly? entryAssembly = Assembly.GetEntryAssembly();
                     if (entryAssembly != null)
                     {
-                        if (Process.GetProcessesByName(entryAssembly.Location).Length > 1)
+                        if (Process.GetProcessesByName(System.AppContext.BaseDirectory).Length > 1)
                         {
                             logger.LogMessage("", "Detected driver already running, starting web browser on IP and Port");
                             StartBrowser(settings.ServerPort);

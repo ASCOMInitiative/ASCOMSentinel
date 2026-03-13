@@ -56,7 +56,6 @@ namespace Sentinel.DeviceAccess
             }
         }
 
-        double averagePeriod = 0.0;
         public double AveragePeriod
         {
             get => 0.0; set
