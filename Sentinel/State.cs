@@ -15,7 +15,7 @@
 
         #region public properties
 
-        public bool Connected { get; set; } = false;
+        public bool Connected { get; set { field = value; RaiseChangeEvent(nameof(Connected)); } } = false;
         public bool ConnectingToDevices { get; set; } = false;
 
 

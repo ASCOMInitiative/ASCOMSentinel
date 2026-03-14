@@ -22,10 +22,9 @@
 <PageTitle>Application Setup</PageTitle>
 
 <h1>Application Setup</h1>
-<span>
+<span style="margin-left:0px;">
     <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.DiscoveryUnderway" />
-    <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;">@statusText</RadzenText>
-    <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" />
+    <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;">@statusText</RadzenText>
 </span>
 <RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
     <Tabs>
@@ -74,7 +73,7 @@
                                                    Min="1"
                                                    ShowUpDown="true"
                                                    Name="Value2" />
-                                    <span> (seconds) - Requires devices to be disconnected and reconnected.</span>
+                                    <span> (seconds) - Requires devices to be reconnected.</span>
                                 </div>
         
                                 <div style="margin-bottom:10px">
@@ -95,14 +94,17 @@
                                 <h4 style="color:cornflowerblue; margin-top:24px; margin-bottom:0px;">Debug settings</h4>
                                 <div style="margin-bottom:10px">
                                     <span class="indentedlist">Trace Level:</span>
-                                    <RadzenDropDown @bind-Value=@TraceLevel 
-                                        Data=@Enum.GetValues(typeof(LogLevel)) 
-                                        PopupStyle="max-height:15em); overflow:auto;" 
-                                        Style="margin-top:00px;margin-left:0px; margin-right:0px; border: 1px solid black;" />
+                                    <RadzenDropDown @bind-Value=@TraceLevel
+                                                    Data=@Enum.GetValues(typeof(LogLevel))
+                                                    PopupStyle="max-height:15em); overflow:auto;"
+                                                    Style="margin-top:00px;margin-left:0px; margin-right:0px; border: 1px solid black;" />
                                 </div>
                                 <div style="margin-bottom:10px; margin-top:10px">
                                     <label>Show Alpaca client trace messages (Only functional when Trace level is Debug or Verbose.):</label>
                                     <input type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
+                                </div>
+                                <div style="margin-top:24px;padding-top:24px;">
+                                    <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" />
                                 </div>
                             </RadzenCard>
                         </div>
@@ -186,67 +188,67 @@
                     <DeviceSelection Property="PropertyName.CloudCover"
                                      PropertyDescription="Cloud Cover"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.CloudCover)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
                     <DeviceSelection Property="PropertyName.DewPoint"
                                      PropertyDescription="Dew Point"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.DewPoint)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
                     <DeviceSelection Property="PropertyName.Humidity"
                                      PropertyDescription="Humidity"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Humidity)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
                     <DeviceSelection Property="PropertyName.Pressure"
                                      PropertyDescription="Pressure"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Pressure)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
                     <DeviceSelection Property="PropertyName.RainRate"
                                      PropertyDescription="Rain Rate"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.RainRate)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
                     <DeviceSelection Property="PropertyName.SkyBrightness"
                                      PropertyDescription="Sky Brightness"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyBrightness)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
                     <DeviceSelection Property="PropertyName.SkyQuality"
                                      PropertyDescription="Sky Quality"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyQuality)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
                     <DeviceSelection Property="PropertyName.SkyTemperature"
                                      PropertyDescription="Sky Temperature"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyTemperature)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
                     <DeviceSelection Property="PropertyName.StarFWHM"
                                      PropertyDescription="Star FWHM"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.StarFWHM)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
                     <DeviceSelection Property="PropertyName.Temperature"
                                      PropertyDescription="Temperature"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Temperature)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
                     <DeviceSelection Property="PropertyName.WindDirection"
                                      PropertyDescription="Wind Direction"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindDirection)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
                     <DeviceSelection Property="PropertyName.WindGust"
                                      PropertyDescription="Wind Gust"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindGust)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
                     <DeviceSelection Property="PropertyName.WindSpeed"
                                      PropertyDescription="Wind Speed"
                                      DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="async (device) => await OnObservingConditionsDeviceChanged()"
+                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindSpeed)"
                                      CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
                 </RadzenCard>
             </div>
@@ -525,8 +527,18 @@
             int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
             await OnResizeSetup(logWidth, logHeight);
+
+            settings.ConfigurationChanged += OnStateChanged; 
+
         }
     }
+
+    private async void OnStateChanged(object? sender, EventArgs e)
+    {
+        logger.LogMessageConsole("OnStateChanged", "Settings have changed, refreshing UI");
+        await InvokeAsync(StateHasChanged);
+    }
+
 
     private void OnLocationChange(string value, string name)
     {
@@ -554,7 +566,7 @@
 
         settings.AlpacaGetPropertyTimeout = (int)args;
         settings.Save();
-        statusText = " Devices must be disconnected and reconnected";
+        statusText = " Devices must be reconnected";
     }
 
     private async Task ServerPortChanged(object args)
@@ -590,9 +602,17 @@
         }
     }
 
-    private async Task OnObservingConditionsDeviceChanged()
+    private async Task OnObservingConditionsDeviceChanged(object discoveredDevice, PropertyName propertyName)
     {
-        statusText = "Devices must be disconnected and reconnected for this change to take effect.";
+        statusText = $"Devices must be reconnected for the change to {propertyName} to take effect. ";
+
+        if (((DiscoveredDevice)discoveredDevice).SentinelDeviceType == SentinelDeviceType.NotSet)
+        {
+            state.ObservingConditionsDeviceMap.Remove(propertyName);
+            settings.RaiseChangeEvent();
+            logger.LogMessageConsole("OnObservingConditionsDeviceChanged", $"ObservingConditionsDeviceMap entry for {propertyName} remove");
+        }
+
         await InvokeAsync(StateHasChanged);
     }
     private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
@@ -600,7 +620,7 @@
         settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
         settings.Save();
 
-        statusText = "Devices must be disconnected and reconnected for this change to take effect.";
+        statusText = "Devices must be reconnected for this change to take effect.";
         await InvokeAsync(StateHasChanged);
     }
 

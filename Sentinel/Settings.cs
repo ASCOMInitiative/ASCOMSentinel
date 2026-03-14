@@ -358,6 +358,14 @@ namespace Sentinel
             PersistSettings();
             Status = $"Settings saved at {DateTime.Now:HH:mm:ss}.";
 
+            RaiseChangeEvent();
+        }
+
+        /// <summary>
+        /// Raises the state changed event
+        /// </summary>
+        public  void RaiseChangeEvent()
+        {
             // Raise configuration has changed event
             if (ConfigurationChanged is not null)
             {

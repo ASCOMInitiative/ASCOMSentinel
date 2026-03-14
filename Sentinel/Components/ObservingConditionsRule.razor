@@ -1,8 +1,8 @@
 ﻿@namespace Sentinel.Components
 
-@inject SentinelLogger logger
+@implements IDisposable
+
 @inject Settings settings
-@inject State state
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;font-weight:700">@PropertyDescription</span>
@@ -16,7 +16,7 @@
                     Disabled="IsDisabled()"
                     Name="Equality1">
         <Template Context="item">
-            <span style="color:@((item == EqualityType.NotInUse ? "dodgerblue" : "red")); font-size:1rem;">@(((EqualityType)item).ToFormattedEqualityType())</span>
+            <span style="color:@EqualityTypeColor(item); font-size:1rem;">@(((EqualityType)item).ToFormattedEqualityType())</span>
         </Template>
     </RadzenDropDown>
 
@@ -43,10 +43,9 @@
                     Disabled="IsDisabled()"
                     Name="Equality2">
         <Template Context="item">
-            <span style="color:@(item == EqualityType.NotInUse ? "dodgerblue" : "red"); font-size:1rem">@item.ToString()</span>
+            <span style="color:@EqualityTypeColor(item); font-size:1rem;">@(((EqualityType)item).ToFormattedEqualityType())</span>
         </Template>
     </RadzenDropDown>
-
 
     <RadzenNumeric Value=@Value2
                    TValue=double
@@ -89,12 +88,29 @@
 
     private bool _initialized;
 
+    protected override void OnInitialized()
+    {
+        settings.ConfigurationChanged += OnSettingsChanged;
+    }
+
+    private async void OnSettingsChanged(object? sender, EventArgs e)
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        settings.ConfigurationChanged -= OnSettingsChanged;
+    }
+
+    private static string EqualityTypeColor(object item) =>
+        (EqualityType)item == EqualityType.NotInUse ? "dodgerblue" : "red";
 
     private bool IsDisabled()
     {
         try
         {
-            return state.ObservingConditionsDeviceMap[Property] is null;
+            return settings.ConfiguredDevices[Property].SentinelDeviceType == SentinelDeviceType.NotSet;
         }
         catch (Exception)
         {
