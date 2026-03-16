@@ -1,28 +1,38 @@
 ﻿@namespace Sentinel.Components
+@using Sentinel
 
 @inject SentinelLogger logger
 @inject Settings settings
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left;"><b>@Name</b></span>
-    <span style="display:inline-block; width:700px; margin:0px; text-align:left;">@Description</span>
+    <span style="display:inline-block; width:700px; margin:0px; text-align:left;color:@GetColour();">@Description</span>
 
     <RadzenDropDown Value=@settings.SafetyMonitorSettings[Property]
                     Data=@Enum.GetValues(typeof(SafetyMonitorState))
                     TValue="SafetyMonitorState"
-                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 115px; text-align:left;"
+                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 130px; text-align:left;"
                     Change="(args)=>SafetyMonitorStateChanged(args)"
                     PopupStyle="max-height:8em; overflow:auto;"
                     Disabled="@Disabled"
                     Name="SafetyMonitorState">
         <Template Context="item">
             <span style="color: @(ItemColour(item));font-size:1rem">
-                @item.ToString()
+                @(((SafetyMonitorState)item).ToFormattedSafetyMonitorState())
             </span>
         </Template>
     </RadzenDropDown>
 </div>
 @code {
+
+    private string GetColour()
+    {
+        if (Disabled)
+            return "lightgray";
+
+        return "black";
+    }
+
     private bool _initialized;
 
     protected override void OnAfterRender(bool firstRender)

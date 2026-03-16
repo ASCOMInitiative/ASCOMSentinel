@@ -16,21 +16,25 @@
         #region public properties
 
         public bool Connected { get; set { field = value; RaiseChangeEvent(nameof(Connected)); } } = false;
-        public bool ConnectingToDevices { get; set; } = false;
 
+        public bool DisplayReconnectMessage { get; set { field = value; RaiseChangeEvent(nameof(DisplayReconnectMessage)); } } = false;
 
-
-        public List<SafetyState> LastSafetyState { get; set; } = [];
+        public bool ShowResetMessage { get; set { field = value; RaiseChangeEvent(nameof(ShowResetMessage)); } } = false;
 
         /// <summary>
         /// Current width of the view port window
         /// </summary>
         public int WindowWidth { get; set { field = value; RaiseChangeEvent(nameof(WindowWidth)); } } = 1280;
 
+        public bool OperationUnderway { get; set { field = value; RaiseChangeEvent(nameof(OperationUnderway)); } } = false;
+
         /// <summary>
         /// Gets or sets the index of the first visible log entry in the log view.
         /// </summary>
+        /// 
         public int TopOfVisibleLog { get; set; } = 0;
+
+        public bool ConnectingToDevices { get; set; } = false;
 
         /// <summary>
         /// Gets the number of lines in the screen log when last updated
@@ -42,14 +46,16 @@
         public List<IObservingConditionsV2> ObservingConditionsDevices { get; set; } = [];
 
         public List<DiscoveredDevice> DiscoveredObservingConditionsDevices = new List<DiscoveredDevice>();
+
         public List<DiscoveredDevice> DiscoveredSafetyMonitorDevices = new List<DiscoveredDevice>();
-        public bool DiscoveryUnderway { get; set; } = false;
+
+        public List<SafetyState> LastSafetyState { get; set; } = [];
+
         public bool DiscoveryHasRun { get; set; } = false;
 
         public Dictionary<PropertyName, IObservingConditionsV2> ObservingConditionsDeviceMap { get; set; } = [];
 
         public Dictionary<PropertyName, ISafetyMonitorV3> SafetyMonitorDevices { get; set; } = [];
-
 
         public Dictionary<int, ISwitchV3> SwitchDevices { get; set; } = [];
 
@@ -65,21 +71,19 @@
 
         #endregion
 
-        private void RaiseChangeEvent(string memberName)
+        #region Event handlers
+
+        public void RaiseChangeEvent(string memberName)
         {
-            if (OnConfigurationChanged is not null)
+            if (StateChanged is not null)
             {
                 EventArgs args = new();
-                OnConfigurationChanged(this, args);
+                StateChanged(this, args);
             }
         }
 
-        public event EventHandler? OnConfigurationChanged;
+        public event EventHandler? StateChanged;
 
-        /// <summary>
-        /// Set by Index.razor so that other components (e.g. NavMenu) can trigger the connect/disconnect flow.
-        /// </summary>
-        public Func<Task>? ConnectRequested { get; set; }
-
+        #endregion
     }
 }

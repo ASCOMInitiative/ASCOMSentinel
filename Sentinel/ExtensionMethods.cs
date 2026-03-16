@@ -44,7 +44,25 @@ namespace Sentinel
                     return "Greater than";
 
                 default:
-                    throw new InvalidValueException($"ToFormattedEqualityType - {equalityType} is not a known equality type.");
+                    throw new InvalidValueException($"{nameof(ToFormattedEqualityType)} - {equalityType} is not a known equality type.");
+            }
+        }
+
+        public static string ToFormattedSafetyMonitorState(this SafetyMonitorState safetyMonitorState)
+        {
+            switch(safetyMonitorState)
+            {
+                case SafetyMonitorState.Enabled:
+                    return "Enabled";
+
+                case SafetyMonitorState.ForceTrue:
+                    return "Force true";
+
+                case SafetyMonitorState.ForceFalse:
+                    return "Force false";
+
+                default:
+                    throw new InvalidValueException($"{nameof(ToFormattedSafetyMonitorState)} - {safetyMonitorState} is not a known equality type.");
             }
         }
 

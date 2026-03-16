@@ -3,6 +3,7 @@
 
 @inject SentinelLogger logger
 @inject Settings settings
+@inject State state
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left; font-weight:700">@PropertyDescription</span>
@@ -73,6 +74,8 @@
 
         settings.ConfiguredDevices[Property] = device;
         settings.Save();
+
+        state.DisplayReconnectMessage = true;
 
         await OnDeviceChanged.InvokeAsync(device);
     }

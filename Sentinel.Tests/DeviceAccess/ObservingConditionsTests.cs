@@ -202,8 +202,8 @@ public class ObservingConditionsTests
         await Task.WhenAll(client1, client2);
 
         Assert.Empty(exceptions);
-        AssertCallRateIsWithinTolerance(client1.Result);
-        AssertCallRateIsWithinTolerance(client2.Result);
+        await AssertCallRateIsWithinTolerance(await client1);
+        await AssertCallRateIsWithinTolerance(await client2);
     }
 
     [Fact(Timeout = 15000)]
@@ -225,8 +225,8 @@ public class ObservingConditionsTests
         Assert.InRange(_fakeDevice.TemperatureCallCount, 1, MaxDeviceCallsPerProperty);
         Assert.InRange(_fakeDevice.HumidityCallCount,    1, MaxDeviceCallsPerProperty);
         Assert.InRange(_fakeDevice.PressureCallCount,    1, MaxDeviceCallsPerProperty);
-        AssertCallRateIsWithinTolerance(client1.Result);
-        AssertCallRateIsWithinTolerance(client2.Result);
+        await AssertCallRateIsWithinTolerance(await client1);
+        await AssertCallRateIsWithinTolerance(await client2);
     }
 
     [Fact(Timeout = 15000)]
@@ -253,8 +253,8 @@ public class ObservingConditionsTests
         await Task.WhenAll(client1, client2);
 
         Assert.Empty(inconsistencies);
-        AssertCallRateIsWithinTolerance(client1.Result);
-        AssertCallRateIsWithinTolerance(client2.Result);
+        await AssertCallRateIsWithinTolerance(await client1);
+        await AssertCallRateIsWithinTolerance(await client2);
     }
 
     /// <summary>
@@ -289,7 +289,7 @@ public class ObservingConditionsTests
     /// Asserts that the actual iteration rate from <paramref name="result"/> is within
     /// <paramref name="toleranceFraction"/> of <see cref="ReadsPerSecondPerProperty"/>.
     /// </summary>
-    private static void AssertCallRateIsWithinTolerance(
+    private async static Task AssertCallRateIsWithinTolerance(
         (long Iterations, TimeSpan Elapsed) result,
         double toleranceFraction = 0.1)
     {

@@ -72,6 +72,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (Connected)
                 {
                     state.LastSafetyState.Clear(); // Clear the last safety state list to be populated with any new safety events detected in this call
@@ -326,10 +329,19 @@ namespace Sentinel.DeviceAccess
             }
         }
 
+        private void CheckEnabled()
+        {
+            if (!Connected)
+                throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
+        }
+
         public List<StateValue> DeviceState
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 List<StateValue> stateValues = [];
 
                 try { stateValues.Add(new StateValue(nameof(IsSafe), IsSafe)); } catch { }
@@ -347,10 +359,21 @@ namespace Sentinel.DeviceAccess
         public short InterfaceVersion => 3;
         public string Name => $"{Globals.APPLICATION_NAME} - Safety monitor device";
 
-        public IList<string> SupportedActions => [Globals.SAFETY_EVENT_ACTION_NAME];
+        public IList<string> SupportedActions
+        {
+            get
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
+                return [Globals.SAFETY_EVENT_ACTION_NAME];
+            }
+        }
 
         public string Action(string actionName, string actionParameters)
         {
+            // Check whether remote access is enabled
+            CheckEnabled();
+
             logger.LogDebugConsole("Action", $"Called with name: {actionName}, parameters: {actionParameters}");
             actionName = actionName.Trim().ToLowerInvariant();
             switch (actionName)
@@ -381,12 +404,49 @@ namespace Sentinel.DeviceAccess
         private bool connected = false;
         private bool connecting = false;
 
-        public bool Connected { get => connected; set => connected = value; }
+        public bool Connected
+        {
+            get
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
 
-        public bool Connecting { get => connecting; set => connecting = value; }
+                return connected;
+            }
+
+            set
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
+                connected = value;
+            }
+        }
+
+        public bool Connecting
+        {
+            get
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
+                return connecting;
+            }
+
+            set
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
+                connecting = value;
+            }
+        }
 
         public void Connect()
         {
+            // Check whether remote access is enabled
+            CheckEnabled();
+
             Connecting = true;
             Task.Run(async () =>
             {
@@ -398,6 +458,9 @@ namespace Sentinel.DeviceAccess
 
         public void Disconnect()
         {
+            // Check whether remote access is enabled
+            CheckEnabled();
+
             Connecting = true;
             Task.Run(async () =>
             {

@@ -86,16 +86,33 @@ namespace Sentinel
         /// </summary>
         internal static async Task ConnectAsync(State state, Settings settings, SentinelLogger logger)
         {
-            logger.LogMessage("Connect", $"Connecting to devices...");
+            // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
+            List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
+                .Where(d => d.SentinelDeviceType == SentinelDeviceType.ObservingConditions)
+                .DistinctBy(d => (d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+
+            // Get a list of safety monitor devices to which to connect.
+            Dictionary<PropertyName, DiscoveredDevice> safetyMonitorDevices = settings.ConfiguredDevices
+                .Where(d => d.Value.SentinelDeviceType == SentinelDeviceType.SafetyMonitor).ToDictionary(d => d.Key, d => d.Value);
+
+            // Get counts for re-use multiple times
+            int observingConditionsCount = uniqueObservingConditionsDevices.Count();
+            int safetyMonitorCount = safetyMonitorDevices.Count();
+
+            // Bail out here if no devices are configured.
+            if (observingConditionsCount == 0 && safetyMonitorCount == 0)
+            {
+                logger.LogMessage("Connect", $"Cannot connect to devices because none are configured.");
+                return;
+            }
+
+            // Connect to configured devices.
             try
             {
+                logger.LogMessage("Connect", $"Connecting to {observingConditionsCount} observing conditions device{(observingConditionsCount == 1 ? "" : "s")} and {safetyMonitorCount} safety monitor device{(safetyMonitorCount == 1 ? "" : "s")}...");
+
                 // Set client retries to 0 for all Alpaca clients to ensure that we get a timely response when a device is not responding. This will not affect COM clients since they do not use the AlpacaClient class.
                 ASCOM.Alpaca.Clients.AlpacaClient.SetClientRetries(0);
-
-                // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
-                List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
-                    .Where(d => d.SentinelDeviceType == SentinelDeviceType.ObservingConditions)
-                    .DistinctBy(d => (d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
 
                 // Define a dictionary to hold the unique device instances
                 Dictionary<DiscoveredDevice, IObservingConditionsV2> observingConditionsDeviceInstances = new();
@@ -134,10 +151,13 @@ namespace Sentinel
 
 #if WINDOWS
                         case Protocol.COM: // COM so create a DriverAccess COM client
-                            IObservingConditionsV2 comDevice = new ASCOM.Com.DriverAccess.ObservingConditions(device.ComProgID);
-                            observingConditionsDeviceInstances[device] = comDevice;
-                            state.ObservingConditionsDevices.Add(comDevice);
-                            logger.LogDebug("Connect", $"Connect: added a real COM ObservingConditions device for {device.DisplayName}");
+                            if (OperatingSystem.IsWindows())
+                            {
+                                IObservingConditionsV2 comDevice = new ASCOM.Com.DriverAccess.ObservingConditions(device.ComProgID);
+                                observingConditionsDeviceInstances[device] = comDevice;
+                                state.ObservingConditionsDevices.Add(comDevice);
+                                logger.LogDebug("Connect", $"Connect: added a real COM ObservingConditions device for {device.DisplayName}");
+                            }
                             break;
 #endif
                         default:
@@ -192,11 +212,8 @@ namespace Sentinel
                 }
 
                 // Create SafetyMonitor devices
-                foreach (KeyValuePair<PropertyName, DiscoveredDevice> device in settings.ConfiguredDevices)
+                foreach (KeyValuePair<PropertyName, DiscoveredDevice> device in safetyMonitorDevices)
                 {
-                    if (device.Value.SentinelDeviceType != SentinelDeviceType.SafetyMonitor)
-                        continue;
-
                     switch (device.Value.Protocol)
                     {
                         case Protocol.Alpaca: // Alpaca so create an Alpaca client
@@ -220,9 +237,12 @@ namespace Sentinel
 
 #if WINDOWS
                         case Protocol.COM: // COM so create a DriverAccess COM client
-                            ISafetyMonitorV3 comDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(device.Value.ComProgID);
-                            state.SafetyMonitorDevices[device.Key] = comDevice;
-                            logger.LogDebug("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
+                            if (OperatingSystem.IsWindows())
+                            {
+                                ISafetyMonitorV3 comDevice = new ASCOM.Com.DriverAccess.SafetyMonitor(device.Value.ComProgID);
+                                state.SafetyMonitorDevices[device.Key] = comDevice;
+                                logger.LogDebug("Connect", $"Connect: added a real COM SafetyMonitor device for {device.Value.DisplayName}");
+                            }
                             break;
 #endif
 
@@ -315,6 +335,7 @@ namespace Sentinel
             catch { }
             finally
             {
+                state.DisplayReconnectMessage = false;
                 state.Connected = true;
             }
         }

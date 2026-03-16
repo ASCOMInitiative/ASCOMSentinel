@@ -32,10 +32,19 @@ namespace Sentinel.DeviceAccess
             this.logger = logger;
         }
 
+        private void CheckEnabled()
+        {
+            if (!Connected)
+                throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
+        }
+
         public List<StateValue> DeviceState
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 List<StateValue> stateValues = [];
 
                 try { stateValues.Add(new StateValue(nameof(CloudCover), CloudCover)); } catch { }
@@ -60,6 +69,9 @@ namespace Sentinel.DeviceAccess
         {
             get => 0.0; set
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (value < 0.0)
                     throw new ASCOM.InvalidValueException($"{value} is not a valid average period.");
             }
@@ -131,6 +143,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.CloudCover] == null)
                     throw new ASCOM.NotImplementedException($"CloudCover is not implemented in this observing conditions device.");
 
@@ -142,6 +157,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.DewPoint] == null)
                     throw new ASCOM.NotImplementedException($"DewPoint is not implemented in this observing conditions device.");
 
@@ -153,6 +171,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.Humidity] == null)
                     throw new ASCOM.NotImplementedException($"Humidity is not implemented in this observing conditions device.");
 
@@ -164,6 +185,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.Pressure] == null)
                     throw new ASCOM.NotImplementedException($"Pressure is not implemented in this observing conditions device.");
 
@@ -175,6 +199,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.RainRate] == null)
                     throw new ASCOM.NotImplementedException($"RainRate is not implemented in this observing conditions device.");
 
@@ -186,6 +213,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.SkyBrightness] == null)
                     throw new ASCOM.NotImplementedException($"SkyBrightness is not implemented in this observing conditions device.");
 
@@ -197,6 +227,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.SkyQuality] == null)
                     throw new ASCOM.NotImplementedException($"SkyQuality is not implemented in this observing conditions device.");
 
@@ -208,6 +241,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.StarFWHM] == null)
                     throw new ASCOM.NotImplementedException($"StarFWHM is not implemented in this observing conditions device.");
 
@@ -219,6 +255,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.SkyTemperature] == null)
                     throw new ASCOM.NotImplementedException($"SkyTemperature is not implemented in this observing conditions device.");
 
@@ -229,6 +268,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.Temperature] == null)
                     throw new ASCOM.NotImplementedException($"Temperature is not implemented in this observing conditions device.");
 
@@ -240,6 +282,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.WindDirection] == null)
                     throw new ASCOM.NotImplementedException($"WindDirection is not implemented in this observing conditions device.");
 
@@ -251,6 +296,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.WindGust] == null)
                     throw new ASCOM.NotImplementedException($"WindGust is not implemented in this observing conditions device.");
 
@@ -262,6 +310,9 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
                 if (state.ObservingConditionsDeviceMap[PropertyName.WindSpeed] == null)
                     throw new ASCOM.NotImplementedException($"WindSpeed is not implemented in this observing conditions device.");
 
@@ -303,12 +354,49 @@ namespace Sentinel.DeviceAccess
         private bool connected = false;
         private bool connecting = false;
 
-        public bool Connected { get => connected; set => connected = value; }
+        public bool Connected
+        {
+            get
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
 
-        public bool Connecting { get => connecting; set => connecting = value; }
+                return connected;
+            }
+
+            set
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
+                connected = value;
+            }
+        }
+
+        public bool Connecting
+        {
+            get
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
+                return connecting;
+            }
+
+            set
+            {
+                // Check whether remote access is enabled
+                CheckEnabled();
+
+                connecting = value;
+            }
+        }
 
         public void Connect()
         {
+            // Check whether remote access is enabled
+            CheckEnabled();
+
             Connecting = true;
             Task.Run(async () =>
             {
@@ -320,6 +408,9 @@ namespace Sentinel.DeviceAccess
 
         public void Disconnect()
         {
+            // Check whether remote access is enabled
+            CheckEnabled();
+
             Connecting = true;
             Task.Run(async () =>
             {
@@ -338,11 +429,15 @@ namespace Sentinel.DeviceAccess
 
         public void Refresh()
         {
-
+            // Check whether remote access is enabled
+            CheckEnabled();
         }
 
         public string SensorDescription(string PropertyName)
         {
+            // Check whether remote access is enabled
+            CheckEnabled();
+
             PropertyName? propertyEnum = ToPropertyName(PropertyName);
             if (!propertyEnum.HasValue)
                 throw new ASCOM.InvalidValueException($"Property name '{PropertyName}' is not a valid ObservingConditions property name.");
@@ -355,6 +450,9 @@ namespace Sentinel.DeviceAccess
 
         public double TimeSinceLastUpdate(string PropertyName)
         {
+            // Check whether remote access is enabled
+            CheckEnabled();
+
             if (string.IsNullOrEmpty(PropertyName))
                 return 1;
 

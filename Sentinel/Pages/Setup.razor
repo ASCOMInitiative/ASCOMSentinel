@@ -23,10 +23,10 @@
 
 <h1>Application Setup</h1>
 <span style="margin-left:0px;">
-    <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.DiscoveryUnderway" />
-    <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;">@statusText</RadzenText>
+    <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.OperationUnderway" />
+    <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;color:red;font-weight:bold;">@statusText</RadzenText>
 </span>
-<RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client">
+<RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client" Change="@OnTabChanged">
     <Tabs>
         <RadzenTabsItem Text="General Setup">
             <RadzenTabs style="margin-top:10px" RenderMode="TabRenderMode.Client">
@@ -49,9 +49,8 @@
                                                    Min="1"
                                                    ShowUpDown="true"
                                                    Name="SrvServerPort" />
-                                    <span> (Requires restart)</span>
+                                    <span style="margin-left:10px;">(Requires restart)</span>
                                 </div>
-
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Always keep devices connected:</label>
                                     <input type="checkbox" @bind="SrvPreventRemoteDisconnects" />
@@ -60,11 +59,15 @@
                                     <label>Connect to devices when started:</label>
                                     <input type="checkbox" @bind="AutoConnect" />
                                 </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Enable client use:</label>
+                                    <input type="checkbox" @bind="AllowRemoteAccess" />
+                                </div>
 
                                 <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Connections</h4>
 
                                 <div style="margin-bottom: 0px; margin-top: 0px">
-                                    <label class="indentedlist">Alpaca communication timeout:</label>
+                                    <label class="indentedlist">Alpaca communication timeout (seconds):</label>
                                     <RadzenNumeric Value=@settings.AlpacaGetPropertyTimeout
                                                    TValue=int
                                                    Step="1"
@@ -73,13 +76,13 @@
                                                    Min="1"
                                                    ShowUpDown="true"
                                                    Name="Value2" />
-                                    <span> (seconds) - Requires devices to be reconnected.</span>
+                                    <span style="margin-left:10px;">(Requires devices to be reconnected)</span>
                                 </div>
         
-                                <div style="margin-bottom:10px">
-                                    <span style="display:inline-block;min-width:250px;">Allow access by clients on all bound addresses (Unchecked = localhost only):</span>
-                                    <input type="checkbox" value="@SrvRemoteAccess" onchange="@ServerRemoteAccessChanged" />
-                                    <span> (Requires restart)</span>
+                                <div style="margin-top:8px;margin-bottom:10px">
+                                    <span style="display:inline-block;min-width:250px;">Respond to local client discovery packets on localhost only:</span>
+                                    <input type="checkbox" @bind="RespondOnlyOnLocalHost" />
+                                    <span style="margin-left:10px;">Unchecked = respond on all interfaces. (Requires restart)</span>
                                 </div>
 
                                 <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Discovery</h4>
@@ -497,13 +500,18 @@
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
 
-    private async Task ServerRemoteAccessChanged(ChangeEventArgs e)
+    private async Task OnTabChanged()
+    {
+        statusText = string.Empty;
+    }
+
+    private async Task RespondOnlyOnLocalhostChanged(ChangeEventArgs e)
     {
         if (e.Value is null)
             return;
 
-        SrvRemoteAccess = (bool)e.Value;
-        statusText = "Requires restart";
+        RespondOnlyOnLocalHost = (bool)e.Value;
+        statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
         await InvokeAsync(StateHasChanged);
     }
 
@@ -528,23 +536,21 @@
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
             await OnResizeSetup(logWidth, logHeight);
 
-            settings.ConfigurationChanged += OnStateChanged; 
+            settings.ConfigurationChanged += OnStateChanged;
+            state.StateChanged += OnStateChanged;
 
         }
     }
 
     private async void OnStateChanged(object? sender, EventArgs e)
     {
-        logger.LogMessageConsole("OnStateChanged", "Settings have changed, refreshing UI");
         await InvokeAsync(StateHasChanged);
     }
-
 
     private void OnLocationChange(string value, string name)
     {
         SrvLocation = value;
     }
-
 
     private bool IncludeAlpacaTraceChanged
     {
@@ -564,9 +570,9 @@
         if (args == null)
             return;
 
+        state.DisplayReconnectMessage = true;
         settings.AlpacaGetPropertyTimeout = (int)args;
         settings.Save();
-        statusText = " Devices must be reconnected";
     }
 
     private async Task ServerPortChanged(object args)
@@ -576,7 +582,7 @@
 
         settings.ServerPort = (ushort)args;
         settings.Save();
-        statusText = "Requires restart";
+        statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
     }
 
     private async Task ResetSettings()
@@ -584,6 +590,7 @@
         if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to reset all settings? This cannot be undone."))
         {
             settings.ResetToDefaults();
+            state.Connected = false;
             await StartDiscovery();
             await InvokeAsync(StateHasChanged);
         }
@@ -604,13 +611,12 @@
 
     private async Task OnObservingConditionsDeviceChanged(object discoveredDevice, PropertyName propertyName)
     {
-        statusText = $"Devices must be reconnected for the change to {propertyName} to take effect. ";
+        state.ShowResetMessage = true;
 
         if (((DiscoveredDevice)discoveredDevice).SentinelDeviceType == SentinelDeviceType.NotSet)
         {
             state.ObservingConditionsDeviceMap.Remove(propertyName);
             settings.RaiseChangeEvent();
-            logger.LogMessageConsole("OnObservingConditionsDeviceChanged", $"ObservingConditionsDeviceMap entry for {propertyName} remove");
         }
 
         await InvokeAsync(StateHasChanged);
@@ -620,7 +626,7 @@
         settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
         settings.Save();
 
-        statusText = "Devices must be reconnected for this change to take effect.";
+        state.ShowResetMessage = true;
         await InvokeAsync(StateHasChanged);
     }
 
@@ -629,7 +635,7 @@
         try
         {
 
-            state.DiscoveryUnderway = true;
+            state.OperationUnderway = true;
             discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.IncludeAlpacaTrace ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
                 (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
             discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
@@ -775,7 +781,7 @@
         }
         finally
         {
-            state.DiscoveryUnderway = false;
+            state.OperationUnderway = false;
             state.DiscoveryHasRun = true;
             await InvokeAsync(StateHasChanged);
             logger.LogDebugConsole("", $"Discovery underway is now false.");
@@ -817,16 +823,31 @@
         set { settings.Location = value; settings.Save(); }
     }
 
-    private bool SrvRemoteAccess
+    private bool RespondOnlyOnLocalHost
+    {
+        get
+        {
+            return settings.RespondOnlyOnLocalHost;
+        }
+        set
+        {
+            if (settings.RespondOnlyOnLocalHost != value)
+            {
+                settings.RespondOnlyOnLocalHost = value;
+                settings.Save();
+                statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+                InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    private bool AllowRemoteAccess
     {
         get => settings.AllowRemoteAccess;
         set
         {
-            if (settings.AllowRemoteAccess != value)
-            {
-                settings.AllowRemoteAccess = value;
-                settings.Save();
-            }
+            settings.AllowRemoteAccess = value;
+            settings.Save();
         }
     }
 
@@ -863,8 +884,8 @@
 
     private bool SrvLocalHostOnlyOnHost
     {
-        get => settings.LocalRespondOnlyToLocalHost;
-        set { settings.LocalRespondOnlyToLocalHost = value; }
+        get => settings.RespondOnlyOnLocalHost;
+        set { settings.RespondOnlyOnLocalHost = value; }
     }
 
     private bool SrvRequireAuthorization

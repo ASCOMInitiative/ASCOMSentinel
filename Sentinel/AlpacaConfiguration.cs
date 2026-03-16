@@ -22,9 +22,9 @@ namespace Sentinel
 
         public int ServerPort => Program.settings.ServerPort;
 
-        public bool AllowRemoteAccess => Program.settings.AllowRemoteAccess;
+        public bool AllowRemoteAccess => true;
 
-        public bool LocalRespondOnlyToLocalHost => Program.settings.LocalRespondOnlyToLocalHost;
+        public bool LocalRespondOnlyToLocalHost => Program.settings.RespondOnlyOnLocalHost;
 
         public bool RunSwagger => false;
     }

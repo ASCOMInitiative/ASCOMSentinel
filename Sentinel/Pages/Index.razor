@@ -31,7 +31,6 @@
         if (firstRender)
         {
             logger.MessageLogChanged += OnLogChanged;
-            state.ConnectRequested = ConnectedButtonClickHandler;
 
             // Subscribe to the OnResized event. This will do work when the browser is resized.
             objRef = DotNetObjectReference.Create(this);
@@ -43,15 +42,10 @@
             await OnResizeIndex(logWidth, logHeight);
 
             if (settings.AutoConnect && !state.Connected)
-                await ConnectedButtonClickHandler();
+                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
         }
         // Always scroll after render so new content is visible
         state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
-    }
-
-    public async Task ConnectedButtonClickHandler()
-    {
-        await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
     }
 
     private int LastnumberOfLogLines()
@@ -139,7 +133,6 @@
     {
         _disposed = true;
         logger.MessageLogChanged -= OnLogChanged;
-        state.ConnectRequested = null;
 
         if (objRef != null)
         {

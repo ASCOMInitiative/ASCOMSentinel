@@ -299,7 +299,7 @@ namespace Sentinel
         public ushort ServerPort { get; set; } = (ushort)Globals.DEFAULT_ALPACA_PORT;
         public bool AllowRemoteAccess { get; set; } = true;
         public bool AllowDiscovery { get; set; } = true;
-        public bool LocalRespondOnlyToLocalHost { get; set; } = true;
+        public bool RespondOnlyOnLocalHost { get; set; } = true;
         public bool PreventRemoteDisconnects { get; set; } = true;
         public bool RunInStrictAlpacaMode { get; set; } = true;
         public bool UseAuth { get; set; } = false;
@@ -325,7 +325,7 @@ namespace Sentinel
 
                 // Reset all in-memory properties to their default values
                 CopyPropertiesFrom(defaults);
-
+                RaiseChangeEvent();
                 Status = $"Settings reset at {DateTime.Now:HH:mm:ss}.";
             }
             catch (Exception ex)
@@ -364,15 +364,22 @@ namespace Sentinel
         /// <summary>
         /// Raises the state changed event
         /// </summary>
-        public  void RaiseChangeEvent()
+        public void RaiseChangeEvent()
         {
             // Raise configuration has changed event
             if (ConfigurationChanged is not null)
             {
-                EventArgs args = new();
-                LogMessage(LogLevel.Debug, "Save settings - About to call configuration changed event handler");
-                ConfigurationChanged(this, args);
-                LogMessage(LogLevel.Debug, "Save settings - Returned from configuration changed event handler");
+                try
+                {
+                    EventArgs args = new();
+                    LogMessage(LogLevel.Debug, "Save settings - About to call configuration changed event handler");
+                    ConfigurationChanged(this, args);
+                    LogMessage(LogLevel.Debug, "Save settings - Returned from configuration changed event handler");
+                }
+                catch (Exception ex)
+                {
+                    LogMessage(LogLevel.Debug, $"RaiseChangeEvent - Exception during event handling: {ex.Message}\r\n{ex}");
+                }
             }
         }
 
