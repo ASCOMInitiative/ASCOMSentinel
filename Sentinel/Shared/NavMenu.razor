@@ -23,7 +23,7 @@
 else 
 @* No operation is in progress *@
 {
-    <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <div class="@NavMenuCssClass" style="display:flex; flex-direction:column; height:calc(100vh - 3.5rem);" @onclick="ToggleNavMenu">
         <nav class="flex-column">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -71,8 +71,8 @@ else
                 </div>
             }
 
-        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:48px;margin-bottom:0px;">Application</div>
-        <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
+        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:auto;margin-bottom:0px;">Application</div>
+        <div style="margin-top:3px;margin-bottom:12px;display:flex;justify-content:center;">
             <RadzenButton Click="() => RestartApplication()"
                 Text="Restart"
                 Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning" />
