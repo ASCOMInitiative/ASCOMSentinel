@@ -41,6 +41,8 @@
             int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
             await OnResizeIndex(logWidth, logHeight);
 
+            logger.LogMessage("","");
+
             if (settings.AutoConnect && !state.Connected)
                 await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
         }

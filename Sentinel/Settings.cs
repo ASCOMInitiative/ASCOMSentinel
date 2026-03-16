@@ -297,9 +297,10 @@ namespace Sentinel
         public string UniqueIdSwitch { get; set; } = Guid.NewGuid().ToString();
         public string UniqueIdObservingConditions { get; set; } = Guid.NewGuid().ToString();
         public ushort ServerPort { get; set; } = (ushort)Globals.DEFAULT_ALPACA_PORT;
-        public bool AllowRemoteAccess { get; set; } = true;
+        public bool BindToAllNetworkAddresses { get; set; } = true;
         public bool AllowDiscovery { get; set; } = true;
-        public bool RespondOnlyOnLocalHost { get; set; } = true;
+        public bool DiscoveryResponseOnlyOnLocalHost { get; set; } = true;
+        public bool EnableRemoteClients { get; set; } = true; 
         public bool PreventRemoteDisconnects { get; set; } = true;
         public bool RunInStrictAlpacaMode { get; set; } = true;
         public bool UseAuth { get; set; } = false;

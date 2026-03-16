@@ -60,8 +60,13 @@
                                     <input type="checkbox" @bind="AutoConnect" />
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Enable client use:</label>
-                                    <input type="checkbox" @bind="AllowRemoteAccess" />
+                                    <label>Bind to all network addresses:</label>
+                                    <input type="checkbox" @bind="BindToAllNetworkAddresses" />
+                                    <span style="margin-left:10px;">(Requires restart)</span>
+                                </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Enable remote clients at startup:</label>
+                                    <input type="checkbox" @bind="EnableRemoteClientsAtStartup" />
                                 </div>
 
                                 <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Connections</h4>
@@ -79,20 +84,16 @@
                                     <span style="margin-left:10px;">(Requires devices to be reconnected)</span>
                                 </div>
         
-                                <div style="margin-top:8px;margin-bottom:10px">
-                                    <span style="display:inline-block;min-width:250px;">Respond to local client discovery packets on localhost only:</span>
-                                    <input type="checkbox" @bind="RespondOnlyOnLocalHost" />
-                                    <span style="margin-left:10px;">Unchecked = respond on all interfaces. (Requires restart)</span>
-                                </div>
 
                                 <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Discovery</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Enable discovery:</label>
                                     <input type="checkbox" @bind="SrvDiscovery" />
                                 </div>
-                                <div style="margin-bottom: 10px">
-                                    <label>Only respond on the localhost address when a client on the host machine broadcasts on all available network addresses.</label>
-                                    <input type="checkbox" @bind="SrvLocalHostOnlyOnHost" />
+                                <div style="margin-top:8px;margin-bottom:10px">
+                                    <span style="display:inline-block;min-width:250px;">Respond to local client discovery packets on localhost only:</span>
+                                    <input type="checkbox" @bind="DiscoveryResponseOnlyOnLocalHost" />
+                                    <span style="margin-left:10px;">Unchecked = respond on all interfaces. (Requires restart)</span>
                                 </div>
                                 <h4 style="color:cornflowerblue; margin-top:24px; margin-bottom:0px;">Debug settings</h4>
                                 <div style="margin-bottom:10px">
@@ -120,7 +121,7 @@
                                     <tr>
                                         <th>Addresses server is listening on.</th>
                                     </tr>
-                                    @if (settings.AllowRemoteAccess)
+                                    @if (settings.BindToAllNetworkAddresses)
                                     {
                                         try
                                         {
@@ -500,6 +501,19 @@
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
 
+    private bool EnableRemoteClientsAtStartup
+    {
+        get
+        {
+            return settings.EnableRemoteClients;
+        }
+        set
+        {
+            settings.EnableRemoteClients = value;
+            settings.Save();
+        }
+    }
+
     private async Task OnTabChanged()
     {
         statusText = string.Empty;
@@ -510,7 +524,7 @@
         if (e.Value is null)
             return;
 
-        RespondOnlyOnLocalHost = (bool)e.Value;
+        DiscoveryResponseOnlyOnLocalHost = (bool)e.Value;
         statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
         await InvokeAsync(StateHasChanged);
     }
@@ -823,17 +837,17 @@
         set { settings.Location = value; settings.Save(); }
     }
 
-    private bool RespondOnlyOnLocalHost
+    private bool DiscoveryResponseOnlyOnLocalHost
     {
         get
         {
-            return settings.RespondOnlyOnLocalHost;
+            return settings.DiscoveryResponseOnlyOnLocalHost;
         }
         set
         {
-            if (settings.RespondOnlyOnLocalHost != value)
+            if (settings.DiscoveryResponseOnlyOnLocalHost != value)
             {
-                settings.RespondOnlyOnLocalHost = value;
+                settings.DiscoveryResponseOnlyOnLocalHost = value;
                 settings.Save();
                 statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
                 InvokeAsync(StateHasChanged);
@@ -841,13 +855,15 @@
         }
     }
 
-    private bool AllowRemoteAccess
+    private bool BindToAllNetworkAddresses
     {
-        get => settings.AllowRemoteAccess;
+        get => settings.BindToAllNetworkAddresses;
         set
         {
-            settings.AllowRemoteAccess = value;
+            settings.BindToAllNetworkAddresses = value;
             settings.Save();
+            statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+            InvokeAsync(StateHasChanged);
         }
     }
 
@@ -884,8 +900,8 @@
 
     private bool SrvLocalHostOnlyOnHost
     {
-        get => settings.RespondOnlyOnLocalHost;
-        set { settings.RespondOnlyOnLocalHost = value; }
+        get => settings.DiscoveryResponseOnlyOnLocalHost;
+        set { settings.DiscoveryResponseOnlyOnLocalHost = value; }
     }
 
     private bool SrvRequireAuthorization

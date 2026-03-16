@@ -15,6 +15,8 @@
 
         #region public properties
 
+        public bool EnableRemoteClients { get; set; } = false;
+
         public bool Connected { get; set { field = value; RaiseChangeEvent(nameof(Connected)); } } = false;
 
         public bool DisplayReconnectMessage { get; set { field = value; RaiseChangeEvent(nameof(DisplayReconnectMessage)); } } = false;

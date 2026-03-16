@@ -331,8 +331,13 @@ namespace Sentinel.DeviceAccess
 
         private void CheckEnabled()
         {
-            if (!Connected)
-                throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
+            // Check whether the application is online
+            if (!state.EnableRemoteClients)
+                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME} is offline.");
+
+            // Check whether we are connected
+            //if (!connected)
+            //    throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
         }
 
         public List<StateValue> DeviceState
@@ -408,9 +413,6 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
-                // Check whether remote access is enabled
-                CheckEnabled();
-
                 return connected;
             }
 

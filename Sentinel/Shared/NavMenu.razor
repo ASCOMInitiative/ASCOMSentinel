@@ -44,30 +44,47 @@ else
             <div class="nav-item px-3">
             </div>
         </nav>
+
         <div>
             @if(state.DisplayReconnectMessage&& state.Connected)
             {
                 <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:6px;margin-bottom:0px;">Reconnect Required</Span>
             }
             else
-            {
-                <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:6px;margin-bottom:0px;">&nbsp;</Span>
+            }
+                 <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:6px;margin-bottom:0px;">&nbsp;</Span>
             }
         </div>
+
         <div style="margin-top:28px;margin-bottom:30px;display:flex;justify-content:center;">
             <RadzenButton Click="() => Reconnect()"
                 Text="@(state.Connected ? "Reconnect Devices" : "Connect Devices")"
                 Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Info" />
-
         </div>
+
         <div style="margin-top:0px;margin-bottom:30px;display:flex;justify-content:center;">
             <SentinelButton Click="@(() => Disconnect())"
                             Text="Disconnect Devices" />
+        </div>
+
+        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:64px;margin-bottom:0px;">State</div>
+        <div style="margin-top:6px;margin-bottom:30px;display:flex;justify-content:center;">
+
+            <RadzenButton Click="() => EnableRemoteClients()"
+                Text="@(state.EnableRemoteClients? "Online" : "Offline")"
+                Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)" />
         </div>
     </div>
 }
 
 @code {
+
+    private async Task EnableRemoteClients()
+    {
+            state.EnableRemoteClients = !state.EnableRemoteClients;
+ 
+    }
+
     private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;

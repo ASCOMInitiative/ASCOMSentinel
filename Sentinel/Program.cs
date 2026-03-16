@@ -122,7 +122,7 @@ namespace Sentinel
                 string startupURLArg = "--urls=http://";
 
                 //If set to allow remote access bind to all local ips, otherwise bind only to localhost
-                if (settings.AllowRemoteAccess)
+                if (settings.BindToAllNetworkAddresses)
                 {
                     startupURLArg += "*";
                 }
@@ -204,6 +204,9 @@ namespace Sentinel
             {
                 return settings;
             });
+
+            // Initialise state with any values from settings that are needed at startup
+            state.EnableRemoteClients=settings.EnableRemoteClients;
 
             // Add event handler to detect when the browser closes
             builder.Services.AddSingleton<CircuitHandler, CircuitHandlerService>();
