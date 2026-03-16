@@ -38,6 +38,10 @@ namespace Sentinel.DeviceAccess
             if (!state.EnableRemoteClients)
                 throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME} is offline.");
 
+            // Check whether the real devices are connected
+            if (!state.Connected)
+                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME}'s real devices are not connected.");
+
             //if (!connected)
             //    throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
         }
@@ -46,6 +50,10 @@ namespace Sentinel.DeviceAccess
             // Check whether the application is online
             if (!state.EnableRemoteClients)
                 throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME} is offline.");
+
+            // Check whether the real devices are connected
+            if (!state.Connected)
+                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME}'s real devices are not connected.");
 
             if (!state.ObservingConditionsDeviceMap.ContainsKey(propertyName))
                 throw new ASCOM.NotImplementedException($"{propertyName} is not implemented in this observing conditions device.");

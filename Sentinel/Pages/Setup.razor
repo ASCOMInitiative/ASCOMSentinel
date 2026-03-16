@@ -31,10 +31,10 @@
         <RadzenTabsItem Text="General Setup">
             <RadzenTabs style="margin-top:10px" RenderMode="TabRenderMode.Client">
                 <Tabs>
-                    <RadzenTabsItem Text="Application Settings">
+                    <RadzenTabsItem Text="General Settings">
                         <div class="row" style="margin-top: 10px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                                <h4 style="color:cornflowerblue">General</h4>
+                                <h4 style="color:cornflowerblue">Application</h4>
                                 <div style="margin-bottom:10px">
                                     <span class="indentedlist">Location:</span>
                                     <RadzenTextBox Value="@SrvLocation" Style="width:50ch; border: 1px solid black;" Change=@(args => OnLocationChange(args, "TextBox")) />
@@ -52,27 +52,25 @@
                                     <span style="margin-left:10px;">(Requires restart)</span>
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Always keep devices connected:</label>
-                                    <input type="checkbox" @bind="SrvPreventRemoteDisconnects" />
-                                </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Connect to devices when started:</label>
-                                    <input type="checkbox" @bind="AutoConnect" />
-                                </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Bind to all network addresses:</label>
+                                    <label>Bind to all host network addresses:</label>
                                     <input type="checkbox" @bind="BindToAllNetworkAddresses" />
-                                    <span style="margin-left:10px;">(Requires restart)</span>
+                                    <span style="margin-left:10px;">(Requires restart) Unchecked = localhost only</span>
                                 </div>
+
+                                <h4 style="color:cornflowerblue">Startup</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Enable remote clients at startup:</label>
+                                    <label>Enable remote client access at startup:</label>
                                     <input type="checkbox" @bind="EnableRemoteClientsAtStartup" />
                                 </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Connect to configured devices when started:</label>
+                                    <input type="checkbox" @bind="AutoConnect" />
+                                </div>
 
-                                <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Connections</h4>
+                                <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Device Connections</h4>
 
                                 <div style="margin-bottom: 0px; margin-top: 0px">
-                                    <label class="indentedlist">Alpaca communication timeout (seconds):</label>
+                                    <label class="indentedlist">Communication timeout (seconds):</label>
                                     <RadzenNumeric Value=@settings.AlpacaGetPropertyTimeout
                                                    TValue=int
                                                    Step="1"
@@ -80,8 +78,15 @@
                                                    Change=@(args => AlpacaGetPropertyTimeoutChanged(args))
                                                    Min="1"
                                                    ShowUpDown="true"
-                                                   Name="Value2" />
+                                                   Name="AlpacaGetPropertyTimeout" />
                                     <span style="margin-left:10px;">(Requires devices to be reconnected)</span>
+                                </div>
+                                <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Client Connections</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Always keep devices connected:</label>
+                                    <input type="checkbox" @bind="SrvPreventRemoteDisconnects" />
+                                    <span style="margin-left:10px;">(Set Connected = False is ignored)</span>
+
                                 </div>
         
 
@@ -90,11 +95,28 @@
                                     <label>Enable discovery:</label>
                                     <input type="checkbox" @bind="SrvDiscovery" />
                                 </div>
+                                <div style="margin-bottom: 0px; margin-top: 0px">
+                                    <label class="indentedlist">Discovery duration (seconds):</label>
+                                    <RadzenNumeric Value=@settings.AlpacaDiscoveryDuration
+                                                   TValue=double
+                                                   Step="1.0"
+                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 140px; text-align:left; border: 1px solid black;"
+                                                   Change=@(args => DiscoveryDurationChanged(args))
+                                                   Min="1"
+                                                   Format="0.0"
+                                                   ShowUpDown="true"
+                                                   Name="AlpacaDiscoveryDuration" />
+                                </div>
                                 <div style="margin-top:8px;margin-bottom:10px">
                                     <span style="display:inline-block;min-width:250px;">Respond to local client discovery packets on localhost only:</span>
                                     <input type="checkbox" @bind="DiscoveryResponseOnlyOnLocalHost" />
                                     <span style="margin-left:10px;">Unchecked = respond on all interfaces. (Requires restart)</span>
                                 </div>
+        
+
+
+
+
                                 <h4 style="color:cornflowerblue; margin-top:24px; margin-bottom:0px;">Debug settings</h4>
                                 <div style="margin-bottom:10px">
                                     <span class="indentedlist">Trace Level:</span>
@@ -108,7 +130,7 @@
                                     <input type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
                                 </div>
                                 <div style="margin-top:24px;padding-top:24px;">
-                                    <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" />
+                                    <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" Disabled="@(state.OperationUnderway)"/>
                                 </div>
                             </RadzenCard>
                         </div>
@@ -589,6 +611,16 @@
         settings.Save();
     }
 
+    private async Task DiscoveryDurationChanged(object args)
+    {
+        if (args == null)
+            return;
+
+        settings.AlpacaDiscoveryDuration = (double)args;
+        settings.Save();
+    }
+
+
     private async Task ServerPortChanged(object args)
     {
         if (args == null)
@@ -653,7 +685,7 @@
             discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.IncludeAlpacaTrace ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
                 (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
             discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
-            discovery.StartDiscovery(1, 10, 32227, 2.0, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);
+            discovery.StartDiscovery(1, 10, 32227, settings.AlpacaDiscoveryDuration, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);
             statusText = "Alpaca discovery underway";
             await InvokeAsync(StateHasChanged);
         }

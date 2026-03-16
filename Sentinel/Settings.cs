@@ -285,6 +285,7 @@ namespace Sentinel
             { PropertyName.SafetyMonitor9, new DiscoveredDevice() }
         };
 
+        public double AlpacaDiscoveryDuration { get; set; } = 1.0; // Seconds
         public int AlpacaGetPropertyTimeout { get; set; } = 2; // Seconds to wait for a response when getting a value from an Alpaca device before timing out
         public bool AutoConnect { get; set; } = true;
         public TimeSpan PropertyCacheTime { get; set; } = TimeSpan.FromSeconds(1.0); // Seconds to wait before considering cached device property values as expired and retrieving new values from the devices
@@ -300,7 +301,7 @@ namespace Sentinel
         public bool BindToAllNetworkAddresses { get; set; } = true;
         public bool AllowDiscovery { get; set; } = true;
         public bool DiscoveryResponseOnlyOnLocalHost { get; set; } = true;
-        public bool EnableRemoteClients { get; set; } = true; 
+        public bool EnableRemoteClients { get; set; } = true;
         public bool PreventRemoteDisconnects { get; set; } = true;
         public bool RunInStrictAlpacaMode { get; set; } = true;
         public bool UseAuth { get; set; } = false;

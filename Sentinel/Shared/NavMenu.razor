@@ -38,42 +38,38 @@ else
             </div> *@
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/setup" Match="NavLinkMatch.All">
-                    <span class="oi oi-cog" aria-hidden="true"></span> Application Setup
+                    <span style="color:white" class="oi oi-cog" aria-hidden="true"></span> <span style="color:yellow">Application Setup</span>
                 </NavLink>
             </div>
             <div class="nav-item px-3">
             </div>
         </nav>
 
-        <div>
-            @if(state.DisplayReconnectMessage&& state.Connected)
-            {
-                <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:6px;margin-bottom:0px;">Reconnect Required</Span>
-            }
-            else
-            }
-                 <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:6px;margin-bottom:0px;">&nbsp;</Span>
-            }
-        </div>
-
-        <div style="margin-top:28px;margin-bottom:30px;display:flex;justify-content:center;">
-            <RadzenButton Click="() => Reconnect()"
-                Text="@(state.Connected ? "Reconnect Devices" : "Connect Devices")"
-                Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Info" />
-        </div>
-
-        <div style="margin-top:0px;margin-bottom:30px;display:flex;justify-content:center;">
-            <SentinelButton Click="@(() => Disconnect())"
-                            Text="Disconnect Devices" />
-        </div>
-
-        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:64px;margin-bottom:0px;">State</div>
-        <div style="margin-top:6px;margin-bottom:30px;display:flex;justify-content:center;">
+        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:24px;margin-bottom:0px;">Online State</div>
+        <div style="margin-top:0px;margin-bottom:48px;display:flex;justify-content:center;">
 
             <RadzenButton Click="() => EnableRemoteClients()"
                 Text="@(state.EnableRemoteClients? "Online" : "Offline")"
                 Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)" />
         </div>
+        
+        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Device Connection State</div>
+         <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
+            <RadzenButton Click="() => ConnectDisconnect()"
+                Text="@(state.Connected ? "Connected" : "Disconnected")"
+                Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)" />
+        </div>
+               
+        @* Reconnection required message *@
+            @if(state.DisplayReconnectMessage&& state.Connected)
+            {
+                <div>
+                    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:60px;margin-bottom:12px;">Reconnect Required</Span>
+                    <div style="margin-top:9px;margin-bottom:24px;display:flex;justify-content:center;">
+                        <SentinelButton Click="@(() => Reconnect())" Text="Reconnect Devices" />
+                    </div>
+                </div>
+            }
     </div>
 }
 
@@ -128,12 +124,9 @@ else
             await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
         }
     }
-    private async Task Disconnect()
+    private async Task ConnectDisconnect()
     {
         state.DisplayReconnectMessage = false;
-        if (state.Connected)
-        {
-            await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
-        }
+        await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
     }
 }
