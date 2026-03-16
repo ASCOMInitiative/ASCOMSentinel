@@ -70,6 +70,13 @@ else
                     </div>
                 </div>
             }
+
+        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:48px;margin-bottom:0px;">Application</div>
+        <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
+            <RadzenButton Click="() => RestartApplication()"
+                Text="Restart"
+                Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning" />
+        </div>
     </div>
 }
 
@@ -128,5 +135,13 @@ else
     {
         state.DisplayReconnectMessage = false;
         await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+    }
+
+    private void RestartApplication()
+    {
+        // Signal that a restart is needed, then stop the application.
+        // Program.Main will start the new instance after the port is released.
+        Program.RestartRequested = true;
+        Program.Lifetime?.StopApplication();
     }
 }

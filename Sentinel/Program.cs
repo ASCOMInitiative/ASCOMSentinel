@@ -17,7 +17,7 @@ namespace Sentinel
     {
         //ToDo
         //Fill this with your driver name
-        internal const string DriverID = "Sentinel.Alpaca";
+        internal const string DriverID = "ASCOMSentinel";
 
         //Change this to a unique value
         //You should offer a way for the end user to customize this via the command line so it can be changed in the case of a collision.
@@ -35,6 +35,7 @@ namespace Sentinel
         internal static SentinelLogger logger = new(state, settings);
 
         internal static IHostApplicationLifetime? Lifetime;
+        internal static bool RestartRequested;
 
         public static void Main(string[] args)
         {
@@ -260,6 +261,31 @@ namespace Sentinel
 
             //Start the Alpaca Server
             app.Run();
+
+            // If a restart was requested, start a new instance now that the port has been released
+            if (RestartRequested)
+            {
+                try
+                {
+                    string? processPath = Environment.ProcessPath;
+                    if (!string.IsNullOrWhiteSpace(processPath))
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = processPath,
+                            UseShellExecute = true
+                        });
+                    }
+                    else
+                    {
+                        logger.LogError(nameof(Main), "Unable to restart: could not determine the application executable path.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(nameof(Main), $"Failed to start new application instance: {ex.Message}");
+                }
+            }
         }
 
         /// <summary>
