@@ -57,15 +57,20 @@ else
                 Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)" />
         </div>
         
-        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Device Connection State</div>
-         <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
+        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Device State</div>
+        <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
             <RadzenButton Click="() => ConnectDisconnect()"
                 Text="@(state.Connected ? "Connected" : "Disconnected")"
                 Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)" />
         </div>
-               
+        
+        <div>
+            <span style="color:white;font-size:small;justify-content:center;display:flex;margin-top:60px;" >Click to change state</span>
+        </div>
+
+
         @* Reconnection required message *@
-            @if(state.DisplayReconnectMessage&& state.Connected)
+        @if(state.DisplayReconnectMessage&& state.Connected)
             {
                 <div>
                     <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:60px;margin-bottom:12px;">Reconnect Required</Span>
@@ -88,8 +93,20 @@ else
 
     private async Task EnableRemoteClients()
     {
+        bool? confirmed;
+        // Check whether we need to get confirmation for this action
+        if (settings.ConfirmOnline) // Confirmation required
+        {
+            confirmed = await DialogService.Confirm(
+            state.EnableRemoteClients? "Prevent client access?":"Enable client access",
+                "Client access",
+                new ConfirmOptions { OkButtonText = state.EnableRemoteClients?"Prevent":"Enable", CancelButtonText = "Cancel" });
+        }
+        else // No confirmation is required so just do it
+            confirmed = true;
+
+        if (confirmed.Value)
             state.EnableRemoteClients = !state.EnableRemoteClients;
- 
     }
 
     private bool collapseNavMenu = true;
@@ -118,35 +135,73 @@ else
 
     private async Task Reconnect()
     {
-        // Clear the reconnect message.
-        state.DisplayReconnectMessage= false;
-        
-        // Check whether we are already connected.
-        if (state.Connected) // Already connected so disconnect first and the connect again.
+        bool? confirmed;
+        // Check whether we need to get confirmation for this action
+        if (settings.ConfirmReConnect) // Confirmation required
         {
-            // Disconnect first.
-            await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
-
-            // Reconnect after disconnecting.
-            await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+            confirmed = await DialogService.Confirm(
+                "Reconnect devices?",
+                "Disconnect and reconnect devices",
+                new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
         }
-        else // Currently disconnected so connect
+        else // No confirmation is required so just do it
+            confirmed = true;
+
+        if (confirmed == true)
         {
-            await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+            // Clear the reconnect message.
+            state.DisplayReconnectMessage = false;
+
+            // Check whether we are already connected.
+            if (state.Connected) // Already connected so disconnect first and the connect again.
+            {
+                // Disconnect first.
+                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+
+                // Reconnect after disconnecting.
+                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+            }
+            else // Currently disconnected so connect
+            {
+                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+            }
         }
     }
+
     private async Task ConnectDisconnect()
     {
-        state.DisplayReconnectMessage = false;
-        await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+        bool? confirmed;
+        // Check whether we need to get confirmation for this action
+        if (settings.ConfirmConnectToDevices) // Confirmation required
+        {
+            confirmed = await DialogService.Confirm(
+              state.Connected?"Disconnect from  devices":"Connect to devices?",
+                "Device connection",
+                new ConfirmOptions { OkButtonText = state.Connected?"Disconnect":"Connect", CancelButtonText = "Cancel" });
+        }
+        else // No confirmation is required so just do it
+            confirmed = true;
+
+        if (confirmed == true)
+        {
+            state.DisplayReconnectMessage = false;
+            await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+        }
     }
 
     private async Task RestartApplicationAsync()
     {
-        bool? confirmed = await DialogService.Confirm(
+        bool? confirmed;
+        // Check whether we need to get confirmation for this action
+        if (settings.ConfirmRestart) // Confirmation required
+        {
+            confirmed = await DialogService.Confirm(
             "Restart the application?",
-            "Confirm Restart",
-            new ConfirmOptions { OkButtonText = "Restart", CancelButtonText = "Cancel" });
+                "Confirm Restart",
+                new ConfirmOptions { OkButtonText = "Restart", CancelButtonText = "Cancel" });
+        }
+        else // No confirmation is required so just do it
+            confirmed = true;
 
         if (confirmed == true)
         {

@@ -29,10 +29,10 @@
 </span>
 <RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client" Change="@OnTabChanged">
     <Tabs>
-        <RadzenTabsItem Text="General Setup">
+        <RadzenTabsItem Text="Settings">
             <RadzenTabs style="margin-top:10px" RenderMode="TabRenderMode.Client">
                 <Tabs>
-                    <RadzenTabsItem Text="General Settings">
+                    <RadzenTabsItem Text="Application">
                         <div class="row" style="margin-top: 10px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                                 <h4 style="color:cornflowerblue">Application</h4>
@@ -52,26 +52,8 @@
                                                    Name="SrvServerPort" />
                                     <span style="margin-left:10px;">(Requires restart)</span>
                                 </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Bind to all host network addresses:</label>
-                                    <input type="checkbox" @bind="BindToAllNetworkAddresses" />
-                                    <span style="margin-left:10px;">(Requires restart) Unchecked = localhost only</span>
-                                </div>
-
-                                <h4 style="color:cornflowerblue">Startup</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Enable remote client access at startup:</label>
-                                    <input type="checkbox" @bind="EnableRemoteClientsAtStartup" />
-                                </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Connect to configured devices when started:</label>
-                                    <input type="checkbox" @bind="AutoConnect" />
-                                </div>
-
-                                <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Device Connections</h4>
-
                                 <div style="margin-bottom: 0px; margin-top: 0px">
-                                    <label class="indentedlist">Communication timeout (seconds):</label>
+                                    <label class="indentedlist">Alpaca communication timeout (seconds):</label>
                                     <RadzenNumeric Value=@settings.AlpacaGetPropertyTimeout
                                                    TValue=int
                                                    Step="1"
@@ -82,16 +64,57 @@
                                                    Name="AlpacaGetPropertyTimeout" />
                                     <span style="margin-left:10px;">(Requires devices to be reconnected)</span>
                                 </div>
-
-                                <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Client Connections</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Always keep devices connected:</label>
-                                    <input type="checkbox" @bind="SrvPreventRemoteDisconnects" />
-                                    <span style="margin-left:10px;">(Set Connected = False is ignored)</span>
-
+                                    <label>Bind to all host network addresses:</label>
+                                    <input type="checkbox" @bind="BindToAllNetworkAddresses" />
+                                    <span style="margin-left:10px;">(Requires restart) Unchecked = localhost only</span>
                                 </div>
-        
-                                <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Discovery</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Composite devices stay connected:</label>
+                                    <input type="checkbox" @bind="SrvPreventRemoteDisconnects" />
+                                    <span style="margin-left:10px;">(Clients cannot set Connected = False)</span>
+                                </div>
+                                
+                                <h4 style="color:cornflowerblue;">Debug settings</h4>
+                                <div style="margin-bottom:10px">
+                                    <span class="indentedlist">Trace Level:</span>
+                                    <RadzenDropDown @bind-Value=@TraceLevel
+                                                    Data=@Enum.GetValues(typeof(LogLevel))
+                                                    PopupStyle="max-height:15em); overflow:auto;"
+                                                    Style="margin-top:00px;margin-left:0px; margin-right:0px; border: 1px solid black;" />
+                                </div>
+                                <div style="margin-bottom:10px; margin-top:10px">
+                                    <label>Show Alpaca client trace messages (Only functional when Trace level is Debug or Verbose.):</label>
+                                    <input type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
+                                </div>
+                                <div style="margin-top:24px;padding-top:24px;">
+                                    <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" Disabled="@(state.OperationUnderway)" />
+                                </div>
+                            </RadzenCard>
+                        </div>
+                    </RadzenTabsItem>
+
+                    <RadzenTabsItem Text="Startup">
+                        <div class="row" style="margin-top: 10px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color:cornflowerblue">Startup</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Enable remote client access at startup:</label>
+                                    <input type="checkbox" @bind="EnableRemoteClientsAtStartup" />
+                                </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Connect to configured devices when started:</label>
+                                    <input type="checkbox" @bind="AutoConnect" />
+                                </div>
+
+                            </RadzenCard>
+                        </div>
+                    </RadzenTabsItem>
+
+                    <RadzenTabsItem Text="Discovery">
+                        <div class="row" style="margin-top: 10px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color:cornflowerblue;">Alpaca Discovery</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Enable discovery:</label>
                                     <input type="checkbox" @bind="SrvDiscovery" />
@@ -114,25 +137,63 @@
                                     <span style="margin-left:10px;">Unchecked = respond on all interfaces. (Requires restart)</span>
                                 </div>
         
+                            </RadzenCard>
+                        </div>
+                    </RadzenTabsItem>
 
-
-
-
-                                <h4 style="color:cornflowerblue; margin-top:24px; margin-bottom:0px;">Debug settings</h4>
-                                <div style="margin-bottom:10px">
-                                    <span class="indentedlist">Trace Level:</span>
-                                    <RadzenDropDown @bind-Value=@TraceLevel
-                                                    Data=@Enum.GetValues(typeof(LogLevel))
-                                                    PopupStyle="max-height:15em); overflow:auto;"
-                                                    Style="margin-top:00px;margin-left:0px; margin-right:0px; border: 1px solid black;" />
+                    <RadzenTabsItem Text="Confirmation">
+                        <div class="row" style="margin-top: 10px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color:cornflowerblue;">Confirmation</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Confirm online state change:</label>
+                                    <input type="checkbox" @bind="ConfirmOnline" />
                                 </div>
-                                <div style="margin-bottom:10px; margin-top:10px">
-                                    <label>Show Alpaca client trace messages (Only functional when Trace level is Debug or Verbose.):</label>
-                                    <input type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Confirm connect to devices:</label>
+                                    <input type="checkbox" @bind="ConfirmConnectToDevices" />
                                 </div>
-                                <div style="margin-top:24px;padding-top:24px;">
-                                    <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" Disabled="@(state.OperationUnderway)"/>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Confirm reset settings:</label>
+                                    <input type="checkbox" @bind="ConfirmReset" />
                                 </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Confirm restart:</label>
+                                    <input type="checkbox" @bind="ConfirmRestart" />
+                                </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Confirm reconnect:</label>
+                                    <input type="checkbox" @bind="ConfirmReconnect" />
+                                </div>
+
+                            </RadzenCard>
+                        </div>
+                    </RadzenTabsItem>
+
+                    <RadzenTabsItem Text="Security">
+                        <div class="row" style="margin-top: 10px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color:cornflowerblue;">Security</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Require Authorization:</label>
+                                    <input type="checkbox" @bind="SrvRequireAuthorization" />
+                                </div>
+                                <div style="margin-bottom: 10px">
+                                    <label>User Name:</label>
+                                    <input type="text" @bind="SrvUserName" style="width:21ch;" disabled="@SrvDisableAuth" />
+                                </div>
+                                <div style="margin-bottom: 10px">
+                                    <label>Password:</label>
+                                    <input type="password" @bind="SrvPassword" style="width:21ch;" disabled="@SrvDisableAuth" />
+                                </div>
+                                <div style="margin-bottom: 10px">
+                                    <label>Repeat:</label>
+                                    <input type="password" @bind="SrvPassword2" style="width:21ch;" disabled="@SrvDisableAuth" />
+                                </div>
+                                @if (!string.IsNullOrEmpty(_srvPasswordStatus))
+                                {
+                                    <p style="color: @PasswordStatusColor">@_srvPasswordStatus</p>
+                                }
                             </RadzenCard>
                         </div>
                     </RadzenTabsItem>
@@ -140,10 +201,8 @@
                     <RadzenTabsItem Text="Bound Addresses">
                         <div class="row" style="margin-top: 10px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color:cornflowerblue;margin-bottom:12px;">Network addresses on which the server is listening</h4>
                                 <table>
-                                    <tr>
-                                        <th>Addresses server is listening on.</th>
-                                    </tr>
                                     @if (settings.BindToAllNetworkAddresses)
                                     {
                                         try
@@ -166,33 +225,6 @@
                                         </tr>
                                     }
                                 </table>
-                            </RadzenCard>
-                        </div>
-                    </RadzenTabsItem>
-
-                    <RadzenTabsItem Text="Security Settings">
-                        <div class="row" style="margin-top: 10px">
-                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Require Authorization:</label>
-                                    <input type="checkbox" @bind="SrvRequireAuthorization" />
-                                </div>
-                                <div style="margin-bottom: 10px">
-                                    <label>User Name:</label>
-                                    <input type="text" @bind="SrvUserName" style="width:21ch;" disabled="@SrvDisableAuth" />
-                                </div>
-                                <div style="margin-bottom: 10px">
-                                    <label>Password:</label>
-                                    <input type="password" @bind="SrvPassword" style="width:21ch;" disabled="@SrvDisableAuth" />
-                                </div>
-                                <div style="margin-bottom: 10px">
-                                    <label>Repeat:</label>
-                                    <input type="password" @bind="SrvPassword2" style="width:21ch;" disabled="@SrvDisableAuth" />
-                                </div>
-                                @if (!string.IsNullOrEmpty(_srvPasswordStatus))
-                                {
-                                    <p style="color: @PasswordStatusColor">@_srvPasswordStatus</p>
-                                }
                             </RadzenCard>
                         </div>
                     </RadzenTabsItem>
@@ -524,6 +556,34 @@
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
 
+    private bool ConfirmOnline
+    {
+        get => settings.ConfirmOnline;
+        set { settings.ConfirmOnline = value; settings.Save(); }
+    }
+
+    private bool ConfirmConnectToDevices
+    {
+        get => settings.ConfirmConnectToDevices;
+        set { settings.ConfirmConnectToDevices = value; settings.Save(); }
+    }
+    private bool ConfirmReset
+    {
+        get => settings.ConfirmReset;
+        set { settings.ConfirmReset = value; settings.Save(); }
+    }
+    private bool ConfirmRestart
+    {
+        get => settings.ConfirmRestart;
+        set { settings.ConfirmRestart = value; settings.Save(); }
+    }
+
+    private bool ConfirmReconnect
+    {
+        get => settings.ConfirmReConnect;
+        set { settings.ConfirmReConnect = value; settings.Save(); }
+    }
+
     private bool EnableRemoteClientsAtStartup
     {
         get
@@ -634,10 +694,16 @@
 
     private async Task ResetSettings()
     {
-        bool? confirmed = await DialogService.Confirm(
+        bool? confirmed;
+        if (settings.ConfirmReset)
+        {
+            confirmed = await DialogService.Confirm(
             "Are you sure you want to reset all settings? This cannot be undone.",
             "Confirm Reset",
             new ConfirmOptions { OkButtonText = "Reset", CancelButtonText = "Cancel" });
+        }
+        else
+            confirmed = true;
 
         if (confirmed == true)
         {
