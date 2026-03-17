@@ -285,6 +285,10 @@ namespace Sentinel
             { PropertyName.SafetyMonitor9, new DiscoveredDevice() }
         };
 
+        public bool ConfirmRestart { get; set; } = true;
+        public bool ConfirmReset { get; set; } = true;
+        public bool ConfirmConnectToDevices { get; set; } = true;
+        public bool ConfirmOnline { get; set; } = true;
         public double AlpacaDiscoveryDuration { get; set; } = 1.0; // Seconds
         public int AlpacaGetPropertyTimeout { get; set; } = 2; // Seconds to wait for a response when getting a value from an Alpaca device before timing out
         public bool AutoConnect { get; set; } = true;

@@ -4,6 +4,7 @@
 @inject State state
 @inject Settings settings
 @inject SentinelLogger logger
+@inject DialogService DialogService
 
 @implements IDisposable
 
@@ -42,6 +43,9 @@ else
                 </NavLink>
             </div>
             <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/help" Match="NavLinkMatch.All">
+                    <span style="color:white" class="oi oi-question-mark" aria-hidden="true"></span> <span style="color:white">Help</span>
+                </NavLink>
             </div>
         </nav>
 
@@ -72,8 +76,8 @@ else
             }
 
         <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:auto;margin-bottom:0px;">Application</div>
-        <div style="margin-top:3px;margin-bottom:12px;display:flex;justify-content:center;">
-            <RadzenButton Click="() => RestartApplication()"
+        <div style="margin-top:3px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
+            <RadzenButton Click="() => RestartApplicationAsync()"
                 Text="Restart"
                 Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning" />
         </div>
@@ -137,11 +141,19 @@ else
         await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
     }
 
-    private void RestartApplication()
+    private async Task RestartApplicationAsync()
     {
-        // Signal that a restart is needed, then stop the application.
-        // Program.Main will start the new instance after the port is released.
-        Program.RestartRequested = true;
-        Program.Lifetime?.StopApplication();
+        bool? confirmed = await DialogService.Confirm(
+            "Restart the application?",
+            "Confirm Restart",
+            new ConfirmOptions { OkButtonText = "Restart", CancelButtonText = "Cancel" });
+
+        if (confirmed == true)
+        {
+            // Signal that a restart is needed, then stop the application.
+            // Program.Main will start the new instance after the port is released.
+            Program.RestartRequested = true;
+            Program.Lifetime?.StopApplication();
+        }
     }
 }

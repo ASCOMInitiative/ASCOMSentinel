@@ -11,6 +11,7 @@
 @inject SentinelLogger logger;
 @inject IJSRuntime JSRuntime
 @inject State state;
+@inject DialogService DialogService
 
 @using ASCOM.Alpaca
 @using ASCOM.Alpaca.Discovery
@@ -81,6 +82,7 @@
                                                    Name="AlpacaGetPropertyTimeout" />
                                     <span style="margin-left:10px;">(Requires devices to be reconnected)</span>
                                 </div>
+
                                 <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Client Connections</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Always keep devices connected:</label>
@@ -89,7 +91,6 @@
 
                                 </div>
         
-
                                 <h4 style="color:cornflowerblue;margin-top:24px;margin-bottom:0px;">Alpaca Discovery</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Enable discovery:</label>
@@ -633,7 +634,12 @@
 
     private async Task ResetSettings()
     {
-        if (await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to reset all settings? This cannot be undone."))
+        bool? confirmed = await DialogService.Confirm(
+            "Are you sure you want to reset all settings? This cannot be undone.",
+            "Confirm Reset",
+            new ConfirmOptions { OkButtonText = "Reset", CancelButtonText = "Cancel" });
+
+        if (confirmed == true)
         {
             settings.ResetToDefaults();
             state.Connected = false;
