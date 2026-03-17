@@ -27,10 +27,10 @@
     <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.OperationUnderway" />
     <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;color:red;font-weight:bold;">@statusText</RadzenText>
 </span>
-<RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Client" Change="@OnTabChanged">
+<RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Server" Change="(item) => OnTabChanged(item)">
     <Tabs>
         <RadzenTabsItem Text="Settings">
-            <RadzenTabs style="margin-top:10px" RenderMode="TabRenderMode.Client">
+            <RadzenTabs style="margin-top:10px" RenderMode="TabRenderMode.Server">
                 <Tabs>
                     <RadzenTabsItem Text="Application">
                         <div class="row" style="margin-top: 10px">
@@ -66,7 +66,7 @@
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Bind to all host network addresses:</label>
-                                   <input style="margin-left:52px;" type="checkbox" @bind="BindToAllNetworkAddresses" />
+                                    <input style="margin-left:52px;" type="checkbox" @bind="BindToAllNetworkAddresses" />
                                     <span style="margin-left:10px;">(Requires restart) Unchecked = localhost only</span>
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
@@ -118,14 +118,14 @@
                                 <h4 style="color:cornflowerblue;">Alpaca Discovery</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Enable discovery:</label>
-                                    <input type="checkbox" @bind="SrvDiscovery" />
+                                    <input style="margin-left:306px;" type="checkbox" @bind="SrvDiscovery" />
                                 </div>
                                 <div style="margin-bottom: 0px; margin-top: 0px">
-                                    <label class="indentedlist">Discovery duration (seconds):</label>
+                                    <label>Discovery duration (seconds):</label>
                                     <RadzenNumeric Value=@settings.AlpacaDiscoveryDuration
                                                    TValue=double
                                                    Step="1.0"
-                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 140px; text-align:left; border: 1px solid black;"
+                                                   Style="margin-top:00px;margin-left:220px; margin-right:0px; width: 140px; text-align:left; border: 1px solid black;"
                                                    Change=@(args => DiscoveryDurationChanged(args))
                                                    Min="1"
                                                    Format="0.0"
@@ -134,8 +134,8 @@
                                 </div>
                                 <div style="margin-top:8px;margin-bottom:10px">
                                     <span style="display:inline-block;min-width:250px;">Respond to local client discovery packets on localhost only:</span>
-                                    <input type="checkbox" @bind="DiscoveryResponseOnlyOnLocalHost" />
-                                    <span style="margin-left:10px;">Unchecked = respond on all interfaces. (Requires restart)</span>
+                                    <input style="margin-left:12px;" type="checkbox" @bind="DiscoveryResponseOnlyOnLocalHost" />
+                                    <span style="margin-left:12px;">Unchecked = respond on all interfaces. (Requires restart)</span>
                                 </div>
         
                             </RadzenCard>
@@ -165,6 +165,9 @@
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Confirm reconnect:</label>
                                     <input style="margin-left:68px;" type="checkbox" @bind="ConfirmReconnect" />
+                                </div>
+                                <div style="margin-top:24px;padding-top:24px;">
+                                    <SentinelButton Click="@UncheckConfirmSettings" Text="Uncheck all settings" Disabled="@(state.OperationUnderway)" />
                                 </div>
 
                             </RadzenCard>
@@ -234,7 +237,7 @@
             </RadzenTabs>
         </RadzenTabsItem>
 
-        <RadzenTabsItem Text="Composite Observing Conditions Device">
+        <RadzenTabsItem Text="Composite Observing Conditions Device" ">
             <div class="row" style="margin-top: 10px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Select devices from the drop-downs to feed each property in the composite device.</h4>
@@ -579,6 +582,18 @@
         set { settings.ConfirmRestart = value; settings.Save(); }
     }
 
+    private async Task UncheckConfirmSettings()
+    {
+        settings.ConfirmConnectToDevices = false;
+        settings.ConfirmOnline = false;
+        settings.ConfirmReConnect=false;
+        settings.ConfirmReset = false;
+        settings.ConfirmRestart = false;
+        settings.Save();
+    }
+
+
+
     private bool ConfirmReconnect
     {
         get => settings.ConfirmReConnect;
@@ -598,9 +613,13 @@
         }
     }
 
-    private async Task OnTabChanged()
+    private async Task OnTabChanged(int item)
     {
         statusText = string.Empty;
+        if ((!state.DiscoveryHasRun) & ((item == 1) || (item == 4)))
+        {
+            await StartDiscovery();
+        }
     }
 
     private async Task RespondOnlyOnLocalhostChanged(ChangeEventArgs e)
@@ -611,14 +630,6 @@
         DiscoveryResponseOnlyOnLocalHost = (bool)e.Value;
         statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
         await InvokeAsync(StateHasChanged);
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (!state.DiscoveryHasRun)
-        {
-            await StartDiscovery();
-        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
