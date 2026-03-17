@@ -66,12 +66,12 @@
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Bind to all host network addresses:</label>
-                                    <input type="checkbox" @bind="BindToAllNetworkAddresses" />
+                                   <input style="margin-left:52px;" type="checkbox" @bind="BindToAllNetworkAddresses" />
                                     <span style="margin-left:10px;">(Requires restart) Unchecked = localhost only</span>
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Composite devices stay connected:</label>
-                                    <input type="checkbox" @bind="SrvPreventRemoteDisconnects" />
+                                    <input style="margin-left:48px;" type="checkbox" @bind="SrvPreventRemoteDisconnects" />
                                     <span style="margin-left:10px;">(Clients cannot set Connected = False)</span>
                                 </div>
                                 
@@ -84,8 +84,9 @@
                                                     Style="margin-top:00px;margin-left:0px; margin-right:0px; border: 1px solid black;" />
                                 </div>
                                 <div style="margin-bottom:10px; margin-top:10px">
-                                    <label>Show Alpaca client trace messages (Only functional when Trace level is Debug or Verbose.):</label>
-                                    <input type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
+                                    <label>Show Alpaca client trace messages:</label>
+                                    <input style="margin-left:42px;" type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
+                                    <span>(Only functional when Trace level is Debug or Verbose.)</span>
                                 </div>
                                 <div style="margin-top:24px;padding-top:24px;">
                                     <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" Disabled="@(state.OperationUnderway)" />
@@ -100,7 +101,7 @@
                                 <h4 style="color:cornflowerblue">Startup</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Enable remote client access at startup:</label>
-                                    <input type="checkbox" @bind="EnableRemoteClientsAtStartup" />
+                                    <input style="margin-left:40px;" type="checkbox" @bind="EnableRemoteClientsAtStartup" />
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Connect to configured devices when started:</label>
@@ -151,19 +152,19 @@
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Confirm connect to devices:</label>
-                                    <input type="checkbox" @bind="ConfirmConnectToDevices" />
+                                    <input style="margin-left:6px;" type="checkbox" @bind="ConfirmConnectToDevices" />
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Confirm reset settings:</label>
-                                    <input type="checkbox" @bind="ConfirmReset" />
+                                    <input style="margin-left:42px;" type="checkbox" @bind="ConfirmReset" />
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Confirm restart:</label>
-                                    <input type="checkbox" @bind="ConfirmRestart" />
+                                    <input style="margin-left:92px;" type="checkbox" @bind="ConfirmRestart" />
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Confirm reconnect:</label>
-                                    <input type="checkbox" @bind="ConfirmReconnect" />
+                                    <input style="margin-left:68px;" type="checkbox" @bind="ConfirmReconnect" />
                                 </div>
 
                             </RadzenCard>
@@ -180,15 +181,15 @@
                                 </div>
                                 <div style="margin-bottom: 10px">
                                     <label>User Name:</label>
-                                    <input type="text" @bind="SrvUserName" style="width:21ch;" disabled="@SrvDisableAuth" />
+                                    <input type="text" @bind="SrvUserName" style="width:21ch;margin-left:72px;" disabled="@SrvDisableAuth" />
                                 </div>
                                 <div style="margin-bottom: 10px">
                                     <label>Password:</label>
-                                    <input type="password" @bind="SrvPassword" style="width:21ch;" disabled="@SrvDisableAuth" />
+                                    <input type="password" @bind="SrvPassword" style="width:21ch;margin-left:84px;" disabled="@SrvDisableAuth" />
                                 </div>
                                 <div style="margin-bottom: 10px">
                                     <label>Repeat:</label>
-                                    <input type="password" @bind="SrvPassword2" style="width:21ch;" disabled="@SrvDisableAuth" />
+                                    <input type="password" @bind="SrvPassword2" style="width:21ch;margin-left:102px;" disabled="@SrvDisableAuth" />
                                 </div>
                                 @if (!string.IsNullOrEmpty(_srvPasswordStatus))
                                 {
