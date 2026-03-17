@@ -20,16 +20,16 @@ rem cd
 rem echo *** Completed Build
 
 echo *** Publishing Windows ARM 64bit
-dotnet publish Sentinel/Sentinel.csproj -c Debug /p:Platform="Any CPU" -r win-arm64 --framework net10.0 --self-contained true /p:PublishTrimmed=false /p:PublishSingleFile=true -o ./publish/SentinelArm64/
+dotnet publish Sentinel/Sentinel.csproj -c Debug /p:Platform="Any CPU" -r win-arm64 --framework net10.0 --self-contained true /p:DefineConstants=WINDOWS /p:PublishTrimmed=false /p:PublishSingleFile=true -o ./publish/SentinelArm64/
 echo *** Completed Windows ARM 64bit publish
 
 echo *** Publishing Windows Intel 64bit
-dotnet publish Sentinel/Sentinel.csproj -c Debug /p:Platform="Any CPU" -r win-x64   --framework net10.0 --self-contained true /p:PublishTrimmed=false /p:PublishSingleFile=true -o ./publish/Sentinelx64/
+dotnet publish Sentinel/Sentinel.csproj -c Debug /p:Platform="Any CPU" -r win-x64   --framework net10.0 --self-contained true /p:DefineConstants=WINDOWS /p:PublishTrimmed=false /p:PublishSingleFile=true -o ./publish/Sentinelx64/
 echo *** Completed Windows Intel 64bit publish
 
 rem The Intel 32bit version serves on ARM64 as well because .NET doesn't support publishing 32bit Windows-Arm executables
 echo *** Publishing Windows Intel 32bit
-dotnet publish Sentinel/Sentinel.csproj -c Debug /p:Platform="Any CPU" -r win-x86   --framework net10.0 --self-contained true /p:PublishTrimmed=false /p:PublishSingleFile=true -o ./publish/Sentinelx86/
+dotnet publish Sentinel/Sentinel.csproj -c Debug /p:Platform="Any CPU" -r win-x86   --framework net10.0 --self-contained true /p:DefineConstants=WINDOWS /p:PublishTrimmed=false /p:PublishSingleFile=true -o ./publish/Sentinelx86/
 echo *** Completed Windows Intel 32bit publish
 
 echo *** Creating Windows installer

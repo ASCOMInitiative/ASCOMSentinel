@@ -86,7 +86,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    <!-- <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants> -->
   </PropertyGroup>
 
 </Project>
