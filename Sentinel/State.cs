@@ -7,7 +7,7 @@
     {
         #region Variables and initialisers
 
-        private static uint serverTransactionId = 0;
+        private static uint serverTransactionId;
 
         public State() { }
 
@@ -67,8 +67,7 @@
 
         public uint GetServerTransactionId()
         {
-            serverTransactionId++;
-            return serverTransactionId;
+            return Interlocked.Increment(ref serverTransactionId);
         }
 
         #endregion
@@ -77,10 +76,13 @@
 
         public void RaiseChangeEvent(string memberName)
         {
-            if (StateChanged is not null)
+            try
             {
-                EventArgs args = new();
-                StateChanged(this, args);
+                StateChanged?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception)
+            {
+                // Prevent a failing subscriber from breaking other callers
             }
         }
 

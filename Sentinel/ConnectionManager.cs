@@ -73,7 +73,10 @@ namespace Sentinel
                     state.SafetyMonitorDevices.Clear();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                logger.LogError("Disconnect", $"Exception during disconnect: {ex.Message}");
+            }
             finally
             {
                 logger.LogMessage("Disconnect", $"All devices disconnected");
@@ -332,11 +335,21 @@ namespace Sentinel
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                logger.LogError("Connect", $"Exception during device connection: \r\n{ex}");
+            }
             finally
             {
                 state.DisplayReconnectMessage = false;
-                state.Connected = true;
+
+                // Only report connected if at least one device connected successfully
+                bool anyObservingConditionsConnected = state.ObservingConditionsDeviceMap.Count > 0;
+                bool anySafetyMonitorConnected = state.SafetyMonitorDevices.Values.Any(d => d is not null);
+                state.Connected = anyObservingConditionsConnected || anySafetyMonitorConnected;
+
+                if (!state.Connected)
+                    logger.LogError("Connect", "No devices connected successfully.");
             }
         }
     }

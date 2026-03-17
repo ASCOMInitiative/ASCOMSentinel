@@ -420,35 +420,38 @@ namespace Sentinel
                 // Check if the message should be logged based on the current log level setting
                 if (logLevel >= LOGGING_LEVEL) // Message level is within or above the current log level
                 {
-                    string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel,-13} {message}";
-
-                    // Write the message to the console and color appropriately
-                    Console.Write($"{DateTime.Now:HH:mm:ss.fff} ");
-                    var originalColour = Console.ForegroundColor;
-
-                    // Select an appropriate colour for the log level
-                    switch (logLevel)
+                    lock (Globals.writeLogLock)
                     {
-                        case LogLevel.Debug:
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            break;
-                        case LogLevel.Information:
-                            Console.ForegroundColor = ConsoleColor.DarkGreen;
-                            break;
-                        case LogLevel.Warning:
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-                            break;
-                        case LogLevel.Error:
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            break;
-                        default:
-                            Console.ForegroundColor = ConsoleColor.White;
-                            break;
-                    }
+                        string formattedMessage = $"{DateTime.Now:HH:mm:ss.fff} {logLevel,-13} {message}";
 
-                    Console.Write($"{logLevel,-13} ");
-                    Console.ForegroundColor = originalColour;
-                    Console.WriteLine(message);
+                        // Write the message to the console and color appropriately
+                        Console.Write($"{DateTime.Now:HH:mm:ss.fff} ");
+                        var originalColour = Console.ForegroundColor;
+
+                        // Select an appropriate colour for the log level
+                        switch (logLevel)
+                        {
+                            case LogLevel.Debug:
+                                Console.ForegroundColor = ConsoleColor.Blue;
+                                break;
+                            case LogLevel.Information:
+                                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                                break;
+                            case LogLevel.Warning:
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                break;
+                            case LogLevel.Error:
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                break;
+                            default:
+                                Console.ForegroundColor = ConsoleColor.White;
+                                break;
+                        }
+
+                        Console.Write($"{logLevel,-13} ");
+                        Console.ForegroundColor = originalColour;
+                        Console.WriteLine(message);
+                    }
                 }
             }
             catch (Exception ex)
@@ -461,6 +464,10 @@ namespace Sentinel
         {
             foreach (PropertyInfo property in source.GetType().GetProperties())
             {
+                // Skip internal-only properties that must not be overwritten from a deserialized instance
+                if (property.Name == nameof(SettingsFileName) || property.Name == nameof(Status))
+                    continue;
+
                 LogMessage(LogLevel.Debug, $"CopyPropertiesFrom - {property.Name} = {property.GetValue(source) ?? "null"}");
                 try
                 {

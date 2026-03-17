@@ -40,7 +40,7 @@ namespace Sentinel.DeviceAccess
 
             // Check whether the real devices are connected
             if (!state.Connected)
-                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME}'s real devices are not connected.");
+                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME} is not connected to it's real devices.");
 
             //if (!connected)
             //    throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
@@ -53,7 +53,7 @@ namespace Sentinel.DeviceAccess
 
             // Check whether the real devices are connected
             if (!state.Connected)
-                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME}'s real devices are not connected.");
+                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME} is not connected to it's real devices.");
 
             if (!state.ObservingConditionsDeviceMap.ContainsKey(propertyName))
                 throw new ASCOM.NotImplementedException($"{propertyName} is not implemented in this observing conditions device.");
@@ -419,9 +419,17 @@ namespace Sentinel.DeviceAccess
             Connecting = true;
             Task.Run(async () =>
             {
-                await Task.Delay(500);
-                Connecting = false;
-                Connected = true;
+                try
+                {
+                    await Task.Delay(500);
+                    Connecting = false;
+                    Connected = true;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogErrorConsole("ObservingConditions.Connect", $"Exception: {ex.Message}");
+                    Connecting = false;
+                }
             });
         }
 
@@ -433,11 +441,19 @@ namespace Sentinel.DeviceAccess
             Connecting = true;
             Task.Run(async () =>
             {
-                await Task.Delay(500);
-                Connecting = false;
+                try
+                {
+                    await Task.Delay(500);
+                    Connecting = false;
 
-                if (!settings.PreventRemoteDisconnects)
-                    Connected = false;
+                    if (!settings.PreventRemoteDisconnects)
+                        Connected = false;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogErrorConsole("ObservingConditions.Disconnect", $"Exception: {ex.Message}");
+                    Connecting = false;
+                }
             });
         }
 

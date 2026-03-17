@@ -653,7 +653,15 @@
 
     private async void OnStateChanged(object? sender, EventArgs e)
     {
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException) { }
+        catch (Exception ex)
+        {
+            logger.LogErrorConsole("Setup.OnStateChanged", $"Exception: {ex.Message}");
+        }
     }
 
     private void OnLocationChange(string value, string name)
@@ -766,6 +774,14 @@
         {
 
             state.OperationUnderway = true;
+
+            // Dispose the previous discovery instance to release sockets/timers
+            if (discovery is not null)
+            {
+                discovery.DiscoveryCompleted -= AlpacaDiscoveryCompleted;
+                discovery.Dispose();
+            }
+
             discovery = new AlpacaDiscovery(Globals.ALPACA_SEARCH_STRICT_CASING, settings.IncludeAlpacaTrace ? logger : null, Globals.USER_AGENT_PRODUCT_NAME,
                 (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
             discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
@@ -913,7 +929,11 @@
         {
             state.OperationUnderway = false;
             state.DiscoveryHasRun = true;
-            await InvokeAsync(StateHasChanged);
+            try
+            {
+                await InvokeAsync(StateHasChanged);
+            }
+            catch (ObjectDisposedException) { }
             logger.LogDebugConsole("", $"Discovery underway is now false.");
         }
     }
@@ -1110,6 +1130,16 @@
 
     public async ValueTask DisposeAsync()
     {
+        settings.ConfigurationChanged -= OnStateChanged;
+        state.StateChanged -= OnStateChanged;
+
+        if (discovery is not null)
+        {
+            discovery.DiscoveryCompleted -= AlpacaDiscoveryCompleted;
+            discovery.Dispose();
+            discovery = null;
+        }
+
         if (objRef != null)
         {
             try

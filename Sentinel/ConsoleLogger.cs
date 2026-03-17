@@ -27,44 +27,46 @@ namespace Sentinel
                 return;
 
             var message = formatter(state, exception);
-            var timestamp = DateTime.UtcNow.ToString("HH:mm:ss.fff");
             var levelString = GetLevelString(logLevel);
 
-            // Write the message to the console and color appropriately
-            Console.Write($"{DateTime.Now:HH:mm:ss.fff} ");
-            var originalColour = Console.ForegroundColor;
-
-            // Select an appropriate colour for the log level
-            switch (logLevel)
+            lock (Globals.writeLogLock)
             {
-                case LogLevel.Debug:
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    break;
-                case LogLevel.Information:
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    break;
-                case LogLevel.Warning:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    break;
-                case LogLevel.Error:
+                // Write the message to the console and color appropriately
+                Console.Write($"{DateTime.Now:HH:mm:ss.fff} ");
+                var originalColour = Console.ForegroundColor;
+
+                // Select an appropriate colour for the log level
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        break;
+                    case LogLevel.Information:
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        break;
+                    case LogLevel.Warning:
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        break;
+                    case LogLevel.Error:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        break;
+                    default:
+                        Console.ForegroundColor = ConsoleColor.White;
+                        break;
+                }
+
+                Console.Write($"{levelString,-13} ");
+                Console.ForegroundColor = originalColour;
+                Console.WriteLine(message);
+
+                if (exception != null)
+                {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    break;
-                default:
-                    Console.ForegroundColor = ConsoleColor.White;
-                    break;
+                    Console.WriteLine(exception.ToString());
+                }
+
+                Console.ResetColor();
             }
-
-            Console.Write($"{levelString,-13} ");
-            Console.ForegroundColor = originalColour;
-            Console.WriteLine(message);
-
-            if (exception != null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(exception.ToString());
-            }
-
-            Console.ResetColor();
         }
 
         private static string GetLevelString(LogLevel level) => level switch

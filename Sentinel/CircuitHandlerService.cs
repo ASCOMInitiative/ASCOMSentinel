@@ -65,10 +65,10 @@ namespace Sentinel
             }
         }
 
-        public override Task OnCircuitClosedAsync(Circuit circuit, CancellationToken cancellationToken)
+        public override async Task OnCircuitClosedAsync(Circuit circuit, CancellationToken cancellationToken)
         {
             // Include a short delay to allow any new circuits to establish themselves before checking whether the application should close down
-            Task.Delay(TimeSpan.FromSeconds(1), cancellationToken).Wait(cancellationToken);
+            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
             lock (connectionsLockObject)
             {
                 try
@@ -94,8 +94,6 @@ namespace Sentinel
                     logger.LogInformation($"***** OnCircuitClosedAsync {circuit.Id} *****\r\n {ex}", circuit.Id, ex);
                 }
                 logger.LogInformation($"***** OnCircuitClosedAsync - OnCircuitClosedAsync. Connection count: {connections.Count} *****", connections.Count);
-
-                return Task.CompletedTask;
             }
         }
     }

@@ -95,7 +95,12 @@
 
     private async void OnSettingsChanged(object? sender, EventArgs e)
     {
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException) { }
+        catch (Exception) { }
     }
 
     public void Dispose()

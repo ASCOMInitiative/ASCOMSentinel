@@ -35,6 +35,7 @@ namespace Sentinel.DeviceAccess
         // Classes to hold cache records and locks for each property to allow concurrent reads of different properties without blocking each other
         private readonly ConcurrentDictionary<PropertyName, CacheEntry<bool>> _propertyCache = new();
         private readonly ConcurrentDictionary<PropertyName, Lock> _propertyLocks = new();
+        private readonly Lock _safetyStateLock = new();
 
         /// <summary>Reads a device property value, re-throwing <see cref="ASCOM.NotImplementedException"/> as-is and wrapping all other exceptions in a <see cref="ASCOM.NotImplementedException"/>.</summary>
         /// <remarks>Results (including exceptions) are cached for <see cref="CacheExpiry"/>. Each property has its own lock so concurrent reads of different properties do not block each other.</remarks>
@@ -77,6 +78,8 @@ namespace Sentinel.DeviceAccess
 
                 if (Connected)
                 {
+                    lock (_safetyStateLock)
+                    {
                     state.LastSafetyState.Clear(); // Clear the last safety state list to be populated with any new safety events detected in this call
                     bool allSafe = true;
 
@@ -324,6 +327,7 @@ namespace Sentinel.DeviceAccess
                     }
 
                     return allSafe;
+                    } // lock
                 }
                 throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
             }
@@ -337,7 +341,7 @@ namespace Sentinel.DeviceAccess
 
             // Check whether the real devices are connected
             if (!state.Connected)
-                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME}'s real devices are not connected.");
+                throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME} is not connected to it's real devices.");
 
             // Check whether we are connected
             //if (!connected)
@@ -389,7 +393,10 @@ namespace Sentinel.DeviceAccess
             {
                 case Globals.SAFETY_EVENT_ACTION_NAME_LOWERCASE:
                     logger.LogDebug("Action", $"Returning JSON string.");
-                    return JsonSerializer.Serialize(state.LastSafetyState, _jsonOptions);
+                    lock (_safetyStateLock)
+                    {
+                        return JsonSerializer.Serialize(state.LastSafetyState, _jsonOptions);
+                    }
             }
 
             throw new ActionNotImplementedException($"Action not implemented: {actionName}");
@@ -456,9 +463,17 @@ namespace Sentinel.DeviceAccess
             Connecting = true;
             Task.Run(async () =>
             {
-                await Task.Delay(500);
-                Connecting = false;
-                Connected = true;
+                try
+                {
+                    await Task.Delay(500);
+                    Connecting = false;
+                    Connected = true;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogErrorConsole("SafetyMonitor.Connect", $"Exception: {ex.Message}");
+                    Connecting = false;
+                }
             });
         }
 
@@ -470,11 +485,19 @@ namespace Sentinel.DeviceAccess
             Connecting = true;
             Task.Run(async () =>
             {
-                await Task.Delay(500);
-                Connecting = false;
+                try
+                {
+                    await Task.Delay(500);
+                    Connecting = false;
 
-                if (!settings.PreventRemoteDisconnects)
-                    Connected = false;
+                    if (!settings.PreventRemoteDisconnects)
+                        Connected = false;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogErrorConsole("SafetyMonitor.Disconnect", $"Exception: {ex.Message}");
+                    Connecting = false;
+                }
             });
         }
 

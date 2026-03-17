@@ -107,7 +107,7 @@ else
         else // No confirmation is required so just do it
             confirmed = true;
 
-        if (confirmed.Value)
+        if (confirmed == true)
             state.EnableRemoteClients = !state.EnableRemoteClients;
     }
 
@@ -122,7 +122,15 @@ else
 
     private async void OnStateChanged(object? sender, EventArgs e)
     {
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException) { }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"NavMenu.OnStateChanged exception: {ex.Message}");
+        }
     }
 
     public void Dispose()
