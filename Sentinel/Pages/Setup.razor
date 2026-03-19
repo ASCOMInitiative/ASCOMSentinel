@@ -86,7 +86,7 @@
                                 <div style="margin-bottom:10px; margin-top:10px">
                                     <label>Show Alpaca client trace messages:</label>
                                     <input style="margin-left:42px;" type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
-                                    <span>(Only functional when Trace level is Debug or Verbose.)</span>
+                                    <span>(Only functional when Trace level is Debug or Verbose. Requires restart.)</span>
                                 </div>
                                 <div style="margin-top:24px;padding-top:24px;">
                                     <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" Disabled="@(state.OperationUnderway)" />
@@ -586,13 +586,11 @@
     {
         settings.ConfirmConnectToDevices = false;
         settings.ConfirmOnline = false;
-        settings.ConfirmReConnect=false;
+        settings.ConfirmReConnect = false;
         settings.ConfirmReset = false;
         settings.ConfirmRestart = false;
         settings.Save();
     }
-
-
 
     private bool ConfirmReconnect
     {
@@ -629,6 +627,7 @@
 
         DiscoveryResponseOnlyOnLocalHost = (bool)e.Value;
         statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+        state.DisplayRestartMessage = true;
         await InvokeAsync(StateHasChanged);
     }
 
@@ -679,6 +678,8 @@
         {
             settings.IncludeAlpacaTrace = value;
             settings.Save();
+            statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+            state.DisplayRestartMessage = true;
         }
     }
 
@@ -709,6 +710,7 @@
         settings.ServerPort = (ushort)args;
         settings.Save();
         statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+        state.DisplayRestartMessage = true;
     }
 
     private async Task ResetSettings()
@@ -986,6 +988,7 @@
                 settings.DiscoveryResponseOnlyOnLocalHost = value;
                 settings.Save();
                 statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+                state.DisplayRestartMessage = true;
                 InvokeAsync(StateHasChanged);
             }
         }
@@ -999,6 +1002,7 @@
             settings.BindToAllNetworkAddresses = value;
             settings.Save();
             statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+            state.DisplayRestartMessage = true;
             InvokeAsync(StateHasChanged);
         }
     }

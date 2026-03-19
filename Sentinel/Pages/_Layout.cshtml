@@ -16,13 +16,25 @@
 <body>
     @RenderBody()
 
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.server.js"></script>
     <!-- Suppress Blazor's built-in reconnect modal by providing our own hidden element.
          When Blazor finds this div already in the DOM it uses it instead of injecting its own.
          Blazor still adds CSS classes to it (components-reconnect-show etc.) which the
          MutationObserver below uses as the trigger. -->
     <div id="components-reconnect-modal" style="display:none!important"></div>
 
-    <!-- Shown when the server connection is lost -->
+    @* <!-- Shown when the server connection is lost -->
     <div id="server-stopped-overlay"
          style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
                 background:rgba(0,0,0,0.75); z-index:9999;">
@@ -105,6 +117,6 @@
                 }
             }
         });
-    </script>
+    </script> *@
 </body>
 </html>

@@ -21,6 +21,8 @@
 
         public bool DisplayReconnectMessage { get; set { field = value; RaiseChangeEvent(nameof(DisplayReconnectMessage)); } } = false;
 
+        public bool DisplayRestartMessage { get; set { field = value; RaiseChangeEvent(nameof(DisplayRestartMessage)); } } = false;
+
         public bool ShowResetMessage { get; set { field = value; RaiseChangeEvent(nameof(ShowResetMessage)); } } = false;
 
         /// <summary>

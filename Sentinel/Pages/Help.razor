@@ -9,7 +9,19 @@
 
 <h1>Help</h1>
 
-Welcome to your new app.
+@Globals.APPLICATION_NAME @Globals.APPLICATION_VERSION is a cross-platform application that:
+<ul>
+    <li>Consolidates a number of real COM or Alpaca ObservingConditions devices into a single virtual device.</li>
+    <li>Consolidates a number of real COM or Alpaca SafetyMonitor devices into a single virtual device.</li>
+    <li>Allows the user to define rules for each virtual device ObservingConditions property that can trigger the the virtual safety monitor to report IsSafe as false.</li>
+    <li>Employs cacheing on virtual device properties to support heavy client loads while protecting back-end devices.</li>
+
+</ul>
+<p>
+    In addition, the virtual safety monitor provides a GetSafetyState Action that, when IsSafe as false, returns a JSON serialised object containing a list of causes.
+</p>
+
+<b>At the time of release (March 2026) this application should be treated as experimental and used with care.</b>
 
 @code {
 

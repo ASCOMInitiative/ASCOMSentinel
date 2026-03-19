@@ -17,11 +17,11 @@
     </div>
 </div>
 
-@if (state.OperationUnderway )@* Operation is in progress *@
+@if (state.OperationUnderway)@* Operation is in progress *@
 {
     <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:80px;">Operation Underway</span>
 }
-else 
+else
 @* No operation is in progress *@
 {
     <div class="@NavMenuCssClass" style="display:flex; flex-direction:column; height:calc(100vh - 3.5rem);" @onclick="ToggleNavMenu">
@@ -32,8 +32,8 @@ else
                 </NavLink>
             </div>
             @* <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/display" 
-                    Match="NavLinkMatch.All">
+                <NavLink class="nav-link" href="/display"
+                         Match="NavLinkMatch.All">
                     <span class="oi oi-home" aria-hidden="true"></span> Display
                 </NavLink>
             </div> *@
@@ -56,37 +56,49 @@ else
             <div style="margin-top:0px;margin-bottom:0px;display:flex;justify-content:center;">
 
                 <RadzenButton Click="() => EnableRemoteClients()"
-                    Text="@(state.EnableRemoteClients? "Online" : "Offline")"
-                    Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)" />
+                              Text="@(state.EnableRemoteClients? "Online" : "Offline")"
+                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)" />
             </div>
-            <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;" >Click to change state</div>
+            <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
 
             <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Device State</div>
             <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
                 <RadzenButton Click="() => ConnectDisconnect()"
-                    Text="@(state.Connected ? "Connected" : "Disconnected")"
-                    Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)" />
+                              Text="@(state.Connected ? "Connected" : "Disconnected")"
+                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)" />
             </div>
-            <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;" >Click to change state</div>
+            <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
+
+            @if(state.DisplayReconnectMessage || state.DisplayRestartMessage)
+            {
+                <div style="margin-top:36px;"></div>
+            }
 
             @* Reconnection required message *@
-            @if(state.DisplayReconnectMessage&& state.Connected)
-                {
-                    <div>
-                        <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:60px;margin-bottom:12px;">Reconnect Required</Span>
-                        <div style="margin-top:9px;margin-bottom:24px;display:flex;justify-content:center;">
-                            <SentinelButton Click="@(() => Reconnect())" Text="Reconnect Devices" />
-                        </div>
+            @if (state.DisplayReconnectMessage && state.Connected)
+            {
+                <div>
+                    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:24px;margin-bottom:12px;">Reconnect Required</span>
+                    <div style="margin-top:9px;margin-bottom:24px;display:flex;justify-content:center;">
+                        <SentinelButton Click="@(() => Reconnect())" Text="Reconnect Devices" />
                     </div>
-                }
+                </div>
+            }
+            @* Restart required message *@
+            @if (state.DisplayRestartMessage)
+            {
+                <div>
+                    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:48px;margin-bottom:12px;">Restart Required</span>
+                </div>
+            }
         </div>
         <div style="flex:6"></div>
 
         <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Application</div>
         <div style="margin-top:3px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
             <RadzenButton Click="() => RestartApplicationAsync()"
-                Text="Restart"
-                Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning" />
+                          Text="Restart"
+                          Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning" />
         </div>
     </div>
 }
@@ -100,9 +112,9 @@ else
         if (settings.ConfirmOnline) // Confirmation required
         {
             confirmed = await DialogService.Confirm(
-            state.EnableRemoteClients? "Prevent client access?":"Enable client access",
+            state.EnableRemoteClients ? "Prevent client access?" : "Enable client access",
                 "Client access",
-                new ConfirmOptions { OkButtonText = state.EnableRemoteClients?"Prevent":"Enable", CancelButtonText = "Cancel" });
+                new ConfirmOptions { OkButtonText = state.EnableRemoteClients ? "Prevent" : "Enable", CancelButtonText = "Cancel" });
         }
         else // No confirmation is required so just do it
             confirmed = true;
@@ -185,9 +197,9 @@ else
         if (settings.ConfirmConnectToDevices) // Confirmation required
         {
             confirmed = await DialogService.Confirm(
-              state.Connected?"Disconnect from  devices":"Connect to devices?",
+              state.Connected ? "Disconnect from  devices" : "Connect to devices?",
                 "Device connection",
-                new ConfirmOptions { OkButtonText = state.Connected?"Disconnect":"Connect", CancelButtonText = "Cancel" });
+                new ConfirmOptions { OkButtonText = state.Connected ? "Disconnect" : "Connect", CancelButtonText = "Cancel" });
         }
         else // No confirmation is required so just do it
             confirmed = true;
