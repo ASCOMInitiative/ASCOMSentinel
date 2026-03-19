@@ -14,7 +14,12 @@ cd
 cd J:\ASCOMSentinel
 
 
-echo *** Publishing MacOS Intel silicon
+echo *** Publishing Linux X64
+dotnet publish -c Debug /p:Platform="Any CPU" -r linux-x64 --framework net10.0 --self-contained true /p:PublishTrimmed=false /p:PublishSingleFile=true
+echo *** Creating tar file
+bsdtar -cJf publish/sentinel.linux-x64.needsexec.tar.xz -C Sentinel\bin\Debug\net10.0\linux-x64\publish\ *
+
+echo *** Completed Linux X64echo *** Publishing MacOS Intel silicon
 dotnet publish -c Debug -p:Platform="Any CPU" -r osx-x64 --framework net10.0 --self-contained true /p:PublishTrimmed=false -p:PublishSingleFile=true -p:PublishReadyToRunShowWarnings=true
 echo *** Creating tar file
 bsdtar -cJf publish/sentinel.macos-x64.tar.xz -C Sentinel\bin\Debug\net10.0\osx-x64\publish\ *
@@ -37,12 +42,6 @@ dotnet publish -c Debug /p:Platform="Any CPU" -r linux-arm64 --framework net10.0
 echo *** Creating tar file
 bsdtar -cJf publish/sentinel.linux-arm64.needsexec.tar.xz -C Sentinel\bin\Debug\net10.0\linux-arm64\publish\ *
 echo *** Completed Linux ARM64
-
-echo *** Publishing Linux X64
-dotnet publish -c Debug /p:Platform="Any CPU" -r linux-x64 --framework net10.0 --self-contained true /p:PublishTrimmed=false /p:PublishSingleFile=true
-echo *** Creating tar file
-bsdtar -cJf publish/sentinel.linux-x64.needsexec.tar.xz -C Sentinel\bin\Debug\net10.0\linux-x64\publish\ *
-echo *** Completed Linux X64
 
 
 echo *** Publishing Windows ARM 64bit

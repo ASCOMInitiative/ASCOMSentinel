@@ -701,7 +701,6 @@
         settings.Save();
     }
 
-
     private async Task ServerPortChanged(object args)
     {
         if (args == null)
@@ -759,6 +758,7 @@
 
         await InvokeAsync(StateHasChanged);
     }
+
     private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
     {
         settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
