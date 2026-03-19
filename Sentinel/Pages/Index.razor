@@ -31,6 +31,8 @@
         if (firstRender)
         {
             logger.MessageLogChanged += OnLogChanged;
+            state.StateChanged += OnStateChanged;
+            settings.ConfigurationChanged += OnStateChanged;
 
             // Subscribe to the OnResized event. This will do work when the browser is resized.
             objRef = DotNetObjectReference.Create(this);
@@ -68,6 +70,19 @@
         {
             // Do nothing - required for two-way binding
         }
+    }
+
+    private async void OnStateChanged(object? sender, EventArgs e)
+    {
+        if (_disposed)
+            return;
+
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException) { }
+        catch (Exception ex) { LogConsole(ex.Message); }
     }
 
     private async void OnLogChanged(object? sender, MessageEventArgs e)
@@ -135,6 +150,8 @@
     {
         _disposed = true;
         logger.MessageLogChanged -= OnLogChanged;
+        state.StateChanged -= OnStateChanged;
+        settings.ConfigurationChanged -= OnStateChanged;
 
         if (objRef != null)
         {
