@@ -3,6 +3,7 @@
 @inject SentinelLogger logger;
 @inject IJSRuntime JSRuntime
 @inject Settings settings
+@inject PerBrowserState circuitState
 
 @implements IAsyncDisposable
 
@@ -49,12 +50,12 @@
                 await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
         }
         // Always scroll after render so new content is visible
-        state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+        circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
     }
 
     private int LastnumberOfLogLines()
     {
-        return state.LastNumberOfLogLines == 0 ? 20 : state.LastNumberOfLogLines;
+        return circuitState.LastNumberOfLogLines == 0 ? 20 : circuitState.LastNumberOfLogLines;
     }
 
     private string ApplicationLog
@@ -95,7 +96,7 @@
             // Dispatch both the JS interop call and StateHasChanged onto the Blazor sync context
             await InvokeAsync(async () =>
             {
-                state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+                circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
                 StateHasChanged();
             });
         }
@@ -127,14 +128,14 @@
             int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
 
             // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
-            state.LastNumberOfLogLines = screenLogRows;
+            circuitState.LastNumberOfLogLines = screenLogRows;
 
             // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
             await InvokeAsync(StateHasChanged);
 
             // Scroll to the bottom of the window and return the current window 'top' value.
             // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
-            state.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+            circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
         }
         catch (Exception ex)
         {

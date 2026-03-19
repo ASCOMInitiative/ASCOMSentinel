@@ -951,7 +951,6 @@
             int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
             // logger.LogDebug("OnResizeSetup", $"Window size: {width} x {height}");
             windowWidth = width;
-            state.WindowWidth = width;
 
             // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
             //state.LastNumberOfLogLines = screenLogRows;

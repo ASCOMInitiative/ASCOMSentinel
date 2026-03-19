@@ -25,25 +25,9 @@
 
         public bool ShowResetMessage { get; set { field = value; RaiseChangeEvent(nameof(ShowResetMessage)); } } = false;
 
-        /// <summary>
-        /// Current width of the view port window
-        /// </summary>
-        public int WindowWidth { get; set { field = value; RaiseChangeEvent(nameof(WindowWidth)); } } = 1280;
-
         public bool OperationUnderway { get; set { field = value; RaiseChangeEvent(nameof(OperationUnderway)); } } = false;
 
-        /// <summary>
-        /// Gets or sets the index of the first visible log entry in the log view.
-        /// </summary>
-        /// 
-        public int TopOfVisibleLog { get; set; } = 0;
-
         public bool ConnectingToDevices { get; set; } = false;
-
-        /// <summary>
-        /// Gets the number of lines in the screen log when last updated
-        /// </summary>
-        public int LastNumberOfLogLines { get; set; } = 0;
 
         public StringBuilder ApplicationLog { get; set; } = new StringBuilder(Globals.MAXIMUM_LOG_SIZE_CHARACTERS, Globals.MAXIMUM_LOG_SIZE_CHARACTERS).Append($"{Globals.WELCOME_MESSAGE}\r\n");
 

@@ -188,6 +188,9 @@ namespace Sentinel
 
             builder.Services.AddRadzenComponents();
 
+            // Per-circuit state (window size, scroll position) — scoped so each browser tab is isolated
+            builder.Services.AddScoped<PerBrowserState>();
+
             // Add a StateService singleton to hold application state
             builder.Services.AddSingleton<State>(provider =>
             {
