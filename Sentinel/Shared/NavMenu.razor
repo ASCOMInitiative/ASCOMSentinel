@@ -121,6 +121,8 @@ else
 
         if (confirmed == true)
             state.EnableRemoteClients = !state.EnableRemoteClients;
+        logger.LogMessage("Online state changed", $"{Globals.APPLICATION_NAME} is now {(state.EnableRemoteClients ? "Online" : "Offline")}");
+        logger.LogMessage("", "");
     }
 
     private bool collapseNavMenu = true;

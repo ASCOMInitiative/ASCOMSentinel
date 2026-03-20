@@ -80,6 +80,8 @@ namespace Sentinel
             finally
             {
                 logger.LogMessage("Disconnect", $"All devices disconnected");
+                logger.LogMessage("", "");
+
                 state.Connected = false;
             }
         }
@@ -292,6 +294,7 @@ namespace Sentinel
 
                 // Wait for all tasks to finish.
                 await Task.WhenAll(startTasks);
+                logger.LogBlankLine();
 
                 // Create a mapping between ObservingConditions properties and devices.
                 lock (mapLock)
@@ -302,8 +305,6 @@ namespace Sentinel
                     // Iterate over each property and find the matching device instance based on the configured device for that property
                     foreach (PropertyName property in Enum.GetValues<PropertyName>())
                     {
-                        logger.LogDebug("Property", $"Processing Property: {property}");
-
                         // Get the discovered device information for this property, ignoring devices that are not configured
                         DiscoveredDevice configured = settings.ConfiguredDevices[property];
                         if (configured.SentinelDeviceType == SentinelDeviceType.ObservingConditions)
@@ -323,9 +324,11 @@ namespace Sentinel
                                 if (device.Value is not null) // A device was returned so add a map value.
                                 {
                                     // Add the matching device instance to the device map so that we can easily find the device for each property later when we need to read values from it.
-                                    state.ObservingConditionsDeviceMap.TryAdd(property, device.Value);
-                                    logger.LogDebug("Property", $"Added Property: {property} {device.Key.DisplayName} {device.Key.Protocol}");
+                                    bool addOutcome = state.ObservingConditionsDeviceMap.TryAdd(property, device.Value);
+                                    logger.LogDebug("Property", $"Added device instance ({addOutcome}) for ObservingConditions.{property,-14} {device.Key.DisplayName} {device.Key.Protocol}");
                                 }
+                                else
+                                    logger.LogDebug("", $"No device instance for ObservingConditions.{property}");
                             }
                             catch (Exception ex)
                             {
@@ -334,6 +337,7 @@ namespace Sentinel
                         }
                     }
                 }
+                logger.LogDebug("", "");
             }
             catch (Exception ex)
             {

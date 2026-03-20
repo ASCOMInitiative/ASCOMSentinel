@@ -61,7 +61,7 @@
 
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>conformu.snk</AssemblyOriginatorKeyFile>
-    
+
     <AssemblyName>sentinel</AssemblyName>
     <AssemblyCompany>ASCOM Initiative</AssemblyCompany>
     <AssemblyProduct>ASCOM Sentinel</AssemblyProduct>
@@ -70,12 +70,8 @@
     <AssemblyDescription>ASCOM Sentinel</AssemblyDescription>
     <Copyright>© Peter Simpson 2026</Copyright>
     <ProductName>ASCOM Sentinel</ProductName>
-    
-  </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Logger.cs" />
-  </ItemGroup>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ASCOM.Alpaca.Components" Version="3.1.0-rc.8" />

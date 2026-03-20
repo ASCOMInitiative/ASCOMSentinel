@@ -142,6 +142,16 @@ namespace Sentinel
         }
 
         /// <summary>
+        /// Log a warning message on the screen, console and log file
+        /// </summary>
+        /// <param name="method">Current method name</param>
+        /// <param name="message">Message to log</param>
+        public void LogWarning(string method, string message)
+        {
+            LogMessage(method, LogLevel.Warning, message);
+        }
+
+        /// <summary>
         /// Log an error message on the screen, console and log file
         /// </summary>
         /// <param name="method">Current method name</param>
@@ -170,6 +180,12 @@ namespace Sentinel
         {
             LogMessage(method, LogLevel.Error, message, logToScreen: false);
         }
+
+        public void LogBlankLine()
+        {
+            LogMessage("", "");
+        }
+
 
         #region Support code
 

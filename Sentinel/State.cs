@@ -23,8 +23,6 @@
 
         public bool DisplayRestartMessage { get; set { field = value; RaiseChangeEvent(nameof(DisplayRestartMessage)); } } = false;
 
-        public bool ShowResetMessage { get; set { field = value; RaiseChangeEvent(nameof(ShowResetMessage)); } } = false;
-
         public bool OperationUnderway { get; set { field = value; RaiseChangeEvent(nameof(OperationUnderway)); } } = false;
 
         public bool ConnectingToDevices { get; set; } = false;

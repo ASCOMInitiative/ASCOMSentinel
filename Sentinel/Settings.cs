@@ -285,6 +285,7 @@ namespace Sentinel
             { PropertyName.SafetyMonitor9, new DiscoveredDevice() }
         };
 
+        public bool LogSafetyWarnings { get; set; } = true;
         public bool ConfirmRestart { get; set; } = true;
         public bool ConfirmReset { get; set; } = true;
         public bool ConfirmConnectToDevices { get; set; } = true;
@@ -456,7 +457,7 @@ namespace Sentinel
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Logger.LogMessage Exception: {ex.Message}\r\n{ex}");
+                Console.WriteLine($"Settings.LogMessage Exception: {ex.Message}\r\n{ex}");
             }
         }
 

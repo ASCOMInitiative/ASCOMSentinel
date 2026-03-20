@@ -427,7 +427,7 @@ namespace Sentinel.DeviceAccess
                 }
                 catch (Exception ex)
                 {
-                    logger.LogErrorConsole("ObservingConditions.Connect", $"Exception: {ex.Message}");
+                    logger.LogError("ObservingConditions.Connect", $"Exception: {ex.Message}");
                     Connecting = false;
                 }
             });
@@ -451,7 +451,7 @@ namespace Sentinel.DeviceAccess
                 }
                 catch (Exception ex)
                 {
-                    logger.LogErrorConsole("ObservingConditions.Disconnect", $"Exception: {ex.Message}");
+                    logger.LogError("ObservingConditions.Disconnect", $"Exception: {ex.Message}");
                     Connecting = false;
                 }
             });

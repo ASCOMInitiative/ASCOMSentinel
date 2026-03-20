@@ -67,15 +67,20 @@
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Bind to all host network addresses:</label>
                                     <input style="margin-left:52px;" type="checkbox" @bind="BindToAllNetworkAddresses" />
-                                    <span style="margin-left:10px;">(Requires restart) Unchecked = localhost only</span>
+                                    <span style="margin-left:10px;">(Requires restart - Unchecked = localhost only)</span>
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Composite devices stay connected:</label>
                                     <input style="margin-left:48px;" type="checkbox" @bind="SrvPreventRemoteDisconnects" />
                                     <span style="margin-left:10px;">(Clients cannot set Connected = False)</span>
                                 </div>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Include safety warnings in the log:</label>
+                                    <input style="margin-left:59px;" type="checkbox" @bind="LogSafetyWarnings" />
+                                    <span style="margin-left:10px;">(Warnings are still sent to clients when unchecked)</span>
+                                </div>
                                 
-                                <h4 style="color:cornflowerblue;">Debug settings</h4>
+                                <h4 style="color:cornflowerblue;margin-top:24px;">Debug settings</h4>
                                 <div style="margin-bottom:10px">
                                     <span class="indentedlist">Trace Level:</span>
                                     <RadzenDropDown @bind-Value=@TraceLevel
@@ -86,7 +91,7 @@
                                 <div style="margin-bottom:10px; margin-top:10px">
                                     <label>Show Alpaca client trace messages:</label>
                                     <input style="margin-left:42px;" type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
-                                    <span>(Only functional when Trace level is Debug or Verbose. Requires restart.)</span>
+                                    <span>(Requires devices to be reconnected - Only functional when trace level is Debug).</span>
                                 </div>
                                 <div style="margin-top:24px;padding-top:24px;">
                                     <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" Disabled="@(state.OperationUnderway)" />
@@ -659,7 +664,7 @@
         catch (ObjectDisposedException) { }
         catch (Exception ex)
         {
-            logger.LogErrorConsole("Setup.OnStateChanged", $"Exception: {ex.Message}");
+            logger.LogError("Setup.OnStateChanged", $"Exception: {ex.Message}");
         }
     }
 
@@ -678,8 +683,21 @@
         {
             settings.IncludeAlpacaTrace = value;
             settings.Save();
-            statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
-            state.DisplayRestartMessage = true;
+            statusText = $"{Globals.APPLICATION_NAME} must be re-connected in order for this change to take effect.";
+            state.DisplayReconnectMessage = true;
+        }
+    }
+
+    private bool LogSafetyWarnings
+    {
+        get
+        {
+            return settings.LogSafetyWarnings;
+        }
+        set
+        {
+            settings.LogSafetyWarnings = value;
+            settings.Save();
         }
     }
 
@@ -745,12 +763,13 @@
         {
             settings.LogLevel = value;
             settings.Save();
+            logger.SetMinimumLoggingLevel(value);
         }
     }
 
     private async Task OnObservingConditionsDeviceChanged(object discoveredDevice, PropertyName propertyName)
     {
-        state.ShowResetMessage = true;
+        state.DisplayReconnectMessage = true;
 
         if (((DiscoveredDevice)discoveredDevice).SentinelDeviceType == SentinelDeviceType.NotSet)
         {
@@ -766,7 +785,7 @@
         settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
         settings.Save();
 
-        state.ShowResetMessage = true;
+        state.DisplayReconnectMessage = true;
         await InvokeAsync(StateHasChanged);
     }
 
@@ -793,7 +812,7 @@
         }
         catch (Exception ex)
         {
-            logger.LogErrorConsole("StartDiscovery", $"Exception during discovery: {ex.Message}\r\n{ex}");
+            logger.LogError("StartDiscovery", $"Exception during discovery: {ex.Message}\r\n{ex}");
         }
     }
 
@@ -845,7 +864,7 @@
                 // Exclude our observing conditions device from the list
                 if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
                 {
-                    logger.LogDebugConsole("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
+                    logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                     state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
                     {
                         SentinelDeviceType = SentinelDeviceType.ObservingConditions,
@@ -861,7 +880,6 @@
 #if WINDOWS
             foreach (ASCOM.Com.ASCOMRegistration device in ObservingConditionsDevicesCom)
             {
-                // logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
                 state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
                 {
                     SentinelDeviceType = SentinelDeviceType.ObservingConditions,
@@ -875,18 +893,16 @@
             foreach (DiscoveredDevice device in state.DiscoveredObservingConditionsDevices)
             {
                 if (device.SentinelDeviceType != SentinelDeviceType.NotSet)
-                    logger.LogMessageConsole("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+                    logger.LogMessage("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
             }
 
             // Add discovered Alpaca devices
-            // logger.LogDebug("", $"GetDeviceNames - Found {safetyMonitorDevicesAlpaca.Count()} Alpaca safety monitor devices.");
-
             foreach (AscomDevice device in safetyMonitorDevicesAlpaca)
             {
                 // Exclude our safety monitor device from the list
                 if (device.AscomDeviceName != Globals.SAFETY_MONITOR_DEVICE_NAME)
                 {
-                    logger.LogDebugConsole("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
+                    logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                     state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
                     {
                         Protocol = Protocol.Alpaca,
@@ -901,7 +917,7 @@
 #if WINDOWS
             foreach (ASCOM.Com.ASCOMRegistration device in SafetyMonitorDevicesCom)
             {
-                logger.LogDebugConsole("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
+                logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
                 state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
                 {
                     Protocol = Protocol.COM,
@@ -915,17 +931,17 @@
             foreach (DiscoveredDevice device in state.DiscoveredSafetyMonitorDevices)
             {
                 if (device.SentinelDeviceType != SentinelDeviceType.NotSet)
-                    logger.LogMessageConsole("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+                    logger.LogMessage("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
             }
 
-            logger.LogMessageConsole("", $"Discovery complete.");
+            logger.LogMessage("", $"Discovery complete.");
 
             statusText = "Discovery completed";
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
-            logger.LogErrorConsole("AlpacaDiscoveryCompleted", $"Exception: {ex.Message}\r\n{ex}");
+            logger.LogError("AlpacaDiscoveryCompleted", $"Exception: {ex.Message}\r\n{ex}");
         }
         finally
         {
@@ -936,7 +952,7 @@
                 await InvokeAsync(StateHasChanged);
             }
             catch (ObjectDisposedException) { }
-            logger.LogDebugConsole("", $"Discovery underway is now false.");
+            logger.LogDebug("", $"Discovery underway is now false.");
         }
     }
 
@@ -949,18 +965,14 @@
         {
             // Calculate the number of rows that will fit in the available height
             int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
-            // logger.LogDebug("OnResizeSetup", $"Window size: {width} x {height}");
             windowWidth = width;
-
-            // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
-            //state.LastNumberOfLogLines = screenLogRows;
 
             // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
-            logger.LogErrorConsole("OnResize", $"Exception: \r\n{ex}");
+            logger.LogError("OnResize", $"Exception: \r\n{ex}");
         }
     }
 
