@@ -26,6 +26,6 @@ namespace Sentinel
         SafetyIssue = 13,
         SecurityIssue = 14,
         PowerIssue = 15,
-        Other = 16
+        Other = 1000
     }
 }
