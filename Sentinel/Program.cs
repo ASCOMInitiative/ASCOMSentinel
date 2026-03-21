@@ -32,7 +32,7 @@ namespace Sentinel
 
         internal static State state = new();
         internal static Settings settings = new Settings(string.Empty);
-        internal static SentinelLogger? logger = new(state, settings);
+        internal static SentinelLogger logger = new(state, settings);
 
         internal static IHostApplicationLifetime? Lifetime;
         internal static bool RestartRequested;
