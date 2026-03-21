@@ -25,7 +25,7 @@
 <h1>Application Setup</h1>
 <span style="margin-left:0px;">
     <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.OperationUnderway" />
-    <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;color:red;font-weight:bold;">@statusText</RadzenText>
+    <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;color:red;font-weight:bold;">@state.StatusText</RadzenText>
 </span>
 <RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Server" Change="(item) => OnTabChanged(item)">
     <Tabs>
@@ -83,12 +83,14 @@
                                 <h4 style="color:cornflowerblue;margin-top:24px;">Debug settings</h4>
                                 <div style="margin-bottom:10px">
                                     <span class="indentedlist">Trace Level:</span>
-                                    <RadzenDropDown Value =@TraceLevel
+                                    <RadzenDropDown Value=@TraceLevel
                                                     TValue=LogLevel
                                                     Change="TraceLevelChanged"
                                                     Data=@Enum.GetValues(typeof(LogLevel))
                                                     PopupStyle="max-height:15em); overflow:auto;"
                                                     Style="margin-top:00px;margin-left:0px; margin-right:0px; border: 1px solid black;" />
+                                    <span style="margin-left:12px;">(Requires devices to be reconnected).</span>
+
                                 </div>
                                 <div style="margin-bottom:10px; margin-top:10px">
                                     <label>Show Alpaca client trace messages:</label>
@@ -160,10 +162,6 @@
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Confirm connect to devices:</label>
                                     <input style="margin-left:6px;" type="checkbox" @bind="ConfirmConnectToDevices" />
-                                </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Confirm reset settings:</label>
-                                    <input style="margin-left:42px;" type="checkbox" @bind="ConfirmReset" />
                                 </div>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
                                     <label>Confirm restart:</label>
@@ -552,7 +550,6 @@
 </RadzenTabs>
 
 @code {
-    private string statusText = "";
     private AlpacaDiscovery? discovery;
     private DotNetObjectReference<Setup>? objRef;
 
@@ -594,7 +591,6 @@
         settings.ConfirmConnectToDevices = false;
         settings.ConfirmOnline = false;
         settings.ConfirmReConnect = false;
-        settings.ConfirmReset = false;
         settings.ConfirmRestart = false;
         settings.Save();
     }
@@ -620,7 +616,7 @@
 
     private async Task OnTabChanged(int item)
     {
-        statusText = string.Empty;
+        state.StatusText = string.Empty;
         if ((!state.DiscoveryHasRun) & ((item == 1) || (item == 4)))
         {
             await StartDiscovery();
@@ -633,7 +629,7 @@
             return;
 
         DiscoveryResponseOnlyOnLocalHost = (bool)e.Value;
-        statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+        state.StatusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
         state.DisplayRestartMessage = true;
         await InvokeAsync(StateHasChanged);
     }
@@ -685,7 +681,7 @@
         {
             settings.IncludeAlpacaTrace = value;
             settings.Save();
-            statusText = $"{Globals.APPLICATION_NAME} must be re-connected in order for this change to take effect.";
+            state.StatusText = $"{Globals.APPLICATION_NAME} must be re-connected in order for this change to take effect.";
             state.DisplayReconnectMessage = true;
         }
     }
@@ -729,7 +725,7 @@
 
         settings.ServerPort = (ushort)args;
         settings.Save();
-        statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+        state.StatusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
         state.DisplayRestartMessage = true;
     }
 
@@ -762,9 +758,15 @@
 
         LogLevel logLevel = (LogLevel)value;
         settings.LogLevel = logLevel;
+
+        if (logLevel <= LogLevel.Information)
+            settings.IncludeAlpacaTrace = false;
+
         settings.Save();
         logger.SetMinimumLoggingLevel(logLevel);
 
+        state.StatusText = $"{Globals.APPLICATION_NAME} must be re-connected in order for this change to take effect.";
+        state.DisplayReconnectMessage = true;
     }
 
     private LogLevel TraceLevel
@@ -821,7 +823,7 @@
                 (Assembly.GetExecutingAssembly().GetName().Version ?? new Version()).ToString()); // Create a discovery component with or without logging
             discovery.DiscoveryCompleted += AlpacaDiscoveryCompleted;
             discovery.StartDiscovery(1, 10, 32227, settings.AlpacaDiscoveryDuration, false, true, true, ASCOM.Common.Alpaca.ServiceType.Http);
-            statusText = "Alpaca discovery underway";
+            state.StatusText = "Alpaca discovery underway";
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
@@ -876,7 +878,7 @@
             foreach (AscomDevice device in observingConditionsDevicesAlpaca)
             {
                 // Exclude our observing conditions device from the list
-                if (device.AscomDeviceName != $"{Globals.APPLICATION_NAME} ({settings.Location})")
+                if (device.AscomDeviceName != $"{Globals.OBSERVING_CONDITIONS_NAME} ({settings.Location})")
                 {
                     logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                     state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
@@ -914,7 +916,7 @@
             foreach (AscomDevice device in safetyMonitorDevicesAlpaca)
             {
                 // Exclude our safety monitor device from the list
-                if (device.AscomDeviceName != $"{Globals.APPLICATION_NAME} ({settings.Location})")
+                if (device.AscomDeviceName != $"{Globals.SAFETY_MONITOR_NAME} ({settings.Location})")
                 {
                     logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                     state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
@@ -950,7 +952,7 @@
 
             logger.LogMessage("", $"Discovery complete.");
 
-            statusText = "Discovery completed";
+            state.StatusText = "Discovery completed";
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
@@ -1012,7 +1014,7 @@
             {
                 settings.DiscoveryResponseOnlyOnLocalHost = value;
                 settings.Save();
-                statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+                state.StatusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
                 state.DisplayRestartMessage = true;
                 InvokeAsync(StateHasChanged);
             }
@@ -1026,7 +1028,7 @@
         {
             settings.BindToAllNetworkAddresses = value;
             settings.Save();
-            statusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+            state.StatusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
             state.DisplayRestartMessage = true;
             InvokeAsync(StateHasChanged);
         }

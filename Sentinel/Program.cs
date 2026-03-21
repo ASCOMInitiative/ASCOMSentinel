@@ -158,8 +158,8 @@ namespace Sentinel
             DeviceManager.LoadConfiguration(new AlpacaConfiguration());
 
             // Add the safety monitor, observing conditions and switch devices that will be exposed to clients
-            DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.SafetyMonitor(settings, state, logger), $"{Globals.APPLICATION_NAME} ({settings.Location})", settings.GetDeviceUniqueId("SafetyMonitor", 0));
-            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(settings, state, logger), $"{Globals.APPLICATION_NAME} ({settings.Location})", settings.GetDeviceUniqueId("ObservingConditions", 0));
+            DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.SafetyMonitor(settings, state, logger), $"{Globals.SAFETY_MONITOR_NAME} ({settings.Location})", settings.GetDeviceUniqueId("SafetyMonitor", 0));
+            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(settings, state, logger), $"{Globals.OBSERVING_CONDITIONS_NAME} ({settings.Location})", settings.GetDeviceUniqueId("ObservingConditions", 0));
             DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
 
             #region Finish Building and Start server

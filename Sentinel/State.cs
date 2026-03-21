@@ -23,6 +23,12 @@
 
         public bool DisplayRestartMessage { get; set { field = value; RaiseChangeEvent(nameof(DisplayRestartMessage)); } } = false;
 
+        /// <summary>
+        /// Status text displayed on the Setup page (e.g. "must be re-started", "discovery underway").
+        /// Stored here so other components (e.g. NavMenu) can clear it.
+        /// </summary>
+        public string StatusText { get; set { field = value; RaiseChangeEvent(nameof(StatusText)); } } = "";
+
         public bool OperationUnderway { get; set { field = value; RaiseChangeEvent(nameof(OperationUnderway)); } } = false;
 
         public bool ConnectingToDevices { get; set; } = false;

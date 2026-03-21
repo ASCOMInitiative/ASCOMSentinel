@@ -4,6 +4,9 @@
     {
         internal const string APPLICATION_SHORT_NAME = "Sentinel";
         internal const string APPLICATION_NAME = $"ASCOM {APPLICATION_SHORT_NAME}";
+        internal const string OBSERVING_CONDITIONS_NAME = $"{APPLICATION_NAME} Observing Conditions";
+        internal const string SAFETY_MONITOR_NAME = $"{APPLICATION_NAME} Safety Monitor";
+
         internal const string APPLICATION_VERSION = "0.1";
         internal const string MANUFACTURER_VERSION = "0.0.1"; // Manufacturer version
 

@@ -177,6 +177,7 @@ else
         {
             // Clear the reconnect message.
             state.DisplayReconnectMessage = false;
+            state.StatusText = "";
 
             // Check whether we are already connected.
             if (state.Connected) // Already connected so disconnect first and the connect again.
