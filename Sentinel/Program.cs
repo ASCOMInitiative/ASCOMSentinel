@@ -32,7 +32,7 @@ namespace Sentinel
 
         internal static State state = new();
         internal static Settings settings = new Settings(string.Empty);
-        internal static SentinelLogger? logger;
+        internal static SentinelLogger? logger = new(state, settings);
 
         internal static IHostApplicationLifetime? Lifetime;
         internal static bool RestartRequested;
@@ -47,7 +47,6 @@ namespace Sentinel
             //This region contains startup and logging features, most of the time you shouldn't need to customize this
             //You can add custom Command Line arguments here
             #region Startup and Logging
-            SentinelLogger logger = new(state, settings);
 
             logger.LogMessage("", $"{ServerName} version {ServerVersion}");
             logger.LogMessage("", $"Running on: {RuntimeInformation.OSDescription}.");

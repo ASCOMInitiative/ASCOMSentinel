@@ -59,7 +59,7 @@ echo *** Completed Windows Intel 32bit publish
 
 echo *** Creating Windows installer
 cd J:\ASCOMSentinel\Setup
-"C:\Program Files (x86)\Inno Script Studio\isstudio.exe" -compile "Sentinel.iss"
+"C:\Program Files (x86)\Inno Setup 6\iscc.exe" "Sentinel.iss"
 cd ..
 
 echo *** Builds complete
