@@ -51,7 +51,7 @@ namespace Sentinel
                     // Add the circuit to the list of circuits if not already in the list (it shouldn't be!)
                     if (!connections.Contains(circuit.Id))
                     {
-                        logger.LogInformation($"***** OnCircuitOpenedAsync - Adding connection {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
+                        //logger.LogInformation($"***** OnCircuitOpenedAsync - Adding connection {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
                         connections.Add(circuit.Id);
                         logger.LogInformation($"***** OnCircuitOpenedAsync - Added connection {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
                     }
@@ -76,24 +76,27 @@ namespace Sentinel
                     // Remove the circuit from the circuit list if present (it should be!)
                     if (connections.Contains(circuit.Id))
                     {
-                        logger.LogInformation($"***** OnCircuitClosedAsync - Removing connection {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
+                        //logger.LogInformation($"***** OnCircuitClosedAsync - Removing connection {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
                         bool success = connections.Remove(circuit.Id);
                         logger.LogInformation($"***** OnCircuitClosedAsync - Removed connection {circuit.Id} Connection count: {connections.Count}, Success: {success} *****", circuit.Id, connections.Count, success);
                     }
 
-                    logger.LogInformation($"***** OnCircuitClosedAsync - Before testing connection count: {connections.Count} *****", connections.Count);
                     // End the application if all circuits are closed
                     if (connections.Count == 0)
                     {
                         logger.LogInformation($"***** OnCircuitClosedAsync - Calling StopApplication - {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
                         lifetime.StopApplication();
                     }
+                    else
+                    {
+                        logger.LogInformation($"***** OnCircuitClosedAsync - Connection count > 0 NOT calling StopApplication(): {connections.Count} *****", connections.Count);
+                    }
                 }
                 catch (Exception ex)
                 {
                     logger.LogInformation($"***** OnCircuitClosedAsync {circuit.Id} *****\r\n {ex}", circuit.Id, ex);
                 }
-                logger.LogInformation($"***** OnCircuitClosedAsync - OnCircuitClosedAsync. Connection count: {connections.Count} *****", connections.Count);
+                //logger.LogInformation($"***** OnCircuitClosedAsync - OnCircuitClosedAsync. Connection count: {connections.Count} *****", connections.Count);
             }
         }
     }

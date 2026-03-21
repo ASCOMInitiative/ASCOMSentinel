@@ -2,7 +2,8 @@
 {
     internal static class Globals
     {
-        internal const string APPLICATION_NAME = "ASCOM Sentinel";
+        internal const string APPLICATION_SHORT_NAME = "Sentinel";
+        internal const string APPLICATION_NAME = $"ASCOM {APPLICATION_SHORT_NAME}";
         internal const string APPLICATION_VERSION = "0.1";
         internal const string MANUFACTURER_VERSION = "0.0.1"; // Manufacturer version
 
@@ -18,9 +19,6 @@
         internal const int LOG_TRUNCATION_CHARACTERS = 5000; // The number of characters by which to truncate the screen log when required.
         internal const bool ALPACA_SEARCH_STRICT_CASING = false;
         internal const string USER_AGENT_PRODUCT_NAME = "ObservatoryManager";
-
-        internal const string SAFETY_MONITOR_DEVICE_NAME = $"{APPLICATION_NAME} - Safety Monitor";
-        internal const string OBSERVING_CONDITIONS_DEVICE_NAME = $"{APPLICATION_NAME}  - Observing Conditions";
 
         internal const string SAFETY_EVENT_ACTION_NAME = "GetSafetyState";
         internal const string SAFETY_EVENT_ACTION_NAME_LOWERCASE = "getsafetystate"; // Lowercase version of the action name for comparison when strict casing is disabled

@@ -1,4 +1,5 @@
 ﻿
+using ASCOM.Common;
 using ASCOM.Common.Interfaces;
 using ASCOM.Tools;
 using ILogger = ASCOM.Common.Interfaces.ILogger;

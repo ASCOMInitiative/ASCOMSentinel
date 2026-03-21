@@ -31,7 +31,7 @@ namespace Sentinel
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError("Connect", $"Overall exception: \r\n{ex}");
+                    logger.LogError("ChangeConnectedStateAsync", $"Overall exception: \r\n{ex}");
                 }
                 finally
                 {
@@ -80,7 +80,7 @@ namespace Sentinel
             finally
             {
                 logger.LogMessage("Disconnect", $"All devices disconnected");
-                logger.LogMessage("", "");
+                logger.LogBlankLine();
 
                 state.Connected = false;
             }
@@ -179,17 +179,17 @@ namespace Sentinel
                         {
                             try
                             {
-                                logger.LogDebug("Property", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
+                                logger.LogDebug("Connect", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
                                 observingConditionsDeviceInstances[device].Connected = true;
                                 connectSucceeded = true;
-                                logger.LogMessage("Property", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
+                                logger.LogMessage("Connect", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
                             }
                             catch (Exception ex)
                             {
                                 if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
-                                    logger.LogError("", $"Exception setting Connected true for {device.DisplayName} {device.Protocol} - {ex.Message}\r\n{ex}");
+                                    logger.LogError("Connect", $"Exception setting Connected true for {device.DisplayName} {device.Protocol} - {ex.Message}\r\n{ex}");
                                 else
-                                    logger.LogError("", $"Unable to set Connected true for {device.DisplayName} - {ex.Message}");
+                                    logger.LogError("Connect", $"Unable to set Connected true for {device.DisplayName} - {ex.Message}");
 
                                 // Set a flag that the instance from the device map should be considered invalid
                                 connectSucceeded = false;
@@ -262,9 +262,9 @@ namespace Sentinel
                         {
                             try
                             {
-                                logger.LogDebug("Property", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
+                                logger.LogDebug("Connect", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
                                 state.SafetyMonitorDevices[device.Key].Connected = true;
-                                logger.LogMessage("Property", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
+                                logger.LogMessage("Connect", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
                             }
                             catch (Exception ex)
                             {
@@ -272,9 +272,9 @@ namespace Sentinel
                                 state.SafetyMonitorDevices[device.Key] = null!;
 
                                 if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
-                                    logger.LogError("", $"Exception setting Connected true for {device.Value.DisplayName} {device.Value.Protocol} - {ex.Message}\r\n{ex}");
+                                    logger.LogError("Connect", $"Exception setting Connected true for {device.Value.DisplayName} {device.Value.Protocol} - {ex.Message}\r\n{ex}");
                                 else
-                                    logger.LogError("", $"Unable to set Connected true for {device.Value.DisplayName} - {ex.Message}");
+                                    logger.LogError("Connect", $"Unable to set Connected true for {device.Value.DisplayName} - {ex.Message}");
                             }
                         });
 
@@ -325,10 +325,10 @@ namespace Sentinel
                                 {
                                     // Add the matching device instance to the device map so that we can easily find the device for each property later when we need to read values from it.
                                     bool addOutcome = state.ObservingConditionsDeviceMap.TryAdd(property, device.Value);
-                                    logger.LogDebug("Property", $"Added device instance ({addOutcome}) for ObservingConditions.{property,-14} {device.Key.DisplayName} {device.Key.Protocol}");
+                                    logger.LogDebug("Connect", $"Added device instance ({addOutcome}) for ObservingConditions.{property,-14} {device.Key.DisplayName} {device.Key.Protocol}");
                                 }
                                 else
-                                    logger.LogDebug("", $"No device instance for ObservingConditions.{property}");
+                                    logger.LogDebug("Connect", $"No device instance for ObservingConditions.{property}");
                             }
                             catch (Exception ex)
                             {
@@ -337,7 +337,7 @@ namespace Sentinel
                         }
                     }
                 }
-                logger.LogDebug("", "");
+                logger.LogBlankLine();
             }
             catch (Exception ex)
             {

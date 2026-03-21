@@ -32,7 +32,7 @@ namespace Sentinel
 
         internal static State state = new();
         internal static Settings settings = new Settings(string.Empty);
-        internal static SentinelLogger logger = new(state, settings);
+        internal static SentinelLogger? logger;
 
         internal static IHostApplicationLifetime? Lifetime;
         internal static bool RestartRequested;
@@ -47,6 +47,7 @@ namespace Sentinel
             //This region contains startup and logging features, most of the time you shouldn't need to customize this
             //You can add custom Command Line arguments here
             #region Startup and Logging
+            SentinelLogger logger = new(state, settings);
 
             logger.LogMessage("", $"{ServerName} version {ServerVersion}");
             logger.LogMessage("", $"Running on: {RuntimeInformation.OSDescription}.");
@@ -158,9 +159,9 @@ namespace Sentinel
             DeviceManager.LoadConfiguration(new AlpacaConfiguration());
 
             // Add the safety monitor, observing conditions and switch devices that will be exposed to clients
-            DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.SafetyMonitor(settings, state, logger), Globals.SAFETY_MONITOR_DEVICE_NAME, settings.GetDeviceUniqueId("SafetyMonitor", 0));
-            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(settings, state, logger), Globals.OBSERVING_CONDITIONS_DEVICE_NAME, settings.GetDeviceUniqueId("ObservingConditions", 0));
-            DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), "Switch Device", settings.GetDeviceUniqueId("Switch", 0));
+            DeviceManager.LoadSafetyMonitor(0, new DeviceAccess.SafetyMonitor(settings, state, logger), $"{Globals.APPLICATION_NAME} ({settings.Location})", settings.GetDeviceUniqueId("SafetyMonitor", 0));
+            DeviceManager.LoadObservingConditions(0, new DeviceAccess.ObservingConditions(settings, state, logger), $"{Globals.APPLICATION_NAME} ({settings.Location})", settings.GetDeviceUniqueId("ObservingConditions", 0));
+            DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
 
             #region Finish Building and Start server
 
@@ -168,7 +169,7 @@ namespace Sentinel
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor(options =>
                 {
-                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(10);
+                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(1);
                 });
 
             //Set default behaviors for Alpaca APIs
@@ -210,7 +211,7 @@ namespace Sentinel
             });
 
             // Initialise state with any values from settings that are needed at startup
-            state.EnableRemoteClients=settings.EnableRemoteClients;
+            state.EnableRemoteClients = settings.EnableRemoteClients;
 
             // Add event handler to detect when the browser closes
             builder.Services.AddSingleton<CircuitHandler, CircuitHandlerService>();

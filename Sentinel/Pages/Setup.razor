@@ -862,7 +862,7 @@
             foreach (AscomDevice device in observingConditionsDevicesAlpaca)
             {
                 // Exclude our observing conditions device from the list
-                if (device.AscomDeviceName != Globals.OBSERVING_CONDITIONS_DEVICE_NAME)
+                if (device.AscomDeviceName != $"{Globals.APPLICATION_NAME} ({settings.Location})")
                 {
                     logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                     state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
@@ -900,7 +900,7 @@
             foreach (AscomDevice device in safetyMonitorDevicesAlpaca)
             {
                 // Exclude our safety monitor device from the list
-                if (device.AscomDeviceName != Globals.SAFETY_MONITOR_DEVICE_NAME)
+                if (device.AscomDeviceName != $"{Globals.APPLICATION_NAME} ({settings.Location})")
                 {
                     logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                     state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
