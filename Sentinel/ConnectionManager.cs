@@ -337,7 +337,7 @@ namespace Sentinel
                         }
                     }
                 }
-                logger.LogBlankLine();
+                logger.LogDebug("Connect", "");
             }
             catch (Exception ex)
             {

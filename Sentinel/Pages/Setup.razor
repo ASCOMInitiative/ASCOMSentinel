@@ -83,7 +83,9 @@
                                 <h4 style="color:cornflowerblue;margin-top:24px;">Debug settings</h4>
                                 <div style="margin-bottom:10px">
                                     <span class="indentedlist">Trace Level:</span>
-                                    <RadzenDropDown @bind-Value=@TraceLevel
+                                    <RadzenDropDown Value =@TraceLevel
+                                                    TValue=LogLevel
+                                                    Change="TraceLevelChanged"
                                                     Data=@Enum.GetValues(typeof(LogLevel))
                                                     PopupStyle="max-height:15em); overflow:auto;"
                                                     Style="margin-top:00px;margin-left:0px; margin-right:0px; border: 1px solid black;" />
@@ -751,6 +753,18 @@
             await StartDiscovery();
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    private async void TraceLevelChanged(object value)
+    {
+        if (value is null)
+            return;
+
+        LogLevel logLevel = (LogLevel)value;
+        settings.LogLevel = logLevel;
+        settings.Save();
+        logger.SetMinimumLoggingLevel(logLevel);
+
     }
 
     private LogLevel TraceLevel

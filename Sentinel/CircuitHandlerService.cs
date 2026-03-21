@@ -1,21 +1,16 @@
 ﻿using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Sentinel
 {
     public class CircuitHandlerService : CircuitHandler
     {
         private readonly IHostApplicationLifetime lifetime; // This is required if the StopApplication method is used.
-        private readonly ILogger<CircuitHandlerService> logger;
+        private readonly SentinelLogger logger;
         private readonly object connectionsLockObject = new();
 
         private readonly List<string> connections;
-        public CircuitHandlerService(IHostApplicationLifetime lifetime, ILogger<CircuitHandlerService> logger)
+        public CircuitHandlerService(IHostApplicationLifetime lifetime, SentinelLogger logger)
         {
             this.lifetime = lifetime; // This is required if the StopApplication method is used.
             this.logger = logger;
@@ -32,13 +27,13 @@ namespace Sentinel
 
         public override Task OnConnectionUpAsync(Circuit circuit, CancellationToken cancellationToken)
         {
-            logger.LogInformation($"***** OnConnectionUpAsync - Circuit {circuit.Id} is up. Connection count: {connections.Count} *****", circuit.Id, connections.Count);
+            logger.LogDebug("CircuitHandler", $"OnConnectionUpAsync - Circuit {circuit.Id} is up. Connection count: {connections.Count}");
             return Task.CompletedTask;
         }
 
         public override Task OnConnectionDownAsync(Circuit circuit, CancellationToken cancellationToken)
         {
-            logger.LogInformation($"***** OnConnectionDownAsync - Circuit {circuit.Id} is down Connection count: {connections.Count} *****", circuit.Id, connections.Count);
+            logger.LogDebug("CircuitHandler", $"OnConnectionDownAsync - Circuit {circuit.Id} is down. Connection count: {connections.Count}");
             return Task.CompletedTask;
         }
 
@@ -51,14 +46,13 @@ namespace Sentinel
                     // Add the circuit to the list of circuits if not already in the list (it shouldn't be!)
                     if (!connections.Contains(circuit.Id))
                     {
-                        //logger.LogInformation($"***** OnCircuitOpenedAsync - Adding connection {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
                         connections.Add(circuit.Id);
-                        logger.LogInformation($"***** OnCircuitOpenedAsync - Added connection {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
+                        logger.LogDebug("CircuitHandler", $"OnCircuitOpenedAsync - Added connection {circuit.Id}. Connection count: {connections.Count}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogInformation($"***** OnCircuitOpenedAsync {circuit.Id} *****\r\n {ex}", circuit.Id, ex);
+                    logger.LogError("CircuitHandler", $"OnCircuitOpenedAsync {circuit.Id} - {ex.Message}\r\n{ex}");
                 }
 
                 return Task.CompletedTask;
@@ -76,27 +70,25 @@ namespace Sentinel
                     // Remove the circuit from the circuit list if present (it should be!)
                     if (connections.Contains(circuit.Id))
                     {
-                        //logger.LogInformation($"***** OnCircuitClosedAsync - Removing connection {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
                         bool success = connections.Remove(circuit.Id);
-                        logger.LogInformation($"***** OnCircuitClosedAsync - Removed connection {circuit.Id} Connection count: {connections.Count}, Success: {success} *****", circuit.Id, connections.Count, success);
+                        logger.LogDebug("CircuitHandler", $"OnCircuitClosedAsync - Removed connection {circuit.Id}. Connection count: {connections.Count}, Success: {success}");
                     }
 
                     // End the application if all circuits are closed
                     if (connections.Count == 0)
                     {
-                        logger.LogInformation($"***** OnCircuitClosedAsync - Calling StopApplication - {circuit.Id} Connection count: {connections.Count} *****", circuit.Id, connections.Count);
+                        logger.LogDebug("CircuitHandler", $"OnCircuitClosedAsync - Calling StopApplication. Circuit: {circuit.Id}, Connection count: {connections.Count}");
                         lifetime.StopApplication();
                     }
                     else
                     {
-                        logger.LogInformation($"***** OnCircuitClosedAsync - Connection count > 0 NOT calling StopApplication(): {connections.Count} *****", connections.Count);
+                        logger.LogDebug("CircuitHandler", $"OnCircuitClosedAsync - Connection count > 0, not calling StopApplication(). Count: {connections.Count}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    logger.LogInformation($"***** OnCircuitClosedAsync {circuit.Id} *****\r\n {ex}", circuit.Id, ex);
+                    logger.LogError("CircuitHandler", $"OnCircuitClosedAsync {circuit.Id} - {ex.Message}\r\n{ex}");
                 }
-                //logger.LogInformation($"***** OnCircuitClosedAsync - OnCircuitClosedAsync. Connection count: {connections.Count} *****", connections.Count);
             }
         }
     }
