@@ -176,7 +176,7 @@ namespace Sentinel
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor(options =>
                 {
-                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(1);
+                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(5);
                 });
 
             //Set default behaviors for Alpaca APIs

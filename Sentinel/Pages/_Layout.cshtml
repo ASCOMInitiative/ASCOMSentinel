@@ -69,19 +69,24 @@
             }, 1000);
         }
 
-        // Primary mechanism: MutationObserver watches for Blazor adding CSS classes to the
-        // reconnect modal. 'components-reconnect-show' is added the instant the circuit drops,
-        // before any retry attempts, so this fires immediately on server shutdown.
-        // NOTE: maxRetries must not be 0 — if it is, Blazor skips this class update entirely.
+        // MutationObserver watches for Blazor adding CSS classes to the reconnect modal.
+        // Blazor's default reconnection handler retries with exponential backoff and
+        // updates these classes based on the outcome:
+        //   'components-reconnect-show'     — reconnection in progress (ignore, let it retry)
+        //   'components-reconnect-rejected' — server alive but circuit expired (reload for fresh circuit)
+        //   'components-reconnect-failed'   — server unreachable (show server-stopped overlay)
         var reconnectModal = document.getElementById('components-reconnect-modal');
         if (reconnectModal) {
             new MutationObserver(function (mutations) {
                 for (var i = 0; i < mutations.length; i++) {
                     if (mutations[i].attributeName === 'class') {
                         var cls = reconnectModal.className;
-                        if (cls.indexOf('components-reconnect-show') >= 0 ||
-                            cls.indexOf('components-reconnect-failed') >= 0 ||
-                            cls.indexOf('components-reconnect-rejected') >= 0) {
+                        if (cls.indexOf('components-reconnect-rejected') >= 0) {
+                            // Server is running but the circuit was discarded (tab was asleep too long).
+                            // Reload to get a fresh circuit instead of showing the stopped overlay.
+                            window.location.reload();
+                        } else if (cls.indexOf('components-reconnect-failed') >= 0) {
+                            // Server is unreachable — show the stopped overlay
                             handleServerStopped();
                         }
                     }
@@ -89,22 +94,9 @@
             }).observe(reconnectModal, { attributes: true });
         }
 
-        Blazor.start({
-            circuit: {
-                reconnectionHandler: {
-                    // Belt-and-braces: may fire in addition to the MutationObserver
-                    onConnectionDown: function (options, error) { handleServerStopped(); },
-                    onConnectionUp: function () {
-                        if (serverStopped) {
-                            // Server came back within Blazor's own retry window — cancel
-                            // the countdown and reload to get a fresh circuit
-                            clearInterval(countdownInterval);
-                            window.location.reload();
-                        }
-                    }
-                }
-            }
-        });
+        // Start Blazor without a custom reconnectionHandler so it uses its built-in
+        // retry logic (exponential backoff). The MutationObserver above handles the outcome.
+        Blazor.start();
     </script>
 </body>
 </html>
