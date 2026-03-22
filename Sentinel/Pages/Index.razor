@@ -25,13 +25,15 @@
 @code
 {
     private bool _disposed = false;
+    private bool _logContentChanged = false;
+    private int _lastLogLength;
+    private readonly CancellationTokenSource _cts = new();
     private DotNetObjectReference<Index>? objRef;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            logger.MessageLogChanged += OnLogChanged;
             state.StateChanged += OnStateChanged;
             settings.ConfigurationChanged += OnStateChanged;
 
@@ -48,9 +50,48 @@
 
             if (settings.AutoConnect && !state.Connected)
                 await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+
+            state.UiReady = true;
+
+            // Record initial log length and start the periodic refresh loop
+            _lastLogLength = state.ApplicationLog.Length;
+
+            // Scroll to show latest content after initial render
+            circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+
+            // Start a timer-based log refresh instead of subscribing to every log message.
+            // This caps the cost at 1 render + 1 JS call per interval per tab, regardless
+            // of how many log messages arrive or how many tabs are open.
+            _ = LogRefreshLoopAsync(_cts.Token);
         }
-        // Always scroll after render so new content is visible
-        circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+
+        // Scroll to bottom after a render that was triggered by new log content
+        if (_logContentChanged)
+        {
+            _logContentChanged = false;
+            circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+        }
+    }
+
+    private async Task LogRefreshLoopAsync(CancellationToken token)
+    {
+        try
+        {
+            while (!token.IsCancellationRequested)
+            {
+                await Task.Delay(500, token);
+
+                int currentLength = state.ApplicationLog.Length;
+                if (currentLength != _lastLogLength)
+                {
+                    _lastLogLength = currentLength;
+                    _logContentChanged = true;
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        }
+        catch (TaskCanceledException) { }
+        catch (ObjectDisposedException) { }
     }
 
     private int LastnumberOfLogLines()
@@ -83,24 +124,6 @@
             await InvokeAsync(StateHasChanged);
         }
         catch (ObjectDisposedException) { }
-        catch (Exception ex) { LogConsole(ex.Message); }
-    }
-
-    private async void OnLogChanged(object? sender, MessageEventArgs e)
-    {
-        if (_disposed)
-            return;
-
-        try
-        {
-            // Dispatch both the JS interop call and StateHasChanged onto the Blazor sync context
-            await InvokeAsync(async () =>
-            {
-                circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
-                StateHasChanged();
-            });
-        }
-        catch (ObjectDisposedException) { } // Component was disposed between the guard check and the call
         catch (Exception ex) { LogConsole(ex.Message); }
     }
 
@@ -150,7 +173,8 @@
     public async ValueTask DisposeAsync()
     {
         _disposed = true;
-        logger.MessageLogChanged -= OnLogChanged;
+        _cts.Cancel();
+        _cts.Dispose();
         state.StateChanged -= OnStateChanged;
         settings.ConfigurationChanged -= OnStateChanged;
 

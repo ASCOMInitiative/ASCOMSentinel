@@ -57,7 +57,8 @@ else
 
                 <RadzenButton Click="() => EnableRemoteClients()"
                               Text="@(state.EnableRemoteClients? "Online" : "Offline")"
-                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)" />
+                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)"
+                              Disabled="@(!state.UiReady)" />
             </div>
             <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
 
@@ -65,7 +66,8 @@ else
             <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
                 <RadzenButton Click="() => ConnectDisconnect()"
                               Text="@(state.Connected ? "Connected" : "Disconnected")"
-                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)" />
+                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)"
+                              Disabled="@(!state.UiReady)" />
             </div>
             <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
 
@@ -98,12 +100,14 @@ else
         <div style="margin-top:3px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
             <RadzenButton Click="() => RestartApplicationAsync()"
                           Text="Restart"
-                          Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning" />
+                          Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning"
+                          Disabled="@(!state.UiReady)" />
         </div>
         <div style="margin-top:0px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
             <RadzenButton Click="() => ShutdownApplicationAsync()"
                           Text="Shutdown"
-                          Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Danger" />
+                          Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Danger"
+                          Disabled="@(!state.UiReady)" />
         </div>
     </div>
 }
