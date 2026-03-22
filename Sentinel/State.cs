@@ -51,6 +51,10 @@
 
         public Dictionary<int, ISwitchV3> SwitchDevices { get; set; } = [];
 
+        public IObservingConditionsV2 ObservingConditions { get; set; } = null!;
+
+        public ISafetyMonitorV3 SafetyMonitor { get; set; } = null!;
+
         #endregion
 
         #region Public functions
