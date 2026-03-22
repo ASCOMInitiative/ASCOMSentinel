@@ -162,7 +162,7 @@ namespace Sentinel
 
             ISafetyMonitorV3 safetyMonitor = new DeviceAccess.SafetyMonitor(settings, state, logger);
             DeviceManager.LoadSafetyMonitor(0, safetyMonitor, $"{Globals.SAFETY_MONITOR_NAME} ({settings.Location})", settings.GetDeviceUniqueId("SafetyMonitor", 0));
-            state.SafetyMonitor= safetyMonitor;
+            state.SafetyMonitor = safetyMonitor;
 
             IObservingConditionsV2 observingConditions = new DeviceAccess.ObservingConditions(settings, state, logger);
             DeviceManager.LoadObservingConditions(0, observingConditions, $"{Globals.OBSERVING_CONDITIONS_NAME} ({settings.Location})", settings.GetDeviceUniqueId("ObservingConditions", 0));
@@ -176,8 +176,19 @@ namespace Sentinel
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor(options =>
                 {
-                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(5);
+                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(2);
                 });
+
+            // Limit how long the host waits for graceful shutdown so the app exits promptly
+            // when stopped via the UI (default is 30 seconds).
+            builder.Host.ConfigureHostOptions(options =>
+                {
+                    options.ShutdownTimeout = TimeSpan.FromSeconds(2);
+                });
+
+            // Limit how long Kestrel waits for active connections to drain during shutdown.
+            // This is separate from HostOptions.ShutdownTimeout and defaults to 5 seconds.
+            builder.WebHost.UseShutdownTimeout(TimeSpan.FromSeconds(2));
 
             //Set default behaviors for Alpaca APIs
             ASCOM.Alpaca.Razor.StartupHelpers.ConfigureAlpacaAPIBehavoir(builder.Services);
@@ -244,7 +255,11 @@ namespace Sentinel
 
             app.UseRouting();
 
-            app.MapBlazorHub();
+            app.MapBlazorHub(options =>
+            {
+                // Default is 5 seconds — reduce so the app exits promptly on shutdown
+                options.WebSockets.CloseTimeout = TimeSpan.FromSeconds(1);
+            });
 
             app.MapControllers();
 
@@ -267,7 +282,13 @@ namespace Sentinel
             //ToDo Put code here that should run at shutdown
             Lifetime.ApplicationStopping.Register(() =>
             {
-                logger.LogInformation($"{ServerName} Stopping");
+                logger.LogMessage(nameof(Main), "Application shutting down...");
+            });
+
+            Lifetime.ApplicationStopped.Register(() =>
+            {
+                logger.LogBlankLine();
+                logger.LogMessage(nameof(Main), "Application shutdown complete.");
             });
 
             //Start the Alpaca Server

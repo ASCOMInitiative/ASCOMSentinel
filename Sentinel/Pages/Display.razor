@@ -9,6 +9,8 @@
 
 @inject State state
 
+@implements IDisposable
+
 <PageTitle>@Globals.APPLICATION_NAME Log</PageTitle>
 
 <h1>@Globals.APPLICATION_NAME</h1>
@@ -67,20 +69,31 @@
 </div>
 
 @code {
+    private readonly CancellationTokenSource _cts = new();
 
     protected override async Task OnInitializedAsync()
     {
-        Task refreshTask= Task.Run(async () =>
+        _ = RefreshLoopAsync(_cts.Token);
+    }
+
+    private async Task RefreshLoopAsync(CancellationToken token)
+    {
+        try
         {
-            while (true)
+            while (!token.IsCancellationRequested)
             {
-                await InvokeAsync(() => StateHasChanged());
-                await Task.Delay(1000);
+                await Task.Delay(1000, token);
+                await InvokeAsync(StateHasChanged);
             }
-        });
+        }
+        catch (TaskCanceledException) { }
+        catch (ObjectDisposedException) { }
+    }
 
-
-
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
     }
 
 

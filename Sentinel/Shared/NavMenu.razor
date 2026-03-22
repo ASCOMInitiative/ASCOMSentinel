@@ -69,7 +69,7 @@ else
             </div>
             <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
 
-            @if(state.DisplayReconnectMessage || state.DisplayRestartMessage)
+            @if (state.DisplayReconnectMessage || state.DisplayRestartMessage)
             {
                 <div style="margin-top:36px;"></div>
             }
@@ -99,6 +99,11 @@ else
             <RadzenButton Click="() => RestartApplicationAsync()"
                           Text="Restart"
                           Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning" />
+        </div>
+        <div style="margin-top:0px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
+            <RadzenButton Click="() => ShutdownApplicationAsync()"
+                          Text="Shutdown"
+                          Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Danger" />
         </div>
     </div>
 }
@@ -165,10 +170,10 @@ else
         // Check whether we need to get confirmation for this action
         if (settings.ConfirmReConnect) // Confirmation required
         {
-            confirmed = await DialogService.Confirm(
-                "Reconnect devices?",
-                "Disconnect and reconnect devices",
-                new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
+         confirmed = await DialogService.Confirm(
+            "Reconnect devices?",
+            "Disconnect and reconnect devices",
+            new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
         }
         else // No confirmation is required so just do it
             confirmed = true;
@@ -220,22 +225,58 @@ else
     {
         bool? confirmed;
         // Check whether we need to get confirmation for this action
-        if (settings.ConfirmRestart) // Confirmation required
-        {
             confirmed = await DialogService.Confirm(
             "Restart the application?",
                 "Confirm Restart",
                 new ConfirmOptions { OkButtonText = "Restart", CancelButtonText = "Cancel" });
-        }
-        else // No confirmation is required so just do it
-            confirmed = true;
 
         if (confirmed == true)
         {
             // Signal that a restart is needed, then stop the application.
             // Program.Main will start the new instance after the port is released.
-            Program.RestartRequested = true;
-            Program.Lifetime?.StopApplication();
+            await Task.Run(async () =>
+            {
+                // If we're connected to devices, disconnect first to ensure a clean shutdown.
+                if (state.Connected)
+                {
+                    ConnectionManager.Disconnect(state, logger);
+                }
+                logger.LogBlankLine();
+                logger.LogWarning("Shutdown", "Application shutdown initiated by user.");
+
+                Task.Delay(250).Wait(); // Wait a moment to allow the log message to be written before shutting down.
+
+                Program.RestartRequested = true;
+                Program.Lifetime?.StopApplication();
+            });
+        }
+    }
+
+    private async Task ShutdownApplicationAsync()
+    {
+        bool? confirmed = await DialogService.Confirm(
+        "Shutdown the application?",
+            "Confirm Shutdown",
+            new ConfirmOptions { OkButtonText = "Shutdown", CancelButtonText = "Cancel" });
+
+        if (confirmed == true)
+        {
+            // Signal that a shutdown is needed and stop the application.
+            await Task.Run(async () =>
+            {
+                // If we're connected to devices, disconnect first to ensure a clean shutdown.
+                if (state.Connected)
+                {
+                    ConnectionManager.Disconnect(state, logger);
+                }
+                logger.LogBlankLine();
+                logger.LogWarning("Shutdown", "Application shutdown initiated by user.");
+
+                Task.Delay(250).Wait(); // Wait a moment to allow the log message to be written before shutting down.
+
+                Program.RestartRequested = false;
+                Program.Lifetime?.StopApplication();
+            });
         }
     }
 }

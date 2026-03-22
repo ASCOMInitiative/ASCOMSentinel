@@ -36,7 +36,7 @@ namespace Sentinel
                 if (!_connections.Contains(circuit.Id))
                 {
                     _connections.Add(circuit.Id);
-                    logger.LogDebug("CircuitHandler", $"Circuit {circuit.Id} opened. Connection count: {_connections.Count}");
+                    logger.LogDebug("CircuitHandler", $"OnCircuitOpenedAsync - Circuit {circuit.Id} opened. Connection count: {_connections.Count}");
                 }
             }
             return Task.CompletedTask;
@@ -47,7 +47,7 @@ namespace Sentinel
             lock (_lock)
             {
                 _connections.Remove(circuit.Id);
-                logger.LogDebug("CircuitHandler", $"Circuit {circuit.Id} closed. Connection count: {_connections.Count}");
+                logger.LogDebug("CircuitHandler", $"OnCircuitClosedAsync - Circuit {circuit.Id} closed. Connection count: {_connections.Count}");
             }
             return Task.CompletedTask;
         }
