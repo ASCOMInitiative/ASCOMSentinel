@@ -285,6 +285,23 @@ namespace Sentinel
             { PropertyName.SafetyMonitor9, new DiscoveredDevice() }
         };
 
+        public Dictionary<PropertyName, GaugeConfiguration> GaugeSettings { get; set; } = new()
+        {
+            { PropertyName.CloudCover, new GaugeConfiguration() },
+            { PropertyName.DewPoint, new GaugeConfiguration() },
+            { PropertyName.Humidity, new GaugeConfiguration() },
+            { PropertyName.Pressure, new GaugeConfiguration() },
+            { PropertyName.RainRate, new GaugeConfiguration() },
+            { PropertyName.SkyBrightness, new GaugeConfiguration() },
+            { PropertyName.SkyQuality, new GaugeConfiguration() },
+            { PropertyName.SkyTemperature, new GaugeConfiguration() },
+            { PropertyName.StarFWHM, new GaugeConfiguration() },
+            { PropertyName.Temperature, new GaugeConfiguration() },
+            { PropertyName.WindDirection, new GaugeConfiguration() },
+            { PropertyName.WindGust, new GaugeConfiguration() },
+            { PropertyName.WindSpeed, new GaugeConfiguration() }
+        };
+
         public bool LogSafetyWarnings { get; set; } = true;
         public bool ConfirmRestart { get; set; } = true;
         public bool ConfirmReset { get; set; } = true;
