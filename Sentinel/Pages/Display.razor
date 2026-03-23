@@ -29,7 +29,7 @@
     {
         <br />
     }
-    <Compass Value="137.0" />
+    <Compass Value=@GetDoubleValue(PropertyName.WindDirection, 0.0) />
     @if (currentWindowSize == WindowSize.Dials3)
     {
         <br />
@@ -82,6 +82,8 @@
                     return state.ObservingConditions.WindSpeed;
                 case PropertyName.WindGust:
                     return state.ObservingConditions.WindGust;
+                case PropertyName.WindDirection:
+                    return state.ObservingConditions.WindDirection;
                 case PropertyName.RainRate:
                     return state.ObservingConditions.RainRate;
                 case PropertyName.SkyBrightness:
@@ -104,7 +106,7 @@
         }
         catch (Exception ex)
         {
-            logger.LogDebug("GetDoubleValue", $"Gauge.DetDoubleValue - Error getting double value for {propertyName}: {ex.Message}");
+            logger.LogVerbose("GetDoubleValue", $"Gauge.DetDoubleValue - Error getting double value for {propertyName}: {ex.Message}");
         }
 
         return defaultValue;

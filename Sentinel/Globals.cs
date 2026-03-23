@@ -33,6 +33,9 @@
         internal const int TIMEOUT = 10; // Was 2
         internal const int WEBSOCKET_TIMEOUT = 10; // Was 1
 
+        internal static readonly SemaphoreSlim ConnectSemaphore = new SemaphoreSlim(1, 1);
+        internal static Lock StateLock = new();
+
         internal static List<PropertyName> ObservingConditionsProperties = new()
         {
             PropertyName.CloudCover,

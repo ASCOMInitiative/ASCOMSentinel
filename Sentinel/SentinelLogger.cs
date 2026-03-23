@@ -164,6 +164,15 @@ namespace Sentinel
             LogMessage(method, LogLevel.Error, message);
         }
 
+        /// <summary>
+        /// Log a debug message on the screen, console and log file
+        /// </summary>
+        /// <param name="method">Current method name</param>
+        /// <param name="message">Message to log</param>
+        public void LogVerbose(string method, string message)
+        {
+            LogMessage(method, LogLevel.Verbose, message);
+        }
         public void LogMessageConsole(string method, string message)
         {
             LogMessage(method, LogLevel.Information, message, logToScreen: false);

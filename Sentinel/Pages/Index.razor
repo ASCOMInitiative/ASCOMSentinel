@@ -59,10 +59,10 @@
 
             // Connect to devices if required
             if (settings.AutoConnect && !state.Connected)
-                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged), connectOnly: true);
 
             // Scroll to show latest content after initial render
-            circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+            await JSRuntime.InvokeVoidAsync("ScrollToBottom", "SentinelLog");
 
             // Start a timer-based log refresh instead of subscribing to every log message. This caps the cost at 1 render + 1 JS call per interval per tab, regardless of how many log messages arrive or how many tabs are open.
             _ = LogRefreshLoopAsync(_cts.Token);
@@ -75,7 +75,7 @@
         if (_logContentChanged)
         {
             _logContentChanged = false;
-            circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+            await JSRuntime.InvokeVoidAsync("ScrollToBottom", "SentinelLog");
         }
     }
 
@@ -164,18 +164,11 @@
     {
         try
         {
-            // Calculate the number of rows that will fit in the available height
-            int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
-
-            // Save the number of log lines so this can be restored across F5 refreshes and navigation. (Must be done before calling StateHasChanged)
-            circuitState.LastNumberOfLogLines = screenLogRows;
-
-            // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
             await InvokeAsync(StateHasChanged);
 
             // Scroll to the bottom of the window and return the current window 'top' value.
             // Save the current top so that the scroll position can be restored after a browser page refresh or navigation to a different page.
-            circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
+            await JSRuntime.InvokeVoidAsync("ScrollToBottom", "SentinelLog");
         }
         catch (Exception ex)
         {

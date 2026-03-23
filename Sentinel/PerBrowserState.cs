@@ -7,14 +7,6 @@ namespace Sentinel
     /// </summary>
     public class PerBrowserState
     {
-        /// <summary>
-        /// Gets or sets the index of the first visible log entry in the log view.
-        /// </summary>
-        public int TopOfVisibleLog { get; set; }
 
-        /// <summary>
-        /// Gets or sets the number of lines in the screen log when last updated.
-        /// </summary>
-        public int LastNumberOfLogLines { get; set; }
     }
 }
