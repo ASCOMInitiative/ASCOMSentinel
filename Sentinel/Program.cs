@@ -1,31 +1,21 @@
 using ASCOM.Alpaca;
 using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
-using ASCOM.Tools;
 using Microsoft.AspNetCore.Components.Server.Circuits;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using Radzen;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Sentinel
 {
     public class Program
     {
-        //ToDo
-        //Fill this with your driver name
-        internal const string DriverID = "ASCOMSentinel";
+        internal const string DriverID = "ASCOMSentinel"; // Device name
 
-        //Change this to a unique value
-        //You should offer a way for the end user to customize this via the command line so it can be changed in the case of a collision.
-        //This supports --urls=http://*:port by default.
-        internal const int DefaultPort = 32324;
+        internal const int DefaultPort = 32324; // Default port
 
-        //Fill these out
         internal const string Manufacturer = "Peter Simpson";
 
         internal const string ServerName = Globals.APPLICATION_NAME;
@@ -35,18 +25,12 @@ namespace Sentinel
         internal static Settings settings = new Settings(string.Empty);
         internal static SentinelLogger logger = new(state, settings);
 
-        internal static IHostApplicationLifetime? Lifetime;
+        internal static IHostApplicationLifetime? applicationLifetime;
         internal static bool RestartRequested;
 
         public static void Main(string[] args)
         {
-            //First fill in information for your driver in the Alpaca Configuration Class. Some of these you may want to store in a user changeable settings file.
-            //Then fill in the ToDos in this file. Each is marked with a //ToDo
-            //You shouldn't need to do anything in the Startup and Logging or Finish Building and Start Server regions
 
-
-            //This region contains startup and logging features, most of the time you shouldn't need to customize this
-            //You can add custom Command Line arguments here
             #region Startup and Logging
 
             logger.LogMessage("", $"{ServerName} version {ServerVersion}");
@@ -113,8 +97,7 @@ namespace Sentinel
 
             var builder = WebApplication.CreateBuilder(args ?? []);
 
-            // Configure Kestrel to listen on the saved server port unless the user
-            // explicitly provided --urls on the command line.
+            // Configure Kestrel to listen on the saved server port unless the user explicitly provided --urls on the command line.
             if (!args?.Any(str => str.Contains("--urls")) ?? true)
             {
                 string host = settings.BindToAllNetworkAddresses ? "*" : "localhost";
@@ -127,12 +110,12 @@ namespace Sentinel
             builder.Logging.ClearProviders(); // Remove default console logger
             builder.Logging.AddProvider(new ConsoleLoggerProvider(settings.LogLevel.ToMSLogLevel())); // Add the customised logger
 
-            #endregion Startup and Logging
-
-            //ToDo you can add devices here
-
             //Attach the main logger to the Alpaca.Razor components
             Logging.AttachLogger(logger);
+
+            #endregion Startup and Logging
+
+            #region Configuration and Device Loading
 
             //Load the configuration
             DeviceManager.LoadConfiguration(new AlpacaConfiguration());
@@ -149,7 +132,9 @@ namespace Sentinel
 
             DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
 
-            #region Finish Building and Start server
+            #endregion
+
+            #region Finish Building
 
             // Add services to the container.
             builder.Services.AddRazorPages();
@@ -257,26 +242,30 @@ namespace Sentinel
                 logger.LogWarning(ex.Message);
             }
 
-            #endregion Finish Building and Start server
 
-            Lifetime = app.Lifetime;
-
-            //ToDo Put code here that should run at shutdown
-            Lifetime.ApplicationStopping.Register(() =>
+            // Register events to log shutdown progress, this helps with troubleshooting shutdown issues and ensures we log the shutdown even if the browser is closed before the server is stopped.
+            applicationLifetime = app.Lifetime;
+            applicationLifetime.ApplicationStopping.Register(() =>
             {
                 logger.LogMessage(nameof(Main), "Application shutting down...");
             });
 
-            Lifetime.ApplicationStopped.Register(() =>
+            applicationLifetime.ApplicationStopped.Register(() =>
             {
                 logger.LogBlankLine();
                 logger.LogMessage(nameof(Main), "Application shutdown complete.");
             });
 
-            //Start the Alpaca Server
+            #endregion Finish Building
+
+            #region Start the application and handle re-start requests
+
+            //Start the Alpaca Server. Execution stays here until the server is stopped via the UI.
             app.Run();
 
-            // If a restart was requested, start a new instance now that the port has been released
+            // The application is now stopped, 
+
+            // Check whether a restart was requested and start a new instance if required.
             if (RestartRequested)
             {
                 try
@@ -284,6 +273,7 @@ namespace Sentinel
                     string? processPath = Environment.ProcessPath;
                     if (!string.IsNullOrWhiteSpace(processPath))
                     {
+                        // Start a new instance of the application with the --nobrowser argument to avoid opening another browser window on restart.
                         Process.Start(new ProcessStartInfo
                         {
                             FileName = processPath,
@@ -301,7 +291,12 @@ namespace Sentinel
                     logger.LogError(nameof(Main), $"Failed to start new application instance: {ex.Message}");
                 }
             }
+
+            #endregion
+
         }
+
+        #region Support code
 
         /// <summary>
         /// Starts the system default handler (normally a browser) for local host and the current port.
@@ -316,5 +311,8 @@ namespace Sentinel
             };
             Process.Start(psi);
         }
+
+        #endregion
+
     }
 }

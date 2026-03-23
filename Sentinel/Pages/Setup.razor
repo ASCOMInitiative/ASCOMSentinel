@@ -1158,11 +1158,6 @@
     private bool SrvEnableShutdown { get; set; } = false;
     private bool SrvAllowShutdown => !SrvEnableShutdown;
 
-    private void SrvShutdown()
-    {
-        Program.Lifetime?.StopApplication();
-    }
-
     #endregion
 
     #region Dispose pattern

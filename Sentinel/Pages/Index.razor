@@ -58,18 +58,18 @@
 
             logger.BlankLine();
 
+            // Connect to devices if required
             if (settings.AutoConnect && !state.Connected)
                 await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
-
-            state.UiReady = true;
 
             // Scroll to show latest content after initial render
             circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
 
-            // Start a timer-based log refresh instead of subscribing to every log message.
-            // This caps the cost at 1 render + 1 JS call per interval per tab, regardless
-            // of how many log messages arrive or how many tabs are open.
+            // Start a timer-based log refresh instead of subscribing to every log message. This caps the cost at 1 render + 1 JS call per interval per tab, regardless of how many log messages arrive or how many tabs are open.
             _ = LogRefreshLoopAsync(_cts.Token);
+
+            // Record that the UI is ready. This allows the navigation menu to enable its buttons.
+            state.UiReady = true;
         }
 
         // Scroll to bottom after a render that was triggered by new log content
@@ -80,14 +80,23 @@
         }
     }
 
+    /// <summary>
+    /// Timed loop that checks for new log content and triggers a UI update when it arrives. 
+    /// This is more efficient than triggering an update for every log message, and allows the UI to batch multiple log messages into a single update when they arrive in bursts.
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
     private async Task LogRefreshLoopAsync(CancellationToken token)
     {
         try
         {
+            // Loop until the component is disposed. The loop body is wrapped in a try/catch that will exit silently when the cancellation token is triggered, which happens in DisposeAsync.
             while (!token.IsCancellationRequested)
             {
+                // Wait for the next interval. 
                 await Task.Delay(500, token);
 
+                // Check for new log content. If the log length has changed since the last check, update the cached log text and trigger a UI update.
                 int currentLength = state.ApplicationLog.Length;
                 if (currentLength != _lastLogLength)
                 {
@@ -119,6 +128,11 @@
         }
     }
 
+    /// <summary>
+    /// Event handler for state changes. This method is called when the state changes and triggers a UI update.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private async void OnStateChanged(object? sender, EventArgs e)
     {
         if (_disposed)
@@ -134,6 +148,10 @@
 
     #region Log resize support
 
+    /// <summary>
+    /// Logs a message to the console with a timestamp and a specific color. Used to record exceptions that occur during the resize event handler.
+    /// </summary>
+    /// <param name="message"></param>
     private void LogConsole(string message)
     {
         lock (Globals.writeLogLock)

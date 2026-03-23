@@ -98,13 +98,13 @@ else
 
         <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Application</div>
         <div style="margin-top:3px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
-            <RadzenButton Click="() => RestartApplicationAsync()"
+            <RadzenButton Click="RestartApplicationAsync"
                           Text="Restart"
                           Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning"
                           Disabled="@(!state.UiReady)" />
         </div>
         <div style="margin-top:0px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
-            <RadzenButton Click="() => ShutdownApplicationAsync()"
+            <RadzenButton Click="ShutdownApplicationAsync"
                           Text="Shutdown"
                           Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Danger"
                           Disabled="@(!state.UiReady)" />
@@ -236,10 +236,12 @@ else
 
         if (confirmed == true)
         {
-            // Signal that a restart is needed, then stop the application.
-            // Program.Main will start the new instance after the port is released.
+            // Signal that a restart is needed, then stop the application. Program.Main will start the new instance after the port is released.
             await Task.Run(async () =>
             {
+                // Disable the UI immediately to prevent multiple clicks while shutdown is in progress.
+                state.UiReady = false;
+
                 // If we're connected to devices, disconnect first to ensure a clean shutdown.
                 if (state.Connected)
                 {
@@ -251,7 +253,7 @@ else
                 Task.Delay(250).Wait(); // Wait a moment to allow the log message to be written before shutting down.
 
                 Program.RestartRequested = true;
-                Program.Lifetime?.StopApplication();
+                Program.applicationLifetime?.StopApplication();
             });
         }
     }
@@ -268,6 +270,9 @@ else
             // Signal that a shutdown is needed and stop the application.
             await Task.Run(async () =>
             {
+                // Disable the UI immediately to prevent multiple clicks while shutdown is in progress.
+                state.UiReady = false;
+
                 // If we're connected to devices, disconnect first to ensure a clean shutdown.
                 if (state.Connected)
                 {
@@ -279,7 +284,7 @@ else
                 Task.Delay(250).Wait(); // Wait a moment to allow the log message to be written before shutting down.
 
                 Program.RestartRequested = false;
-                Program.Lifetime?.StopApplication();
+                Program.applicationLifetime?.StopApplication();
             });
         }
     }
