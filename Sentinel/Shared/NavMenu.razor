@@ -33,27 +33,30 @@ else
                 </NavLink>
             </div>
             <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/administration" Match="NavLinkMatch.All">
+                    <span style="color:white" class="oi oi-lock-locked" aria-hidden="true"></span> <span style="color:white">Administrator Logon</span>
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/display"
                          Match="NavLinkMatch.All">
                     <span class="oi oi-home" aria-hidden="true"></span> Display
                 </NavLink>
             </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/setup" Match="NavLinkMatch.All">
-                    <span style="color:white" class="oi oi-cog" aria-hidden="true"></span> <span style="color:yellow">Configuration</span>
-                </NavLink>
-            </div>
+            @if (circuitState.IsAuthenticated && !circuitState.MustChangePassword)
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/setup" Match="NavLinkMatch.All" >
+                        <span style="color:white" class="oi oi-cog" aria-hidden="true"></span> <span style="color:yellow">Configuration</span>
+                    </NavLink>
+                </div>
+            }
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/help" Match="NavLinkMatch.All">
                     <span style="color:white" class="oi oi-question-mark" aria-hidden="true"></span> <span style="color:white">Help</span>
                 </NavLink>
             </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/administration" Match="NavLinkMatch.All">
-                    <span style="color:white" class="oi oi-lock-locked" aria-hidden="true"></span> <span style="color:white">Administration</span>
-                </NavLink>
-            </div>
-        </nav>
+         </nav>
 
         @if (circuitState.IsAuthenticated && !circuitState.MustChangePassword)
         {
