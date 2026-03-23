@@ -101,11 +101,13 @@ namespace Sentinel
                                 // Update the screen log
                                 state.ApplicationLog.Append($"\r\n{formattedMessage}");
                             }
-                            catch (ArgumentOutOfRangeException) // The new length exceeded the specified maximum so truncate the log
+                            catch (ArgumentOutOfRangeException ex) // The new length exceeded the specified maximum so truncate the log
                             {
                                 // Truncate the log
+                                int originalLength= state.ApplicationLog.Length;
                                 state.ApplicationLog.Remove(0, Globals.LOG_TRUNCATION_CHARACTERS);
-                                state.ApplicationLog.Insert(0, $"\r\n**** Log truncated at {DateTime.Now:HH:mm:ss.fff} ****\r\n");
+                                int newLength = state.ApplicationLog.Length;
+                                state.ApplicationLog.Insert(0, $"\r\n**** {ex.Message} Log truncated at {DateTime.Now:HH:mm:ss.fff} original length: {originalLength}, new length: {newLength} ****\r\n");
 
                                 // Update the screen log
                                 state.ApplicationLog.Append($"\r\n{formattedMessage}");

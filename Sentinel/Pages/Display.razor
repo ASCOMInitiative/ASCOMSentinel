@@ -8,6 +8,7 @@
 @using Sentinel.DeviceAccess
 
 @inject State state
+@inject SentinelLogger logger
 
 @implements IDisposable
 
@@ -22,8 +23,8 @@
 <RadzenMediaQuery Query="(min-width: 2301px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials6, matches)) />
 
 <div>
-    <Gauge Legend="Wind Speed (mi/h)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value=@state.ObservingConditions.WindSpeed />
-    <Gauge Legend="Wind Gust (mi/h)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value=@state.ObservingConditions.WindGust />
+    <Gauge Legend="Wind Speed (mi/h)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value=@GetDoubleValue(PropertyName.WindSpeed, 20.0) />
+    <Gauge Legend="Wind Gust (mi/h)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value=@GetDoubleValue(PropertyName.WindGust, 100.0) />
     @if (currentWindowSize == WindowSize.Dials2)
     {
         <br />
@@ -33,43 +34,81 @@
     {
         <br />
     }
-    <Gauge Legend="Rain Rate (mm/h)" MinValue="0" MaxValue="50" OrangeGreenTransition="1" RedOrangeTransition="5" Value=@state.ObservingConditions.RainRate />
+    <Gauge Legend="Rain Rate (mm/h)" MinValue="0" MaxValue="50" OrangeGreenTransition="1" RedOrangeTransition="5" Value=@GetDoubleValue(PropertyName.RainRate, 50.0) />
     @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
     {
         <br />
     }
-    <Gauge Legend="Sky Brightness (Lux)" MinValue="0" MaxValue="100" OrangeGreenTransition="1" RedOrangeTransition="10" Value=@state.ObservingConditions.SkyBrightness />
+    <Gauge Legend="Sky Brightness (Lux)" MinValue="0" MaxValue="100" OrangeGreenTransition="1" RedOrangeTransition="10" Value=@GetDoubleValue(PropertyName.SkyBrightness, 100.0) />
     @if (currentWindowSize == WindowSize.Dials5)
     {
         <br />
     }
-    <Gauge Legend="Sky Quality (mag/arcsec2)" MinValue="10" MaxValue="25" OrangeGreenTransition="21.3" RedOrangeTransition="19" Value=@state.ObservingConditions.SkyQuality Reverse=true />
+    <Gauge Legend="Sky Quality (mag/arcsec2)" MinValue="10" MaxValue="25" OrangeGreenTransition="21.3" RedOrangeTransition="19" Value=@GetDoubleValue(PropertyName.SkyQuality, 25.0) Reverse=true />
     @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials3) | (currentWindowSize == WindowSize.Dials6))
     {
         <br />
     }
-    <Gauge Legend="FWHM (arc-sec)" MinValue="0" MaxValue="5" OrangeGreenTransition="1" RedOrangeTransition="2" Value=@state.ObservingConditions.StarFWHM />
-    <Gauge Legend="Sky Temperature (C)" MinValue="-70" MaxValue="20" OrangeGreenTransition="-20" RedOrangeTransition="0" Value=@state.ObservingConditions.SkyTemperature />
+    <Gauge Legend="FWHM (arc-sec)" MinValue="0" MaxValue="5" OrangeGreenTransition="1" RedOrangeTransition="2" Value=@GetDoubleValue(PropertyName.StarFWHM, 5.0) />
+    <Gauge Legend="Sky Temperature (C)" MinValue="-70" MaxValue="20" OrangeGreenTransition="-20" RedOrangeTransition="0" Value=@GetDoubleValue(PropertyName.SkyTemperature, 20.0) />
     @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
     {
         <br />
     }
-    <Gauge Legend="Dew Point (C)" MinValue="-30" MaxValue="25" OrangeGreenTransition="5" RedOrangeTransition="15" Value=@state.ObservingConditions.DewPoint />
+    <Gauge Legend="Dew Point (C)" MinValue="-30" MaxValue="25" OrangeGreenTransition="5" RedOrangeTransition="15" Value=@GetDoubleValue(PropertyName.DewPoint, 25.0) />
     @if (currentWindowSize == WindowSize.Dials3)
     {
         <br />
     }
-    <Gauge Legend="Pressure (hPa)" MinValue="950" MaxValue="1050" OrangeGreenTransition="1060" RedOrangeTransition="1060" Value=@state.ObservingConditions.Pressure />
+    <Gauge Legend="Pressure (hPa)" MinValue="950" MaxValue="1050" OrangeGreenTransition="1060" RedOrangeTransition="1060" Value=@GetDoubleValue(PropertyName.Pressure, 1050.0) />
     @if (currentWindowSize == WindowSize.Dials5)
     {
         <br />
     }
-    <Gauge Legend="Temperature (C)" MinValue="-50.0" MaxValue="50.0" OrangeGreenTransition="10.0" RedOrangeTransition="25.0" Value=@state.ObservingConditions.Temperature />
-    <Gauge Legend="Humidity (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value=@state.ObservingConditions.Humidity />
+    <Gauge Legend="Temperature (C)" MinValue="-50.0" MaxValue="50.0" OrangeGreenTransition="10.0" RedOrangeTransition="25.0" Value=@GetDoubleValue(PropertyName.Temperature, 50.0) />
+    <Gauge Legend="Humidity (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value=@GetDoubleValue(PropertyName.Humidity, 100.0) />
 </div>
 
 @code {
     private readonly CancellationTokenSource _cts = new();
+
+    private double GetDoubleValue(PropertyName propertyName, double defaultValue)
+    {
+        try
+        {
+            switch (propertyName)
+            {
+                case PropertyName.WindSpeed:
+                    return state.ObservingConditions.WindSpeed;
+                case PropertyName.WindGust:
+                    return state.ObservingConditions.WindGust;
+                case PropertyName.RainRate:
+                    return state.ObservingConditions.RainRate;
+                case PropertyName.SkyBrightness:
+                    return state.ObservingConditions.SkyBrightness;
+                case PropertyName.SkyQuality:
+                    return state.ObservingConditions.SkyQuality;
+                case PropertyName.StarFWHM:
+                    return state.ObservingConditions.StarFWHM;
+                case PropertyName.SkyTemperature:
+                    return state.ObservingConditions.SkyTemperature;
+                case PropertyName.DewPoint:
+                    return state.ObservingConditions.DewPoint;
+                case PropertyName.Pressure:
+                    return state.ObservingConditions.Pressure;
+                case PropertyName.Temperature:
+                    return state.ObservingConditions.Temperature;
+                case PropertyName.Humidity:
+                    return state.ObservingConditions.Humidity;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogDebug("GetDoubleValue", $"Gauge.DetDoubleValue - Error getting double value for {propertyName}: {ex.Message}");
+        }
+
+        return defaultValue;
+    }
 
     protected override async Task OnInitializedAsync()
     {

@@ -43,6 +43,10 @@
         var serverStopped = false;
         var countdownInterval = null;
 
+        // Random delay (0–5 seconds) unique to this tab, used to stagger reconnections
+        // after a server restart so that N browsers don't all hit the server at once.
+        var reconnectJitterMs = Math.floor(Math.random() * 0);
+
         function handleServerStopped() {
             if (serverStopped) return;
             serverStopped = true;
@@ -70,7 +74,7 @@
         }
 
         // MutationObserver watches for Blazor adding CSS classes to the reconnect modal.
-        // Blazor's default reconnection handler retries with exponential backoff and
+        // The custom reconnectionHandler retries with a random 5–10s interval and
         // updates these classes based on the outcome:
         //   'components-reconnect-show'     — reconnection in progress (ignore, let it retry)
         //   'components-reconnect-rejected' — server alive but circuit expired (reload for fresh circuit)
@@ -82,9 +86,10 @@
                     if (mutations[i].attributeName === 'class') {
                         var cls = reconnectModal.className;
                         if (cls.indexOf('components-reconnect-rejected') >= 0) {
-                            // Server is running but the circuit was discarded (tab was asleep too long).
-                            // Reload to get a fresh circuit instead of showing the stopped overlay.
-                            window.location.reload();
+                            // Server is running but the circuit was discarded.
+                            // Stagger the reload with a random delay so N tabs don't
+                            // all create new circuits at the same instant.
+                            setTimeout(function () { window.location.reload(); }, reconnectJitterMs);
                         } else if (cls.indexOf('components-reconnect-failed') >= 0) {
                             // Server is unreachable — show the stopped overlay
                             handleServerStopped();
@@ -94,9 +99,59 @@
             }).observe(reconnectModal, { attributes: true });
         }
 
-        // Start Blazor without a custom reconnectionHandler so it uses its built-in
-        // retry logic (exponential backoff). The MutationObserver above handles the outcome.
-        Blazor.start();
+        // Returns a random delay between 5 and 10 seconds (in ms)
+        function randomRetryDelayMs() {
+            return 0 + Math.floor(Math.random() * 0);
+        }
+
+        // Custom reconnection handler: retries with a random 5–10 second interval
+        // instead of the default exponential backoff. Each retry uses a fresh random
+        // delay, which also naturally staggers reconnection attempts across multiple tabs.
+        var maxRetries = 20;
+
+        function startReconnectLoop(reconnectCallback) {
+            var attempt = 0;
+            function tryReconnect() {
+                attempt++;
+                if (attempt > maxRetries) {
+                    // Exhausted retries — let the MutationObserver handle the failed state
+                    return;
+                }
+                var delayMs = randomRetryDelayMs();
+                console.log('Reconnect attempt ' + attempt + '/' + maxRetries + ' in ' + delayMs + 'ms');
+                setTimeout(function () {
+                    reconnectCallback().then(function (success) {
+                        if (!success) {
+                            tryReconnect();
+                        }
+                        // If success, Blazor handles the rest
+                    });
+                }, delayMs);
+            }
+            tryReconnect();
+        }
+
+        // Start Blazor after a small random delay so that when the page is first loaded
+        // (e.g. after a server restart causes all tabs to reload), the SignalR connections
+        // are spread over a few seconds rather than arriving simultaneously.
+        setTimeout(function () {
+            Blazor.start({
+                circuit: {
+                    reconnectionHandler: {
+                        onConnectionDown: function (options, error) {
+                            startReconnectLoop(options.reconnect);
+                        },
+                        onConnectionUp: function () {
+                            // Connection restored — if the stopped overlay was shown, reload
+                            // to get a clean state
+                            if (serverStopped) {
+                                window.location.reload();
+                            }
+                        }
+                    }
+                }
+            });
+        }, reconnectJitterMs);
     </script>
 </body>
 </html>
