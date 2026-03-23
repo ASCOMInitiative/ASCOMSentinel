@@ -28,7 +28,7 @@ namespace Sentinel
         internal static IHostApplicationLifetime? applicationLifetime;
         internal static bool RestartRequested;
 
-        public static void Main(string[] args)
+        public static async Task  Main(string[] args)
         {
 
             #region Startup and Logging
@@ -132,6 +132,13 @@ namespace Sentinel
 
             DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
 
+            // Connect to devices if required
+            if (settings.AutoConnect && !state.Connected)
+                await ConnectionManager.ConnectAsync(state,settings,logger);
+
+
+
+
             #endregion
 
             #region Finish Building
@@ -191,6 +198,9 @@ namespace Sentinel
             {
                 return settings;
             });
+
+            // Add the password manager singleton for administrator authentication
+            builder.Services.AddSingleton<PasswordManager>();
 
             // Initialise state with any values from settings that are needed at startup
             state.EnableRemoteClients = settings.EnableRemoteClients;

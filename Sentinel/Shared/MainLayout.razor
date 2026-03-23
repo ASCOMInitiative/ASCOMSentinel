@@ -2,6 +2,10 @@
 
 @inherits LayoutComponentBase
 
+@inject IJSRuntime JSRuntime
+@inject PerBrowserState circuitState
+@inject PasswordManager passwordManager
+
 <PageTitle>@Globals.APPLICATION_NAME</PageTitle>
 
 <div class="page">
@@ -20,3 +24,25 @@
     </main>
 </div>
 <RadzenDialog />
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Restore authentication state from the browser's sessionStorage.
+            // This survives an F5 refresh because sessionStorage persists across
+            // page loads within the same tab, even though the Blazor circuit is new.
+            try
+            {
+                string? token = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", "sentinel-auth-token");
+                if (PasswordManager.ValidateAuthToken(token))
+                {
+                    circuitState.MustChangePassword = passwordManager.MustChangePassword;
+                    circuitState.IsAuthenticated = true;
+                }
+            }
+            catch { }
+        }
+    }
+}

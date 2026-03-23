@@ -7,6 +7,25 @@ namespace Sentinel
     /// </summary>
     public class PerBrowserState
     {
+        /// <summary>
+        /// Whether this browser tab has authenticated as an administrator.
+        /// </summary>
+        public bool IsAuthenticated
+        {
+            get => _isAuthenticated;
+            set { _isAuthenticated = value; AuthStateChanged?.Invoke(); }
+        }
+        private bool _isAuthenticated;
 
+        /// <summary>
+        /// Whether the administrator must change the password before proceeding.
+        /// </summary>
+        public bool MustChangePassword { get; set; }
+
+        /// <summary>
+        /// Fired when <see cref="IsAuthenticated"/> changes so components
+        /// in the same circuit (e.g. NavMenu) can re-render.
+        /// </summary>
+        public event Action? AuthStateChanged;
     }
 }

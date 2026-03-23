@@ -1,0 +1,186 @@
+@page "/administration"
+@namespace Sentinel
+
+@inject PasswordManager passwordManager
+@inject PerBrowserState circuitState
+@inject IJSRuntime JSRuntime
+@inject SentinelLogger logger
+
+<PageTitle>Administration</PageTitle>
+
+<h1>Administration</h1>
+
+@if (!circuitState.IsAuthenticated)
+{
+    @* ── Login form ── *@
+    <RadzenCard Style="max-width:500px; margin-top:20px;">
+        <h4 style="color:cornflowerblue;">Administrator Login</h4>
+        @if (passwordManager.MustChangePassword)
+        {
+            <p style="color:darkorange; font-weight:bold;">First use — you will be asked to change the password after logging in.</p>
+            <p style="color:#888; font-size:small;">Default password: <code>Sentinel2026!</code></p>
+        }
+        <div style="margin-bottom:10px; margin-top:10px;">
+            <label style="display:inline-block; min-width:100px;">Password:</label>
+            @if (_showLoginPassword)
+            {
+                <RadzenTextBox @bind-Value="_loginPassword" Style="width:250px; margin-left:12px;" />
+            }
+            else
+            {
+                <RadzenPassword @bind-Value="_loginPassword" Style="width:250px; margin-left:12px;" />
+            }
+        </div>
+        <div style="margin-bottom:10px;">
+            <input type="checkbox" @bind="_showLoginPassword" /> <label>View Password</label>
+        </div>
+        <div style="margin-bottom:10px;">
+            <RadzenButton Click="LoginAsync" Text="Enter" ButtonStyle="ButtonStyle.Primary"
+                          Style="border-radius:20px; text-transform:none;" />
+        </div>
+        @if (!string.IsNullOrEmpty(_loginStatus))
+        {
+            <p style="color:@_loginStatusColor; font-weight:bold;">@_loginStatus</p>
+        }
+    </RadzenCard>
+}
+else if (circuitState.MustChangePassword)
+{
+    @* ── Mandatory password change ── *@
+    <RadzenCard Style="max-width:500px; margin-top:20px;">
+        <h4 style="color:darkorange;">You must change your password before continuing</h4>
+        <div style="margin-bottom:10px; margin-top:10px;">
+            <label style="display:inline-block; min-width:170px;">New Password:</label>
+            @if (_showChangePassword)
+            {
+                <RadzenTextBox @bind-Value="_newPassword" Style="width:250px; margin-left:12px;" />
+            }
+            else
+            {
+                <RadzenPassword @bind-Value="_newPassword" Style="width:250px; margin-left:12px;" />
+            }
+        </div>
+        <div style="margin-bottom:10px;">
+            <label style="display:inline-block; min-width:170px;">Confirm New Password:</label>
+            @if (_showChangePassword)
+            {
+                <RadzenTextBox @bind-Value="_confirmPassword" Style="width:250px; margin-left:12px;" />
+            }
+            else
+            {
+                <RadzenPassword @bind-Value="_confirmPassword" Style="width:250px; margin-left:12px;" />
+            }
+        </div>
+        <div style="margin-bottom:10px;">
+            <input type="checkbox" @bind="_showChangePassword" /> <label>View Password</label>
+        </div>
+        <div style="margin-bottom:10px;">
+            <RadzenButton Click="ChangePasswordAsync" Text="Set Password" ButtonStyle="ButtonStyle.Warning"
+                          Style="border-radius:20px; text-transform:none;" />
+        </div>
+        <p style="color:#888; font-size:small;">
+            At least 8 characters including upper and lower case letters, numbers, and punctuation.
+        </p>
+        @if (!string.IsNullOrEmpty(_changeStatus))
+        {
+            <p style="color:@_changeStatusColor; font-weight:bold;">@_changeStatus</p>
+        }
+    </RadzenCard>
+}
+else
+{
+    @* ── Authenticated ── *@
+    <RadzenCard Style="max-width:500px; margin-top:20px;">
+        <h4 style="color:green;">Authenticated</h4>
+        <p>You are logged in as an administrator.</p>
+        <RadzenButton Click="LogoutAsync" Text="Logout" ButtonStyle="ButtonStyle.Danger"
+                      Style="border-radius:20px; text-transform:none;" />
+    </RadzenCard>
+}
+
+@code {
+    private string _loginPassword = "";
+    private bool _showLoginPassword;
+    private string _loginStatus = "";
+    private string _loginStatusColor = "red";
+
+    private string _newPassword = "";
+    private string _confirmPassword = "";
+    private bool _showChangePassword;
+    private string _changeStatus = "";
+    private string _changeStatusColor = "red";
+
+    private async Task LoginAsync()
+    {
+        if (string.IsNullOrEmpty(_loginPassword))
+        {
+            _loginStatus = "Please enter a password.";
+            _loginStatusColor = "red";
+            return;
+        }
+
+        if (passwordManager.VerifyPassword(_loginPassword))
+        {
+            // Create a session token and store it in the browser's sessionStorage
+            string token = PasswordManager.CreateAuthToken();
+            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "sentinel-auth-token", token);
+
+            circuitState.MustChangePassword = passwordManager.MustChangePassword;
+            circuitState.IsAuthenticated = true;
+
+            logger.LogMessage("Administration", "Administrator logged in.");
+            _loginStatus = "";
+            _loginPassword = "";
+        }
+        else
+        {
+            _loginStatus = "Incorrect password.";
+            _loginStatusColor = "red";
+            logger.LogWarning("Administration", "Failed administrator login attempt.");
+        }
+    }
+
+    private async Task ChangePasswordAsync()
+    {
+        if (_newPassword != _confirmPassword)
+        {
+            _changeStatus = "Passwords do not match.";
+            _changeStatusColor = "red";
+            return;
+        }
+
+        string? error = passwordManager.SetPassword(_newPassword);
+        if (error is not null)
+        {
+            _changeStatus = error;
+            _changeStatusColor = "red";
+            return;
+        }
+
+        circuitState.MustChangePassword = false;
+        _changeStatus = "Password changed successfully.";
+        _changeStatusColor = "green";
+        _newPassword = "";
+        _confirmPassword = "";
+        logger.LogMessage("Administration", "Administrator password changed.");
+
+        // Brief pause so the user sees the success message before the UI updates
+        await Task.Delay(500);
+        StateHasChanged();
+    }
+
+    private async Task LogoutAsync()
+    {
+        try
+        {
+            string? token = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", "sentinel-auth-token");
+            PasswordManager.RevokeAuthToken(token);
+            await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "sentinel-auth-token");
+        }
+        catch { }
+
+        circuitState.IsAuthenticated = false;
+        circuitState.MustChangePassword = false;
+        logger.LogMessage("Administration", "Administrator logged out.");
+    }
+}

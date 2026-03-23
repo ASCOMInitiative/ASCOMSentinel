@@ -5,6 +5,7 @@
 @inject Settings settings
 @inject SentinelLogger logger
 @inject DialogService DialogService
+@inject PerBrowserState circuitState
 
 @implements IDisposable
 
@@ -47,8 +48,15 @@ else
                     <span style="color:white" class="oi oi-question-mark" aria-hidden="true"></span> <span style="color:white">Help</span>
                 </NavLink>
             </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/administration" Match="NavLinkMatch.All">
+                    <span style="color:white" class="oi oi-lock-locked" aria-hidden="true"></span> <span style="color:white">Administration</span>
+                </NavLink>
+            </div>
         </nav>
 
+        @if (circuitState.IsAuthenticated && !circuitState.MustChangePassword)
+        {
         <div style="flex:1"></div>
         <div>
             <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Online State</div>
@@ -109,6 +117,7 @@ else
                           Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Danger"
                           Disabled="@(!state.UiReady)" />
         </div>
+        } @* end of IsAuthenticated block *@
     </div>
 }
 
@@ -142,6 +151,16 @@ else
     {
         state.StateChanged += OnStateChanged;
         settings.ConfigurationChanged += OnStateChanged;
+        circuitState.AuthStateChanged += OnAuthStateChanged;
+    }
+
+    private async void OnAuthStateChanged()
+    {
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException) { }
     }
 
     private async void OnStateChanged(object? sender, EventArgs e)
@@ -161,6 +180,7 @@ else
     {
         state.StateChanged -= OnStateChanged;
         settings.ConfigurationChanged -= OnStateChanged;
+        circuitState.AuthStateChanged -= OnAuthStateChanged;
     }
 
     private void ToggleNavMenu()

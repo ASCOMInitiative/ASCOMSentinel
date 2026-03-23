@@ -57,10 +57,6 @@
 
             logger.BlankLine();
 
-            // Connect to devices if required
-            if (settings.AutoConnect && !state.Connected)
-                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged), connectOnly: true);
-
             // Scroll to show latest content after initial render
             await JSRuntime.InvokeVoidAsync("ScrollToBottom", "SentinelLog");
 
