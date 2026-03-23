@@ -18,7 +18,7 @@
         internal const string WELCOME_MESSAGE = $"Welcome to {APPLICATION_NAME}!"; // Welcome message
         internal const string MANUFACTURER_NAME = "Peter Simpson"; // Manufacturer name 
         internal const int DEFAULT_ALPACA_PORT = 32324; // Default Alpaca port
-        internal const int MAXIMUM_LOG_SIZE_CHARACTERS = 100000; // Maximum log file size in characters before truncation
+        internal const int MAXIMUM_LOG_SIZE_CHARACTERS = 6000; // Maximum log file size in characters before truncation
         internal const int LOG_TRUNCATION_CHARACTERS = 5000; // The number of characters by which to truncate the screen log when required.
         internal const bool ALPACA_SEARCH_STRICT_CASING = false;
         internal const string USER_AGENT_PRODUCT_NAME = "ObservatoryManager";
@@ -29,6 +29,9 @@
         internal const string NOT_SET = "Not configured";
 
         internal static readonly Lock writeLogLock = new(); // Lock object to synchronize access to the log when resizing
+
+        internal const int TIMEOUT = 10; // Was 2
+        internal const int WEBSOCKET_TIMEOUT = 10; // Was 1
 
         internal static List<PropertyName> ObservingConditionsProperties = new()
         {

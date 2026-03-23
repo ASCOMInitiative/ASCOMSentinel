@@ -111,38 +111,17 @@ namespace Sentinel
                 Console.WriteLine($"http://localhost:{settings.ServerPort}");
             }
 
+            var builder = WebApplication.CreateBuilder(args ?? []);
+
+            // Configure Kestrel to listen on the saved server port unless the user
+            // explicitly provided --urls on the command line.
             if (!args?.Any(str => str.Contains("--urls")) ?? true)
             {
-                args ??= [];
-
-                logger.LogMessage("", "No startup url args detected, binding to saved server settings.");
-
-                var temparray = new string[args.Length + 1];
-
-                args.CopyTo(temparray, 0);
-
-                string startupURLArg = "--urls=http://";
-
-                //If set to allow remote access bind to all local ips, otherwise bind only to localhost
-                if (settings.BindToAllNetworkAddresses)
-                {
-                    startupURLArg += "*";
-                }
-                else
-                {
-                    startupURLArg += "localhost";
-                }
-
-                startupURLArg += ":" + settings.ServerPort;
-
-                logger.LogMessage("", "Startup URL args: " + startupURLArg);
-
-                temparray[args.Length] = startupURLArg;
-
-                args = temparray;
+                string host = settings.BindToAllNetworkAddresses ? "*" : "localhost";
+                string listenUrl = $"http://{host}:{settings.ServerPort}";
+                logger.LogMessage("", $"No --urls arg detected, binding to: {listenUrl}");
+                builder.WebHost.UseUrls(listenUrl);
             }
-
-            var builder = WebApplication.CreateBuilder(args ?? []);
 
             // Remove the default ASP.NET console logger and replace with one customised to create output in the application's colour and format
             builder.Logging.ClearProviders(); // Remove default console logger
@@ -176,19 +155,19 @@ namespace Sentinel
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor(options =>
                 {
-                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(2);
+                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(Globals.TIMEOUT);
                 });
 
             // Limit how long the host waits for graceful shutdown so the app exits promptly
             // when stopped via the UI (default is 30 seconds).
             builder.Host.ConfigureHostOptions(options =>
                 {
-                    options.ShutdownTimeout = TimeSpan.FromSeconds(2);
+                    options.ShutdownTimeout = TimeSpan.FromSeconds(Globals.TIMEOUT);
                 });
 
             // Limit how long Kestrel waits for active connections to drain during shutdown.
             // This is separate from HostOptions.ShutdownTimeout and defaults to 5 seconds.
-            builder.WebHost.UseShutdownTimeout(TimeSpan.FromSeconds(2));
+            builder.WebHost.UseShutdownTimeout(TimeSpan.FromSeconds(Globals.TIMEOUT));
 
             //Set default behaviors for Alpaca APIs
             ASCOM.Alpaca.Razor.StartupHelpers.ConfigureAlpacaAPIBehavoir(builder.Services);
@@ -258,7 +237,7 @@ namespace Sentinel
             app.MapBlazorHub(options =>
             {
                 // Default is 5 seconds — reduce so the app exits promptly on shutdown
-                options.WebSockets.CloseTimeout = TimeSpan.FromSeconds(1);
+                options.WebSockets.CloseTimeout = TimeSpan.FromSeconds(Globals.WEBSOCKET_TIMEOUT);
             });
 
             app.MapControllers();
@@ -268,7 +247,10 @@ namespace Sentinel
             // Start the browser.
             try
             {
-                StartBrowser(settings.ServerPort);
+                if (args?.Any(str => str.Contains("--nobrowser")) ?? false)
+                { } // Don't start the browser if the user requested not to
+                else
+                    StartBrowser(settings.ServerPort);
             }
             catch (Exception ex)
             {
@@ -305,6 +287,7 @@ namespace Sentinel
                         Process.Start(new ProcessStartInfo
                         {
                             FileName = processPath,
+                            Arguments = "--nobrowser",
                             UseShellExecute = true
                         });
                     }

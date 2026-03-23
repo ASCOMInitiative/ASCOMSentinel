@@ -27,14 +27,24 @@
     private bool _disposed = false;
     private bool _logContentChanged = false;
     private int _lastLogLength;
+    private string _cachedLogText = "";
     private readonly CancellationTokenSource _cts = new();
     private DotNetObjectReference<Index>? objRef;
+
+    protected override void OnInitialized()
+    {
+        // Snapshot the log before the first render so the initial display isn't empty
+        lock (Globals.writeLogLock)
+        {
+            _cachedLogText = state.ApplicationLog.ToString();
+        }
+        _lastLogLength = state.ApplicationLog.Length;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            state.StateChanged += OnStateChanged;
             settings.ConfigurationChanged += OnStateChanged;
 
             // Subscribe to the OnResized event. This will do work when the browser is resized.
@@ -52,9 +62,6 @@
                 await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
 
             state.UiReady = true;
-
-            // Record initial log length and start the periodic refresh loop
-            _lastLogLength = state.ApplicationLog.Length;
 
             // Scroll to show latest content after initial render
             circuitState.TopOfVisibleLog = await JSRuntime.InvokeAsync<int>("ScrollToBottom", "SentinelLog");
@@ -85,6 +92,10 @@
                 if (currentLength != _lastLogLength)
                 {
                     _lastLogLength = currentLength;
+                    lock (Globals.writeLogLock)
+                    {
+                        _cachedLogText = state.ApplicationLog.ToString();
+                    }
                     _logContentChanged = true;
                     await InvokeAsync(StateHasChanged);
                 }
@@ -101,13 +112,7 @@
 
     private string ApplicationLog
     {
-        get
-        {
-            lock (Globals.writeLogLock)
-            {
-                return state.ApplicationLog.ToString();
-            }
-        }
+        get => _cachedLogText;
         set
         {
             // Do nothing - required for two-way binding
@@ -175,7 +180,6 @@
         _disposed = true;
         _cts.Cancel();
         _cts.Dispose();
-        state.StateChanged -= OnStateChanged;
         settings.ConfigurationChanged -= OnStateChanged;
 
         if (objRef != null)
