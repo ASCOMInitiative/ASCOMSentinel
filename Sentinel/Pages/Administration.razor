@@ -26,16 +26,14 @@
         @* Request password *@
         <div style="margin-bottom:16px; margin-top:18px;">
             <label style="display:inline-block; min-width:100px;">Password:</label>
-            @if (_showLoginPassword)
-            {
-                <RadzenTextBox @bind-Value="_loginPassword" Style="width:250px; margin-left:12px;" />
-            }
-            else
-            {
-                <RadzenPassword @bind-Value="_loginPassword" Style="width:250px; margin-left:12px;" />
-            }
+            <InputText id="password"
+                       name="password"
+                       type="@(_showLoginPassword ? "text" : "password")"
+                       autocomplete="new-password"
+                       @bind-Value="_loginPassword" />
+
             <span style="margin-bottom:10px;">
-                <input style="margin-left:24px;" type="checkbox" @bind="_showLoginPassword" /> <span style="margin-left:6px;" >View Password</span>
+                <input style="margin-left:24px;" type="checkbox" @bind="_showLoginPassword" /> <span style="margin-left:6px;">View Password</span>
             </span>
         </div>
         
@@ -50,42 +48,41 @@
         }
     </RadzenCard>
 }
-else if (circuitState.MustChangePassword) @* Must change password dialogue *@
+else if (circuitState.MustChangePassword)
+@* Must change password dialogue *@
 {
     @* ── Mandatory password change ── *@
     <RadzenCard Style="max-width:620px; margin-top:20px;">
         <h4 style="color:darkorange;">You must change your password before continuing</h4>
+
         @* Enter new password *@
         <div style="margin-bottom:10px; margin-top:10px;">
-            <label style="display:inline-block; min-width:150px;">New Password:</label>
-            @if (_showChangePassword) @* Show password *@
-            {
-                <RadzenTextBox @bind-Value="_newPassword" Style="width:250px; margin-left:12px;margin-top:12px;" />
-            }
-            else @* Hide password *@
-            {
-                <RadzenPassword @bind-Value="_newPassword" Style="width:250px; margin-left:12px;margin-top:12px;" />
-            }
-        </div>
+            <form autocomplete="on">
+                <div>
+                    <label style="display:inline-block; min-width:150px;">New Password:</label>
+                    <input id="password"
+                           name="new-password"
+                           type="@(_showChangePassword ? "text" : "password")"
+                           autocomplete="new-password"
+                           @bind="_newPassword" />
+                </div>
 
-        @* Confirm new password *@
-        <div style="margin-bottom:10px;">
-            <label style="display:inline-block; min-width:150px;">Confirm Password:</label>
-            @if (_showChangePassword) @* Show password *@
-            {
-                <RadzenTextBox @bind-Value="_confirmPassword" Style="width:250px; margin-left:12px;" />
-            }
-            else @* Hide password *@
-            {
-                <RadzenPassword @bind-Value="_confirmPassword" Style="width:250px; margin-left:12px;" />
-            }
+                <div style="margin-top:12px;">
+                    <label style="display:inline-block; min-width:150px;">Confirm Password:</label>
+                    <input id="confirm-password"
+                           name="password_confirmation"
+                           type="@(_showChangePassword ? "text" : "password")"
+                           autocomplete="new-password"
+                           @bind="_confirmPassword" />
+                </div>
+            </form>
             <span>
                 <input style="margin-left:24px;" type="checkbox" @bind="_showChangePassword" /> <span style="margin-left:6px;">View Password</span>
             </span>
         </div>
-        
+
         @* Change password button*@
-        <div style="margin-bottom:10px;">
+        <div style="margin-top:12px;margin-bottom:10px;">
             <RadzenButton Click="ChangePasswordAsync" Text="Set Password" ButtonStyle="ButtonStyle.Warning" Style="border-radius:20px; text-transform:none;" />
         </div>
         
@@ -100,7 +97,8 @@ else if (circuitState.MustChangePassword) @* Must change password dialogue *@
         }
     </RadzenCard>
 }
-else @* Authenticated dialogue *@
+else
+@* Authenticated dialogue *@
 {
     <RadzenCard Style="max-width:620px; margin-top:20px;">
         <h4 style="color:green;margin-bottom:24px;">Authenticated</h4>

@@ -182,10 +182,56 @@
 
                     <RadzenTabsItem Text="Security">
                         <div class="row" style="margin-top: 10px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px; margin-top: 10px;">
+                                <h4 style="color:cornflowerblue;">@Globals.APPLICATION_NAME Administrator Password</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px;">
+
+                                    <form autocomplete="on">
+                                        <!-- New password -->
+                                        <div>
+                                            <label style="display:inline-block; min-width:150px;">New Password:</label>
+                                            <input id="new-password"
+                                                   name="new-password"
+                                                   type="@(_showAdminPassword ? "text" : "password")"
+                                                   autocomplete="new-password"
+                                                   @bind="_adminNewPassword" />
+                                        </div>
+
+                                        <!-- Confirm new password -->
+                                        <div style="margin-top:12px;">
+                                            <label style="display:inline-block; min-width:150px;">Confirm Password:</label>
+                                            <input id="confirm-password"
+                                                   name="new-password-confirmation"
+                                                   type="@(_showAdminPassword ? "text" : "password")"
+                                                   autocomplete="new-password"
+                                                   @bind="_adminConfirmPassword" />
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div style="margin-top:12px;margin-bottom: 10px;">
+                                    <input type="checkbox" @bind="_showAdminPassword" /> <label>View Password</label>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <SentinelButton Click="@SetAdminPassword" Text="Set Password" Disabled="@(state.OperationUnderway)" />
+                                </div>
+
+                                <p style="color:#888; font-size:small;">
+                                    At least 8 characters including upper and lower case letters, numbers, and punctuation.
+                                    Password cannot be one of the last 10 passwords used.
+                                </p>
+
+                                @if (!string.IsNullOrEmpty(_adminPasswordStatus))
+                                {
+                                    <p style="color:@_adminPasswordStatusColor; font-weight:bold;">@_adminPasswordStatus</p>
+                                }
+                            </RadzenCard>
+
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                                <h4 style="color:cornflowerblue;">Security</h4>
+                                <h4 style="color:cornflowerblue;">Composite Device API Security</h4>
                                 <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Require Authorization:</label>
+                                    <label>Require Authorisation (BasicAuth):</label>
                                     <input type="checkbox" @bind="SrvRequireAuthorization" />
                                 </div>
                                 <div style="margin-bottom: 10px">
@@ -203,46 +249,6 @@
                                 @if (!string.IsNullOrEmpty(_srvPasswordStatus))
                                 {
                                     <p style="color: @PasswordStatusColor">@_srvPasswordStatus</p>
-                                }
-                            </RadzenCard>
-
-                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px; margin-top: 10px;">
-                                <h4 style="color:cornflowerblue;">Administrator Password</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px;">
-                                    <label style="display:inline-block; min-width:170px;">New Password:</label>
-                                    @if (_showAdminPassword)
-                                    {
-                                        <RadzenTextBox @bind-Value="_adminNewPassword" Style="width:250px; margin-left:12px;" />
-                                    }
-                                    else
-                                    {
-                                        <RadzenPassword @bind-Value="_adminNewPassword" Style="width:250px; margin-left:12px;" />
-                                    }
-                                </div>
-                                <div style="margin-bottom: 10px;">
-                                    <label style="display:inline-block; min-width:170px;">Confirm New Password:</label>
-                                    @if (_showAdminPassword)
-                                    {
-                                        <RadzenTextBox @bind-Value="_adminConfirmPassword" Style="width:250px; margin-left:12px;" />
-                                    }
-                                    else
-                                    {
-                                        <RadzenPassword @bind-Value="_adminConfirmPassword" Style="width:250px; margin-left:12px;" />
-                                    }
-                                </div>
-                                <div style="margin-bottom: 10px;">
-                                    <input type="checkbox" @bind="_showAdminPassword" /> <label>View Password</label>
-                                </div>
-                                <div style="margin-bottom: 10px;">
-                                    <SentinelButton Click="@SetAdminPassword" Text="Set Password" Disabled="@(state.OperationUnderway)" />
-                                </div>
-                                <p style="color:#888; font-size:small;">
-                                    At least 8 characters including upper and lower case letters, numbers, and punctuation.
-                                    Password cannot be one of the last 10 passwords used.
-                                </p>
-                                @if (!string.IsNullOrEmpty(_adminPasswordStatus))
-                                {
-                                    <p style="color:@_adminPasswordStatusColor; font-weight:bold;">@_adminPasswordStatus</p>
                                 }
                             </RadzenCard>
                         </div>
