@@ -32,18 +32,21 @@ else
                     <span class="oi oi-home" aria-hidden="true"></span> Home
                 </NavLink>
             </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/administration" Match="NavLinkMatch.All">
-                    <span style="color:white" class="oi oi-lock-locked" aria-hidden="true"></span> <span style="color:white">Administrator Logon</span>
-                </NavLink>
-            </div>
+            @if (state.RequireAdministratorLoginAtStartup)
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/administration" Match="NavLinkMatch.All">
+                        <span style="color:white" class="oi oi-lock-locked" aria-hidden="true"></span> <span style="color:white">Administrator Logon</span>
+                    </NavLink>
+                </div>
+            }
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/display"
                          Match="NavLinkMatch.All">
                     <span class="oi oi-home" aria-hidden="true"></span> Display
                 </NavLink>
             </div>
-            @if (circuitState.IsAuthenticated && !circuitState.MustChangePassword)
+            @if (!state.RequireAdministratorLoginAtStartup || (circuitState.IsAuthenticated && !circuitState.MustChangePassword))
             {
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/setup" Match="NavLinkMatch.All" >
@@ -58,7 +61,7 @@ else
             </div>
          </nav>
 
-        @if (circuitState.IsAuthenticated && !circuitState.MustChangePassword)
+        @if (!state.RequireAdministratorLoginAtStartup || (circuitState.IsAuthenticated && !circuitState.MustChangePassword))
         {
         <div style="flex:1"></div>
         <div>

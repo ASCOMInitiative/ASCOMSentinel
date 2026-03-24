@@ -327,9 +327,10 @@ namespace Sentinel
         public bool EnableRemoteClients { get; set; } = true;
         public bool PreventRemoteDisconnects { get; set; } = true;
         public bool RunInStrictAlpacaMode { get; set; } = true;
-        public bool UseAuth { get; set; } = false;
-        public string UserName { get; set; } = "User";
-        public string Password { get; set; } = string.Empty;
+        public bool RequireAdministratorLogin { get; set; } = false;
+            public bool UseAuth { get; set; } = false;
+            public string UserName { get; set; } = "User";
+            public string Password { get; set; } = string.Empty;
 
         #endregion
 

@@ -183,7 +183,13 @@
                     <RadzenTabsItem Text="Security">
                         <div class="row" style="margin-top: 10px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px; margin-top: 10px;">
-                                <h4 style="color:cornflowerblue;">@Globals.APPLICATION_NAME Administrator Password</h4>
+                                <h4 style="color:cornflowerblue;">@Globals.APPLICATION_NAME Security</h4>
+                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                    <label>Require administrator login:</label>
+                                    <input style="margin-left:106px;" type="checkbox" @bind="RequireAdministratorLogin" />
+                                    <span style="margin-left:10px;">(Requires restart)</span>
+                                </div>
+
                                 <div style="margin-bottom: 10px; margin-top: 10px;">
 
                                     <form autocomplete="on">
@@ -1155,6 +1161,19 @@
     {
         get => settings.DiscoveryResponseOnlyOnLocalHost;
         set { settings.DiscoveryResponseOnlyOnLocalHost = value; }
+    }
+
+    private bool RequireAdministratorLogin
+    {
+        get => settings.RequireAdministratorLogin;
+        set
+        {
+            settings.RequireAdministratorLogin = value;
+            settings.Save();
+            state.StatusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
+            state.DisplayRestartMessage = true;
+            InvokeAsync(StateHasChanged);
+        }
     }
 
     private bool SrvRequireAuthorization

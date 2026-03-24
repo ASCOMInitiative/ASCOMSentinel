@@ -49,6 +49,12 @@
 
         public List<SafetyState> LastSafetyState { get; set; } = [];
 
+        /// <summary>
+        /// Captured at startup from Settings.RequireAdministratorLogin.
+        /// Changes to the setting do not take effect until the application is restarted.
+        /// </summary>
+        public bool RequireAdministratorLoginAtStartup { get; set; } = true;
+
         public bool DiscoveryHasRun { get; set; } = false;
 
         public Dictionary<PropertyName, IObservingConditionsV2> ObservingConditionsDeviceMap { get; set; } = [];
