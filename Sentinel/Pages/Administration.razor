@@ -10,17 +10,21 @@
 
 <h1>Administration</h1>
 
-@if (!circuitState.IsAuthenticated)
+@if (!circuitState.IsAuthenticated) @* Not authenticated *@
 {
     @* ── Login form ── *@
-    <RadzenCard Style="max-width:500px; margin-top:20px;">
+    <RadzenCard Style="max-width:620px; margin-top:20px;">
         <h4 style="color:cornflowerblue;">Administrator Login</h4>
+
+        @* First time use dialogue *@
         @if (passwordManager.MustChangePassword)
         {
-            <p style="color:darkorange; font-weight:bold;">First use — you will be asked to change the password after logging in.</p>
+            <p style="margin-top:12px;color:darkorange; font-weight:bold;">First use — you will be asked to change the password after logging in.</p>
             <p style="color:#888; font-size:small;">Default password: <code>Sentinel2026!</code></p>
         }
-        <div style="margin-bottom:10px; margin-top:10px;">
+
+        @* Request password *@
+        <div style="margin-bottom:16px; margin-top:18px;">
             <label style="display:inline-block; min-width:100px;">Password:</label>
             @if (_showLoginPassword)
             {
@@ -30,71 +34,79 @@
             {
                 <RadzenPassword @bind-Value="_loginPassword" Style="width:250px; margin-left:12px;" />
             }
+            <span style="margin-bottom:10px;">
+                <input style="margin-left:24px;" type="checkbox" @bind="_showLoginPassword" /> <span style="margin-left:6px;" >View Password</span>
+            </span>
         </div>
-        <div style="margin-bottom:10px;">
-            <input type="checkbox" @bind="_showLoginPassword" /> <label>View Password</label>
-        </div>
-        <div style="margin-bottom:10px;">
+        
+        <div style="margin-bottom:0px;margin-top:12px;">
             <RadzenButton Click="LoginAsync" Text="Enter" ButtonStyle="ButtonStyle.Primary"
                           Style="border-radius:20px; text-transform:none;" />
         </div>
+        
         @if (!string.IsNullOrEmpty(_loginStatus))
         {
             <p style="color:@_loginStatusColor; font-weight:bold;">@_loginStatus</p>
         }
     </RadzenCard>
 }
-else if (circuitState.MustChangePassword)
+else if (circuitState.MustChangePassword) @* Must change password dialogue *@
 {
     @* ── Mandatory password change ── *@
-    <RadzenCard Style="max-width:500px; margin-top:20px;">
+    <RadzenCard Style="max-width:620px; margin-top:20px;">
         <h4 style="color:darkorange;">You must change your password before continuing</h4>
+        @* Enter new password *@
         <div style="margin-bottom:10px; margin-top:10px;">
-            <label style="display:inline-block; min-width:170px;">New Password:</label>
-            @if (_showChangePassword)
+            <label style="display:inline-block; min-width:150px;">New Password:</label>
+            @if (_showChangePassword) @* Show password *@
             {
-                <RadzenTextBox @bind-Value="_newPassword" Style="width:250px; margin-left:12px;" />
+                <RadzenTextBox @bind-Value="_newPassword" Style="width:250px; margin-left:12px;margin-top:12px;" />
             }
-            else
+            else @* Hide password *@
             {
-                <RadzenPassword @bind-Value="_newPassword" Style="width:250px; margin-left:12px;" />
+                <RadzenPassword @bind-Value="_newPassword" Style="width:250px; margin-left:12px;margin-top:12px;" />
             }
         </div>
+
+        @* Confirm new password *@
         <div style="margin-bottom:10px;">
-            <label style="display:inline-block; min-width:170px;">Confirm New Password:</label>
-            @if (_showChangePassword)
+            <label style="display:inline-block; min-width:150px;">Confirm Password:</label>
+            @if (_showChangePassword) @* Show password *@
             {
                 <RadzenTextBox @bind-Value="_confirmPassword" Style="width:250px; margin-left:12px;" />
             }
-            else
+            else @* Hide password *@
             {
                 <RadzenPassword @bind-Value="_confirmPassword" Style="width:250px; margin-left:12px;" />
             }
+            <span>
+                <input style="margin-left:24px;" type="checkbox" @bind="_showChangePassword" /> <span style="margin-left:6px;">View Password</span>
+            </span>
         </div>
+        
+        @* Change password button*@
         <div style="margin-bottom:10px;">
-            <input type="checkbox" @bind="_showChangePassword" /> <label>View Password</label>
+            <RadzenButton Click="ChangePasswordAsync" Text="Set Password" ButtonStyle="ButtonStyle.Warning" Style="border-radius:20px; text-transform:none;" />
         </div>
-        <div style="margin-bottom:10px;">
-            <RadzenButton Click="ChangePasswordAsync" Text="Set Password" ButtonStyle="ButtonStyle.Warning"
-                          Style="border-radius:20px; text-transform:none;" />
-        </div>
+        
+        @* Password notes *@
         <p style="color:#888; font-size:small;">
-            At least 8 characters including upper and lower case letters, numbers, and punctuation.
+            Passwords must be at least 8 characters long including upper and lower case letters, numbers, and punctuation.
         </p>
+        
         @if (!string.IsNullOrEmpty(_changeStatus))
         {
             <p style="color:@_changeStatusColor; font-weight:bold;">@_changeStatus</p>
         }
     </RadzenCard>
 }
-else
+else @* Authenticated dialogue *@
 {
-    @* ── Authenticated ── *@
-    <RadzenCard Style="max-width:500px; margin-top:20px;">
-        <h4 style="color:green;">Authenticated</h4>
+    <RadzenCard Style="max-width:620px; margin-top:20px;">
+        <h4 style="color:green;margin-bottom:24px;">Authenticated</h4>
         <p>You are logged in as an administrator.</p>
         <RadzenButton Click="LogoutAsync" Text="Logout" ButtonStyle="ButtonStyle.Danger"
-                      Style="border-radius:20px; text-transform:none;" />
+                      Style="margin-top:22px;border-radius:20px; text-transform:none;" />
     </RadzenCard>
 }
 
