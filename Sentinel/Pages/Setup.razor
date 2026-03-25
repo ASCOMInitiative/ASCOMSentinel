@@ -189,6 +189,12 @@
                                     <input style="margin-left:12px;" type="checkbox" @bind="RequireAdministratorLogin" />
                                     <span style="margin-left:12px;">(Requires restart)</span>
                                 </div>
+                                @if (RequireAdministratorLogin & !state.RequireAdministratorLoginAtStartup)
+                                {
+                                    <div>
+                                        <p>When enabling security for the first time, set the password through the Administrator logon dialogue.</p>
+                                    </div>
+                                }
 
                                 <div style="margin-bottom: 12px; margin-top: 12px;">
 
@@ -201,7 +207,7 @@
                                                    style="width:21ch;"
                                                    type="@(_showAdminPassword ? "text" : "password")"
                                                    autocomplete="new-password"
-                                                   disabled="@(!RequireAdministratorLogin)"
+                                                   disabled="@(!state.RequireAdministratorLoginAtStartup)"
                                                    @bind="_adminNewPassword" />
                                         </div>
 
@@ -213,7 +219,7 @@
                                                    style="width:21ch;"
                                                    type="@(_showAdminPassword ? "text" : "password")"
                                                    autocomplete="new-password"
-                                                   disabled="@(!RequireAdministratorLogin)"
+                                                   disabled="@(!state.RequireAdministratorLoginAtStartup)"
                                                    @bind="_adminConfirmPassword" />
                                             <span style="margin-left:12px;margin-top:12px;">
                                                 <input type="checkbox" @bind="_showAdminPassword" /> <label>View Password</label>
@@ -227,8 +233,7 @@
                                 </div>
 
                                 <p style="color:#888; font-size:small;">
-                                    Passwords must have at least 8 characters including upper and lower case letters, numbers, and punctuation.
-                                    New passwords cannot be one of the last 10 passwords used.
+                                    Passwords must have at least 8 characters and include an uppercase letter, a lowercase letter, and a number. You cannot reuse any of your last 10 passwords.
                                 </p>
 
                                 @if (!string.IsNullOrEmpty(_adminPasswordStatus))

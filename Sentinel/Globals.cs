@@ -30,8 +30,10 @@
 
         internal static readonly Lock writeLogLock = new(); // Lock object to synchronize access to the log when resizing
 
-        internal const int TIMEOUT = 10; // Was 2
-        internal const int WEBSOCKET_TIMEOUT = 10; // Was 1
+        internal const int APPLICATION_SHUTDOWN_TIMEOUT = 2; // Time that the application waits for host services to stop after a shutdown request before forcing termination (Default: 30 seconds)
+
+        internal const int WEBSOCKET_CLOSE_TIMEOUT = 5; // Time the web-socket transport waits for a graceful close (Default: 5 seconds)
+        internal const int DISCONNECTED_CIRCUIT_RETENTION_PERIOD = 180; // Maximum time that circuit state is retained on the server before being cleaned out (Default 180 seconds)
 
         internal static readonly SemaphoreSlim ConnectSemaphore = new SemaphoreSlim(1, 1);
         internal static Lock StateLock = new();

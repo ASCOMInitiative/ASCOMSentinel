@@ -16,10 +16,10 @@
 <body>
     @RenderBody()
 
-    <!-- Suppress Blazor's built-in reconnect modal by providing our own hidden element.
-         When Blazor finds this div already in the DOM it uses it instead of injecting its own.
-         Blazor still adds CSS classes to it (components-reconnect-show etc.) which the
-         MutationObserver below uses as the trigger. -->
+    <!-- 
+        Suppress Blazor's built-in reconnect modal by providing our own hidden element.
+        When Blazor finds this div already in the DOM it uses it instead of injecting its own. Blazor still adds CSS classes to it (components-reconnect-show etc.) which the MutationObserver below uses as the trigger.
+     -->
     <div id="components-reconnect-modal" style="display:none!important"></div>
 
     <!-- Shown when the server connection is lost -->
@@ -43,9 +43,8 @@
         var serverStopped = false;
         var countdownInterval = null;
 
-        // Random delay (0–5 seconds) unique to this tab, used to stagger reconnections
-        // after a server restart so that N browsers don't all hit the server at once.
-        var reconnectJitterMs = Math.floor(Math.random() * 0);
+        // Random delay (0–5 seconds) unique to this tab, used to stagger re-connections after a server restart so that N browsers don't all hit the server at once.
+        var reconnectJitterMs = Math.floor(Math.random() * 5000);
 
         function handleServerStopped() {
             if (serverStopped) return;
@@ -74,8 +73,7 @@
         }
 
         // MutationObserver watches for Blazor adding CSS classes to the reconnect modal.
-        // The custom reconnectionHandler retries with a random 5–10s interval and
-        // updates these classes based on the outcome:
+        // The custom reconnectionHandler retries with a random 5–10s interval and updates these classes based on the outcome:
         //   'components-reconnect-show'     — reconnection in progress (ignore, let it retry)
         //   'components-reconnect-rejected' — server alive but circuit expired (reload for fresh circuit)
         //   'components-reconnect-failed'   — server unreachable (show server-stopped overlay)
@@ -86,9 +84,7 @@
                     if (mutations[i].attributeName === 'class') {
                         var cls = reconnectModal.className;
                         if (cls.indexOf('components-reconnect-rejected') >= 0) {
-                            // Server is running but the circuit was discarded.
-                            // Stagger the reload with a random delay so N tabs don't
-                            // all create new circuits at the same instant.
+                            // Server is running but the circuit was discarded. Stagger the reload with a random delay so N tabs don't all create new circuits at the same instant.
                             setTimeout(function () { window.location.reload(); }, reconnectJitterMs);
                         } else if (cls.indexOf('components-reconnect-failed') >= 0) {
                             // Server is unreachable — show the stopped overlay
@@ -101,12 +97,10 @@
 
         // Returns a random delay between 5 and 10 seconds (in ms)
         function randomRetryDelayMs() {
-            return 0 + Math.floor(Math.random() * 0);
+            return 5000 + Math.floor(Math.random() * 5000);
         }
 
-        // Custom reconnection handler: retries with a random 5–10 second interval
-        // instead of the default exponential backoff. Each retry uses a fresh random
-        // delay, which also naturally staggers reconnection attempts across multiple tabs.
+        // Custom reconnection handler: retries with a random 5–10 second interval instead of the default exponential back-off. Each retry uses a fresh random delay, which also naturally staggers reconnection attempts across multiple tabs.
         var maxRetries = 20;
 
         function startReconnectLoop(reconnectCallback) {
@@ -118,7 +112,6 @@
                     return;
                 }
                 var delayMs = randomRetryDelayMs();
-                console.log('Reconnect attempt ' + attempt + '/' + maxRetries + ' in ' + delayMs + 'ms');
                 setTimeout(function () {
                     reconnectCallback().then(function (success) {
                         if (!success) {
@@ -131,9 +124,7 @@
             tryReconnect();
         }
 
-        // Start Blazor after a small random delay so that when the page is first loaded
-        // (e.g. after a server restart causes all tabs to reload), the SignalR connections
-        // are spread over a few seconds rather than arriving simultaneously.
+        // Start Blazor after a small random delay so that when the page is first loaded (e.g. after a server restart causes all tabs to reload), the SignalR connections are spread over a few seconds rather than arriving simultaneously.
         setTimeout(function () {
             Blazor.start({
                 circuit: {
@@ -142,8 +133,7 @@
                             startReconnectLoop(options.reconnect);
                         },
                         onConnectionUp: function () {
-                            // Connection restored — if the stopped overlay was shown, reload
-                            // to get a clean state
+                            // Connection restored — if the stopped overlay was shown, reload to get a clean state
                             if (serverStopped) {
                                 window.location.reload();
                             }

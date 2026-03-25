@@ -22,7 +22,7 @@ namespace Sentinel
         private const int HashSize = 32;
         private const int Iterations = 100_000;
         private const int MaxPasswordHistory = 10;
-        private const string DefaultPassword = "Sentinel2026!";
+        private const string DefaultPassword = "Sentinel2026";
 
         private CredentialData _data;
 
@@ -119,9 +119,6 @@ namespace Sentinel
 
             if (!password.Any(char.IsDigit))
                 return "Password must contain at least one number.";
-
-            if (!password.Any(c => char.IsPunctuation(c) || char.IsSymbol(c)))
-                return "Password must contain at least one punctuation character.";
 
             return null;
         }

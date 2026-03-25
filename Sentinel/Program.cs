@@ -147,19 +147,14 @@ namespace Sentinel
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor(options =>
                 {
-                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(Globals.TIMEOUT);
+                    options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(Globals.DISCONNECTED_CIRCUIT_RETENTION_PERIOD);
                 });
 
-            // Limit how long the host waits for graceful shutdown so the app exits promptly
-            // when stopped via the UI (default is 30 seconds).
+            // Limit how long the host waits for graceful shutdown so the app exits promptly when stopped via the UI (default is 30 seconds).
             builder.Host.ConfigureHostOptions(options =>
                 {
-                    options.ShutdownTimeout = TimeSpan.FromSeconds(Globals.TIMEOUT);
+                    options.ShutdownTimeout = TimeSpan.FromSeconds(Globals.APPLICATION_SHUTDOWN_TIMEOUT);
                 });
-
-            // Limit how long Kestrel waits for active connections to drain during shutdown.
-            // This is separate from HostOptions.ShutdownTimeout and defaults to 5 seconds.
-            builder.WebHost.UseShutdownTimeout(TimeSpan.FromSeconds(Globals.TIMEOUT));
 
             //Set default behaviors for Alpaca APIs
             ASCOM.Alpaca.Razor.StartupHelpers.ConfigureAlpacaAPIBehavoir(builder.Services);
@@ -233,7 +228,7 @@ namespace Sentinel
             app.MapBlazorHub(options =>
             {
                 // Default is 5 seconds — reduce so the app exits promptly on shutdown
-                options.WebSockets.CloseTimeout = TimeSpan.FromSeconds(Globals.WEBSOCKET_TIMEOUT);
+                options.WebSockets.CloseTimeout = TimeSpan.FromSeconds(Globals.WEBSOCKET_CLOSE_TIMEOUT);
             });
 
             app.MapControllers();
