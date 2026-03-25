@@ -31,17 +31,17 @@
 <RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Server" Change="(item) => OnTabChanged(item)">
     <Tabs>
         <RadzenTabsItem Text="Settings">
-            <RadzenTabs style="margin-top:10px" RenderMode="TabRenderMode.Server">
+            <RadzenTabs style="margin-top:12px" RenderMode="TabRenderMode.Server">
                 <Tabs>
                     <RadzenTabsItem Text="Application">
-                        <div class="row" style="margin-top: 10px">
+                        <div class="row" style="margin-top: 12px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                                 <h4 style="color:cornflowerblue">Application</h4>
-                                <div style="margin-bottom:10px">
+                                <div style="margin-bottom:12px">
                                     <span class="indentedlist">Location:</span>
                                     <RadzenTextBox Value="@SrvLocation" Style="width:50ch; border: 1px solid black;" Change=@(args => OnLocationChange(args, "TextBox")) />
                                 </div>
-                                <div style="margin-bottom:10px">
+                                <div style="margin-bottom:12px">
                                     <span class="indentedlist">Application IP Port:</span>
                                     <RadzenNumeric Value=@SrvServerPort
                                                    TValue=ushort
@@ -51,7 +51,7 @@
                                                    Min="1"
                                                    ShowUpDown="true"
                                                    Name="SrvServerPort" />
-                                    <span style="margin-left:10px;">(Requires restart)</span>
+                                    <span style="margin-left:12px;">(Requires restart)</span>
                                 </div>
                                 <div style="margin-bottom: 0px; margin-top: 0px">
                                     <label class="indentedlist">Alpaca communication timeout (seconds):</label>
@@ -63,26 +63,26 @@
                                                    Min="1"
                                                    ShowUpDown="true"
                                                    Name="AlpacaGetPropertyTimeout" />
-                                    <span style="margin-left:10px;">(Requires devices to be reconnected)</span>
+                                    <span style="margin-left:12px;">(Requires devices to be reconnected)</span>
                                 </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Bind to all host network addresses:</label>
                                     <input style="margin-left:52px;" type="checkbox" @bind="BindToAllNetworkAddresses" />
-                                    <span style="margin-left:10px;">(Requires restart - Unchecked = localhost only)</span>
+                                    <span style="margin-left:12px;">(Requires restart - Unchecked = localhost only)</span>
                                 </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Composite devices stay connected:</label>
                                     <input style="margin-left:48px;" type="checkbox" @bind="SrvPreventRemoteDisconnects" />
-                                    <span style="margin-left:10px;">(Clients cannot set Connected = False)</span>
+                                    <span style="margin-left:12px;">(Clients cannot set Connected = False)</span>
                                 </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Include safety warnings in the log:</label>
                                     <input style="margin-left:59px;" type="checkbox" @bind="LogSafetyWarnings" />
-                                    <span style="margin-left:10px;">(Warnings are still sent to clients when unchecked)</span>
+                                    <span style="margin-left:12px;">(Warnings are still sent to clients when unchecked)</span>
                                 </div>
                                 
                                 <h4 style="color:cornflowerblue;margin-top:24px;">Debug settings</h4>
-                                <div style="margin-bottom:10px">
+                                <div style="margin-bottom:12px">
                                     <span class="indentedlist">Trace Level:</span>
                                     <RadzenDropDown Value=@TraceLevel
                                                     TValue=LogLevel
@@ -93,7 +93,7 @@
                                     <span style="margin-left:12px;">(Requires devices to be reconnected).</span>
 
                                 </div>
-                                <div style="margin-bottom:10px; margin-top:10px">
+                                <div style="margin-bottom:12px; margin-top:12px">
                                     <label>Show Alpaca client trace messages:</label>
                                     <input style="margin-left:42px;" type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
                                     <span>(Requires devices to be reconnected - Only functional when trace level is Debug).</span>
@@ -106,14 +106,14 @@
                     </RadzenTabsItem>
 
                     <RadzenTabsItem Text="Startup">
-                        <div class="row" style="margin-top: 10px">
+                        <div class="row" style="margin-top: 12px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                                 <h4 style="color:cornflowerblue">Startup</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Enable remote client access at startup:</label>
                                     <input style="margin-left:40px;" type="checkbox" @bind="EnableRemoteClientsAtStartup" />
                                 </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Connect to configured devices when started:</label>
                                     <input type="checkbox" @bind="AutoConnect" />
                                 </div>
@@ -123,10 +123,10 @@
                     </RadzenTabsItem>
 
                     <RadzenTabsItem Text="Discovery">
-                        <div class="row" style="margin-top: 10px">
+                        <div class="row" style="margin-top: 12px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                                 <h4 style="color:cornflowerblue;">Alpaca Discovery</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Enable discovery:</label>
                                     <input style="margin-left:306px;" type="checkbox" @bind="SrvDiscovery" />
                                 </div>
@@ -142,7 +142,7 @@
                                                    ShowUpDown="true"
                                                    Name="AlpacaDiscoveryDuration" />
                                 </div>
-                                <div style="margin-top:8px;margin-bottom:10px">
+                                <div style="margin-top:8px;margin-bottom:12px">
                                     <span style="display:inline-block;min-width:250px;">Respond to local client discovery packets on localhost only:</span>
                                     <input style="margin-left:12px;" type="checkbox" @bind="DiscoveryResponseOnlyOnLocalHost" />
                                     <span style="margin-left:12px;">Unchecked = respond on all interfaces. (Requires restart)</span>
@@ -153,22 +153,22 @@
                     </RadzenTabsItem>
 
                     <RadzenTabsItem Text="Confirmation">
-                        <div class="row" style="margin-top: 10px">
+                        <div class="row" style="margin-top: 12px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                                 <h4 style="color:cornflowerblue;">Confirmation</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Confirm online state change:</label>
                                     <input type="checkbox" @bind="ConfirmOnline" />
                                 </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Confirm connect to devices:</label>
                                     <input style="margin-left:6px;" type="checkbox" @bind="ConfirmConnectToDevices" />
                                 </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Confirm restart:</label>
                                     <input style="margin-left:92px;" type="checkbox" @bind="ConfirmRestart" />
                                 </div>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Confirm reconnect:</label>
                                     <input style="margin-left:68px;" type="checkbox" @bind="ConfirmReconnect" />
                                 </div>
@@ -181,51 +181,54 @@
                     </RadzenTabsItem>
 
                     <RadzenTabsItem Text="Security">
-                        <div class="row" style="margin-top: 10px">
-                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px; margin-top: 10px;">
+                        <div class="row" style="margin-top: 12px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px; margin-top: 12px;">
                                 <h4 style="color:cornflowerblue;">@Globals.APPLICATION_NAME Security</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
+                                <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Require administrator login:</label>
-                                    <input style="margin-left:106px;" type="checkbox" @bind="RequireAdministratorLogin" />
-                                    <span style="margin-left:10px;">(Requires restart)</span>
+                                    <input style="margin-left:12px;" type="checkbox" @bind="RequireAdministratorLogin" />
+                                    <span style="margin-left:12px;">(Requires restart)</span>
                                 </div>
 
-                                <div style="margin-bottom: 10px; margin-top: 10px;">
+                                <div style="margin-bottom: 12px; margin-top: 12px;">
 
                                     <form autocomplete="on">
                                         <!-- New password -->
                                         <div>
-                                            <label style="display:inline-block; min-width:150px;">New Password:</label>
+                                            <label style="display:inline-block; min-width:156px;">New Password:</label>
                                             <input id="new-password"
                                                    name="new-password"
+                                                   style="width:21ch;"
                                                    type="@(_showAdminPassword ? "text" : "password")"
                                                    autocomplete="new-password"
+                                                   disabled="@(!RequireAdministratorLogin)"
                                                    @bind="_adminNewPassword" />
                                         </div>
 
                                         <!-- Confirm new password -->
                                         <div style="margin-top:12px;">
-                                            <label style="display:inline-block; min-width:150px;">Confirm Password:</label>
+                                            <label style="display:inline-block; min-width:156px;">Confirm Password:</label>
                                             <input id="confirm-password"
                                                    name="new-password-confirmation"
+                                                   style="width:21ch;"
                                                    type="@(_showAdminPassword ? "text" : "password")"
                                                    autocomplete="new-password"
+                                                   disabled="@(!RequireAdministratorLogin)"
                                                    @bind="_adminConfirmPassword" />
+                                            <span style="margin-left:12px;margin-top:12px;">
+                                                <input type="checkbox" @bind="_showAdminPassword" /> <label>View Password</label>
+                                            </span>
                                         </div>
                                     </form>
                                 </div>
 
-                                <div style="margin-top:12px;margin-bottom: 10px;">
-                                    <input type="checkbox" @bind="_showAdminPassword" /> <label>View Password</label>
-                                </div>
-
-                                <div style="margin-bottom: 10px;">
-                                    <SentinelButton Click="@SetAdminPassword" Text="Set Password" Disabled="@(state.OperationUnderway)" />
+                                <div style="margin-bottom: 12px;">
+                                    <SentinelButton Click="@SetAdminPassword" Text="Set Password" Disabled="@(state.OperationUnderway | !RequireAdministratorLogin)" />
                                 </div>
 
                                 <p style="color:#888; font-size:small;">
-                                    At least 8 characters including upper and lower case letters, numbers, and punctuation.
-                                    Password cannot be one of the last 10 passwords used.
+                                    Passwords must have at least 8 characters including upper and lower case letters, numbers, and punctuation.
+                                    New passwords cannot be one of the last 10 passwords used.
                                 </p>
 
                                 @if (!string.IsNullOrEmpty(_adminPasswordStatus))
@@ -236,19 +239,19 @@
 
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                                 <h4 style="color:cornflowerblue;">Composite Device API Security</h4>
-                                <div style="margin-bottom: 10px; margin-top: 10px">
-                                    <label>Require Authorisation (BasicAuth):</label>
+                                <div style="margin-bottom: 12px; margin-top: 12px">
+                                    <label>Require Credentials (Basic Auth):</label>
                                     <input type="checkbox" @bind="SrvRequireAuthorization" />
                                 </div>
-                                <div style="margin-bottom: 10px">
+                                <div style="margin-bottom: 12px">
                                     <label>User Name:</label>
                                     <input type="text" @bind="SrvUserName" style="width:21ch;margin-left:72px;" disabled="@SrvDisableAuth" />
                                 </div>
-                                <div style="margin-bottom: 10px">
+                                <div style="margin-bottom: 12px">
                                     <label>Password:</label>
                                     <input type="password" @bind="SrvPassword" style="width:21ch;margin-left:84px;" disabled="@SrvDisableAuth" />
                                 </div>
-                                <div style="margin-bottom: 10px">
+                                <div style="margin-bottom: 12px">
                                     <label>Repeat:</label>
                                     <input type="password" @bind="SrvPassword2" style="width:21ch;margin-left:102px;" disabled="@SrvDisableAuth" />
                                 </div>
@@ -261,7 +264,7 @@
                     </RadzenTabsItem>
 
                     <RadzenTabsItem Text="Bound Addresses">
-                        <div class="row" style="margin-top: 10px">
+                        <div class="row" style="margin-top: 12px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                                 <h4 style="color:cornflowerblue;margin-bottom:12px;">Network addresses on which the server is listening</h4>
                                 <table>
@@ -296,7 +299,7 @@
         </RadzenTabsItem>
 
         <RadzenTabsItem Text="Observing Conditions Display">
-            <div class="row" style="margin-top: 10px">
+            <div class="row" style="margin-top: 12px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Select safety monitor devices to be aggregated into the composite safety monitor IsSafe property.</h4>
                 </RadzenCard>
@@ -304,7 +307,7 @@
         </RadzenTabsItem>
 
         <RadzenTabsItem Text="Composite Observing Conditions Device">
-            <div class="row" style="margin-top: 10px">
+            <div class="row" style="margin-top: 12px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Select devices from the drop-downs to feed each property in the composite device.</h4>
                     <div style="margin-top:16px;margin-bottom:24px;">
@@ -385,7 +388,7 @@
         </RadzenTabsItem>
 
         <RadzenTabsItem Text="Observing Conditions Rules">
-            <div class="row" style="margin-top: 10px">
+            <div class="row" style="margin-top: 12px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Define observing conditions rules that will trigger the composite Safety Monitor to return IsSafe = false.</h4>
                     <div style="margin-top:16px;">
@@ -488,7 +491,7 @@
         </RadzenTabsItem>
 
         <RadzenTabsItem Text="Composite Switch Device" Visible="false">
-            <div class="row" style="margin-top: 10px">
+            <div class="row" style="margin-top: 12px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
                     <div>
@@ -501,7 +504,7 @@
         </RadzenTabsItem>
 
         <RadzenTabsItem Text="Composite Safety Monitor Device">
-            <div class="row" style="margin-top: 10px">
+            <div class="row" style="margin-top: 12px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Select safety monitor devices to be aggregated into the composite safety monitor IsSafe property.</h4>
                     <div style="margin-top:16px;margin-bottom:24px;">
@@ -567,7 +570,7 @@
         </RadzenTabsItem>
 
         <RadzenTabsItem Text="Safety Monitor Rules" Visible="true">
-            <div class="row" style="margin-top: 10px">
+            <div class="row" style="margin-top: 12px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Safety Monitor Rules</h4>
                     <div style="margin-top:16px;">
