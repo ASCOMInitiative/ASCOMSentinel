@@ -86,7 +86,7 @@
             while (!token.IsCancellationRequested)
             {
                 // Wait for the next interval.
-                await Task.Delay(500, token);
+                await Task.Delay(Globals.LOG_REFRESH_INTERVAL, token);
 
                 // Check for new log content. If the log length has changed since the last check, update the cached log text and trigger a UI update.
                 int currentLength = state.ApplicationLog.Length;

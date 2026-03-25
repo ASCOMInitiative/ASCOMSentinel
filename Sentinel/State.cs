@@ -36,6 +36,12 @@
 
         public bool OperationUnderway { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(OperationUnderway)); } } } = false;
 
+        /// <summary>
+        /// Message displayed to all browsers when an operation is underway (e.g. restart, shutdown).
+        /// Stored in shared state so every connected circuit shows the same message.
+        /// </summary>
+        public string OperationUnderwayMessage { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(OperationUnderwayMessage)); } } } = "Operation Underway";
+
         public bool ConnectingToDevices { get; set; } = false;
 
         public StringBuilder ApplicationLog { get; set; } = new StringBuilder(Globals.MAXIMUM_LOG_SIZE_CHARACTERS, Globals.MAXIMUM_LOG_SIZE_CHARACTERS).Append($"{Globals.WELCOME_MESSAGE}\r\n");

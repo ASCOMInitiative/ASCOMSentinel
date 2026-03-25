@@ -20,7 +20,7 @@
 
 @if (state.OperationUnderway)@* Operation is in progress *@
 {
-    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:80px;">@operationUnderwayMessage</span>
+    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:80px;">@state.OperationUnderwayMessage</span>
 }
 else
 @* No operation is in progress *@
@@ -49,7 +49,7 @@ else
             @if (!state.RequireAdministratorLoginAtStartup || (circuitState.IsAuthenticated && !circuitState.MustChangePassword))
             {
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/setup" Match="NavLinkMatch.All" >
+                    <NavLink class="nav-link" href="/setup" Match="NavLinkMatch.All">
                         <span style="color:white" class="oi oi-cog" aria-hidden="true"></span> <span style="color:yellow">Configuration</span>
                     </NavLink>
                 </div>
@@ -59,77 +59,76 @@ else
                     <span style="color:white" class="oi oi-question-mark" aria-hidden="true"></span> <span style="color:white">Help</span>
                 </NavLink>
             </div>
-         </nav>
+        </nav>
 
         @if (!state.RequireAdministratorLoginAtStartup || (circuitState.IsAuthenticated && !circuitState.MustChangePassword))
         {
-        <div style="flex:1"></div>
-        <div>
-            <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Online State</div>
+            <div style="flex:1"></div>
+            <div>
+                <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Online State</div>
 
-            <div style="margin-top:0px;margin-bottom:0px;display:flex;justify-content:center;">
+                <div style="margin-top:0px;margin-bottom:0px;display:flex;justify-content:center;">
 
-                <RadzenButton Click="() => EnableRemoteClients()"
-                              Text="@(state.EnableRemoteClients? "Online" : "Offline")"
-                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)"
-                              Disabled="@(state.OperationUnderway)" />
-            </div>
-            <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
+                    <RadzenButton Click="() => EnableRemoteClients()"
+                                  Text="@(state.EnableRemoteClients? "Online" : "Offline")"
+                                  Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)"
+                                  Disabled="@(state.OperationUnderway)" />
+                </div>
+                <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
 
-            <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Device State</div>
-            <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
-                <RadzenButton Click="() => ConnectDisconnect()"
-                              Text="@(state.Connected ? "Connected" : "Disconnected")"
-                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)"
-                              Disabled="@(state.OperationUnderway)" />
-            </div>
-            <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
+                <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Device State</div>
+                <div style="margin-top:3px;margin-bottom:0px;display:flex;justify-content:center;">
+                    <RadzenButton Click="() => ConnectDisconnect()"
+                                  Text="@(state.Connected ? "Connected" : "Disconnected")"
+                                  Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)"
+                                  Disabled="@(state.OperationUnderway)" />
+                </div>
+                <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
 
-            @if (state.DisplayReconnectMessage || state.DisplayRestartMessage)
-            {
-                <div style="margin-top:36px;"></div>
-            }
+                @if (state.DisplayReconnectMessage || state.DisplayRestartMessage)
+                {
+                    <div style="margin-top:36px;"></div>
+                }
 
-            @* Reconnection required message *@
-            @if (state.DisplayReconnectMessage && state.Connected)
-            {
-                <div>
-                    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:24px;margin-bottom:12px;">Reconnect Required</span>
-                    <div style="margin-top:9px;margin-bottom:24px;display:flex;justify-content:center;">
-                        <SentinelButton Click="@(() => Reconnect())" Text="Reconnect Devices" />
+                @* Reconnection required message *@
+                @if (state.DisplayReconnectMessage && state.Connected)
+                {
+                    <div>
+                        <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:24px;margin-bottom:12px;">Reconnect Required</span>
+                        <div style="margin-top:9px;margin-bottom:24px;display:flex;justify-content:center;">
+                            <SentinelButton Click="@(() => Reconnect())" Text="Reconnect Devices" />
+                        </div>
                     </div>
-                </div>
-            }
-            @* Restart required message *@
-            @if (state.DisplayRestartMessage)
-            {
-                <div>
-                    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:48px;margin-bottom:12px;">Restart Required</span>
-                </div>
-            }
-        </div>
-        <div style="flex:6"></div>
+                }
+                @* Restart required message *@
+                @if (state.DisplayRestartMessage)
+                {
+                    <div>
+                        <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:48px;margin-bottom:12px;">Restart Required</span>
+                    </div>
+                }
+            </div>
+            <div style="flex:6"></div>
 
-        <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Application</div>
-        <div style="margin-top:3px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
-            <RadzenButton Click="RestartApplicationAsync"
-                          Text="Restart"
-                          Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning"
-                          Disabled="@(state.OperationUnderway)" />
-        </div>
-        <div style="margin-top:0px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
-            <RadzenButton Click="ShutdownApplicationAsync"
-                          Text="Shutdown"
-                          Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Danger"
-                          Disabled="@(state.OperationUnderway)" />
-        </div>
-        } @* end of IsAuthenticated block *@
+            <div style="color:white;display:flex;justify-content:center;font-weight:bold;margin-top:0px;margin-bottom:0px;">Application</div>
+            <div style="margin-top:3px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
+                <RadzenButton Click="RestartApplicationAsync"
+                              Text="Restart"
+                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning"
+                              Disabled="@(state.OperationUnderway)" />
+            </div>
+            <div style="margin-top:0px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
+                <RadzenButton Click="ShutdownApplicationAsync"
+                              Text="Shutdown"
+                              Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Danger"
+                              Disabled="@(state.OperationUnderway)" />
+            </div>
+        }
+        @* end of IsAuthenticated block *@
     </div>
 }
 
 @code {
-
-    private string operationUnderwayMessage = "Operation Underway";
 
     private async Task EnableRemoteClients()
     {
@@ -202,10 +201,10 @@ else
         // Check whether we need to get confirmation for this action
         if (settings.ConfirmReConnect) // Confirmation required
         {
-         confirmed = await DialogService.Confirm(
-            "Reconnect devices?",
-            "Disconnect and reconnect devices",
-            new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
+            confirmed = await DialogService.Confirm(
+               "Reconnect devices?",
+               "Disconnect and reconnect devices",
+               new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
         }
         else // No confirmation is required so just do it
             confirmed = true;
@@ -257,10 +256,10 @@ else
     {
         bool? confirmed;
         // Check whether we need to get confirmation for this action
-            confirmed = await DialogService.Confirm(
-            "Restart the application?",
-                "Confirm Restart",
-                new ConfirmOptions { OkButtonText = "Restart", CancelButtonText = "Cancel" });
+        confirmed = await DialogService.Confirm(
+        "Restart the application?",
+            "Confirm Restart",
+            new ConfirmOptions { OkButtonText = "Restart", CancelButtonText = "Cancel" });
 
         if (confirmed == true)
         {
@@ -268,18 +267,19 @@ else
             await Task.Run(async () =>
             {
                 // Disable the UI immediately to prevent multiple clicks while shutdown is in progress.
-                operationUnderwayMessage = "Restarting application...";
-                await InvokeAsync(StateHasChanged);
+                state.OperationUnderwayMessage = "Restarting application...";
+                logger.LogBlankLine();
+                logger.LogWarning("Restarting", "Application restart initiated by an administrator.");
+                logger.LogBlankLine();
                 state.OperationUnderway = true;
+
                 // If we're connected to devices, disconnect first to ensure a clean shutdown.
                 if (state.Connected)
                 {
                     ConnectionManager.Disconnect(state, logger);
                 }
-                logger.LogBlankLine();
-                logger.LogWarning("Shutdown", "Application shutdown initiated by user.");
 
-                Task.Delay(250).Wait(); // Wait a moment to allow the log message to be written before shutting down.
+                Task.Delay(Globals.LOG_REFRESH_INTERVAL + 50).Wait(); // Wait a moment to allow the log message to be written before shutting down.
 
                 Program.RestartRequested = true;
                 Program.applicationLifetime?.StopApplication();
@@ -300,8 +300,10 @@ else
             await Task.Run(async () =>
             {
                 // Disable the UI immediately to prevent multiple clicks while shutdown is in progress.
-                operationUnderwayMessage = "Shutting down...";
-                await InvokeAsync(StateHasChanged);
+                state.OperationUnderwayMessage = "Shutting down...";
+                logger.LogBlankLine();
+                logger.LogWarning("Shutdown", "Application shutdown initiated by an administrator.");
+                logger.LogBlankLine();
                 state.OperationUnderway = true;
 
                 // If we're connected to devices, disconnect first to ensure a clean shutdown.
@@ -309,10 +311,8 @@ else
                 {
                     ConnectionManager.Disconnect(state, logger);
                 }
-                logger.LogBlankLine();
-                logger.LogWarning("Shutdown", "Application shutdown initiated by user.");
 
-                Task.Delay(250).Wait(); // Wait a moment to allow the log message to be written before shutting down.
+                Task.Delay(Globals.LOG_REFRESH_INTERVAL + 50).Wait(); // Wait a moment to allow the log message to be written before shutting down.
 
                 Program.RestartRequested = false;
                 Program.applicationLifetime?.StopApplication();
