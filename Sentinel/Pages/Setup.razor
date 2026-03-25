@@ -12,7 +12,6 @@
 @inject IJSRuntime JSRuntime
 @inject State state;
 @inject DialogService DialogService
-@inject PasswordManager passwordManager
 
 @using ASCOM.Alpaca
 @using ASCOM.Alpaca.Discovery
@@ -188,58 +187,8 @@
                                     <label>Require administrator login:</label>
                                     <input style="margin-left:12px;" type="checkbox" @bind="RequireAdministratorLogin" />
                                     <span style="margin-left:12px;">(Requires restart)</span>
+                                    <p style="margin-top:12px; margin-bottom:0px; font-style:italic;">When enabling security for the first time, set the password through the Administrator logon dialogue.</p>
                                 </div>
-                                @if (RequireAdministratorLogin & !state.RequireAdministratorLoginAtStartup)
-                                {
-                                    <div>
-                                        <p>When enabling security for the first time, set the password through the Administrator logon dialogue.</p>
-                                    </div>
-                                }
-
-                                <div style="margin-bottom: 12px; margin-top: 12px;">
-
-                                    <form autocomplete="on">
-                                        <!-- New password -->
-                                        <div>
-                                            <label style="display:inline-block; min-width:156px;">New Password:</label>
-                                            <input id="new-password"
-                                                   name="new-password"
-                                                   style="width:21ch;"
-                                                   type="@(_showAdminPassword ? "text" : "password")"
-                                                   autocomplete="new-password"
-                                                   disabled="@(!state.RequireAdministratorLoginAtStartup)"
-                                                   @bind="_adminNewPassword" />
-                                        </div>
-
-                                        <!-- Confirm new password -->
-                                        <div style="margin-top:12px;">
-                                            <label style="display:inline-block; min-width:156px;">Confirm Password:</label>
-                                            <input id="confirm-password"
-                                                   name="new-password-confirmation"
-                                                   style="width:21ch;"
-                                                   type="@(_showAdminPassword ? "text" : "password")"
-                                                   autocomplete="new-password"
-                                                   disabled="@(!state.RequireAdministratorLoginAtStartup)"
-                                                   @bind="_adminConfirmPassword" />
-                                            <span style="margin-left:12px;margin-top:12px;">
-                                                <input type="checkbox" @bind="_showAdminPassword" /> <label>View Password</label>
-                                            </span>
-                                        </div>
-                                    </form>
-                                </div>
-
-                                <div style="margin-bottom: 12px;">
-                                    <SentinelButton Click="@SetAdminPassword" Text="Set Password" Disabled="@(state.OperationUnderway | !RequireAdministratorLogin)" />
-                                </div>
-
-                                <p style="color:#888; font-size:small;">
-                                    Passwords must have at least 8 characters and include an uppercase letter, a lowercase letter, and a number. You cannot reuse any of your last 10 passwords.
-                                </p>
-
-                                @if (!string.IsNullOrEmpty(_adminPasswordStatus))
-                                {
-                                    <p style="color:@_adminPasswordStatusColor; font-weight:bold;">@_adminPasswordStatus</p>
-                                }
                             </RadzenCard>
 
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
@@ -621,37 +570,6 @@
 @code {
     private AlpacaDiscovery? discovery;
     private DotNetObjectReference<Setup>? objRef;
-
-    // Administrator password fields
-    private string _adminNewPassword = "";
-    private string _adminConfirmPassword = "";
-    private bool _showAdminPassword;
-    private string _adminPasswordStatus = "";
-    private string _adminPasswordStatusColor = "red";
-
-    private async Task SetAdminPassword()
-    {
-        if (_adminNewPassword != _adminConfirmPassword)
-        {
-            _adminPasswordStatus = "Passwords do not match.";
-            _adminPasswordStatusColor = "red";
-            return;
-        }
-
-        string? error = passwordManager.SetPassword(_adminNewPassword);
-        if (error is not null)
-        {
-            _adminPasswordStatus = error;
-            _adminPasswordStatusColor = "red";
-            return;
-        }
-
-        _adminPasswordStatus = "Administrator password changed successfully.";
-        _adminPasswordStatusColor = "green";
-        _adminNewPassword = "";
-        _adminConfirmPassword = "";
-        logger.LogMessage("Setup", "Administrator password changed from the Security settings.");
-    }
 
     private int windowWidth { get; set; } = 1280;
     private List<AscomDevice> observingConditionsDevicesAlpaca { get; set; } = new();

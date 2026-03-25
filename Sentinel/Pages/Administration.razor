@@ -105,7 +105,60 @@ else
         <p>You are logged in as an administrator.</p>
         <RadzenButton Click="LogoutAsync" Text="Logout" ButtonStyle="ButtonStyle.Danger"
                       Style="margin-top:22px;border-radius:20px; text-transform:none;" />
+        <RadzenButton Click="@(() => _showChangePasswordCard = !_showChangePasswordCard)"
+                      Text="Change Password"
+                      ButtonStyle="ButtonStyle.Secondary"
+                      Style="margin-top:22px;margin-left:60px;border-radius:20px; text-transform:none;" />
     </RadzenCard>
+
+    @if (_showChangePasswordCard)
+    {
+        <RadzenCard Style="max-width:620px; margin-top:20px;">
+            <h4 style="color:cornflowerblue;">Change Password</h4>
+            <div style="margin-bottom:12px; margin-top:12px;">
+                <form autocomplete="on">
+                    <!-- New password -->
+                    <div>
+                        <label style="display:inline-block; min-width:156px;">New Password:</label>
+                        <input id="new-password"
+                               name="new-password"
+                               style="width:21ch;"
+                               type="@(_showChangePassword ? "text" : "password")"
+                               autocomplete="new-password"
+                               @bind="_newPassword" />
+                    </div>
+
+                    <!-- Confirm new password -->
+                    <div style="margin-top:12px;">
+                        <label style="display:inline-block; min-width:156px;">Confirm Password:</label>
+                        <input id="confirm-password"
+                               name="new-password-confirmation"
+                               style="width:21ch;"
+                               type="@(_showChangePassword ? "text" : "password")"
+                               autocomplete="new-password"
+                               @bind="_confirmPassword" />
+                        <span style="margin-left:12px;">
+                            <input type="checkbox" @bind="_showChangePassword" /> <label>View Password</label>
+                        </span>
+                    </div>
+                </form>
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <RadzenButton Click="ChangePasswordAsync" Text="Set Password" ButtonStyle="ButtonStyle.Primary"
+                              Style="border-radius:20px; text-transform:none;" />
+            </div>
+
+            <p style="color:#888; font-size:small;">
+                Passwords must have at least 8 characters and include an uppercase letter, a lowercase letter, and a number. You cannot reuse any of your last 10 passwords.
+            </p>
+
+            @if (!string.IsNullOrEmpty(_changeStatus))
+            {
+                <p style="color:@_changeStatusColor; font-weight:bold;">@_changeStatus</p>
+            }
+        </RadzenCard>
+    }
 }
 
 @code {
@@ -114,6 +167,7 @@ else
     private string _loginStatus = "";
     private string _loginStatusColor = "red";
 
+    private bool _showChangePasswordCard;
     private string _newPassword = "";
     private string _confirmPassword = "";
     private bool _showChangePassword;
@@ -191,6 +245,7 @@ else
 
         circuitState.IsAuthenticated = false;
         circuitState.MustChangePassword = false;
+        _showChangePasswordCard = false;
         logger.LogMessage("Administration", "Administrator logged out.");
     }
 }

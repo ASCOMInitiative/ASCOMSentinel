@@ -30,10 +30,9 @@
         public string StatusText { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(StatusText)); } } } = "";
 
         /// <summary>
-        /// Set to true by the Index page after its first render completes.
-        /// NavMenu disables action buttons until this is true.
+        /// Set to true by the Index page after its first render completes. NavMenu disables action buttons until this is true.
         /// </summary>
-        public bool UiReady { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(UiReady)); } } } = false;
+        // public bool UiReady { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(UiReady)); } } } = false;
 
         public bool OperationUnderway { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(OperationUnderway)); } } } = false;
 

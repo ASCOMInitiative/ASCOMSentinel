@@ -20,7 +20,7 @@
 
 @if (state.OperationUnderway)@* Operation is in progress *@
 {
-    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:80px;">Operation Underway</span>
+    <span style="color:yellow;display:flex;justify-content:center;font-weight:bold;margin-top:80px;">@operationUnderwayMessage</span>
 }
 else
 @* No operation is in progress *@
@@ -72,7 +72,7 @@ else
                 <RadzenButton Click="() => EnableRemoteClients()"
                               Text="@(state.EnableRemoteClients? "Online" : "Offline")"
                               Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)"
-                              Disabled="@(!state.UiReady)" />
+                              Disabled="@(state.OperationUnderway)" />
             </div>
             <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
 
@@ -81,7 +81,7 @@ else
                 <RadzenButton Click="() => ConnectDisconnect()"
                               Text="@(state.Connected ? "Connected" : "Disconnected")"
                               Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Connected) ? ButtonStyle.Success : ButtonStyle.Danger)"
-                              Disabled="@(!state.UiReady)" />
+                              Disabled="@(state.OperationUnderway)" />
             </div>
             <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
 
@@ -115,19 +115,21 @@ else
             <RadzenButton Click="RestartApplicationAsync"
                           Text="Restart"
                           Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Warning"
-                          Disabled="@(!state.UiReady)" />
+                          Disabled="@(state.OperationUnderway)" />
         </div>
         <div style="margin-top:0px;margin-bottom:12px;display:flex;justify-content:center;" @onclick:stopPropagation>
             <RadzenButton Click="ShutdownApplicationAsync"
                           Text="Shutdown"
                           Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="ButtonStyle.Danger"
-                          Disabled="@(!state.UiReady)" />
+                          Disabled="@(state.OperationUnderway)" />
         </div>
         } @* end of IsAuthenticated block *@
     </div>
 }
 
 @code {
+
+    private string operationUnderwayMessage = "Operation Underway";
 
     private async Task EnableRemoteClients()
     {
@@ -266,8 +268,9 @@ else
             await Task.Run(async () =>
             {
                 // Disable the UI immediately to prevent multiple clicks while shutdown is in progress.
-                state.UiReady = false;
-
+                operationUnderwayMessage = "Restarting application...";
+                await InvokeAsync(StateHasChanged);
+                state.OperationUnderway = true;
                 // If we're connected to devices, disconnect first to ensure a clean shutdown.
                 if (state.Connected)
                 {
@@ -297,7 +300,9 @@ else
             await Task.Run(async () =>
             {
                 // Disable the UI immediately to prevent multiple clicks while shutdown is in progress.
-                state.UiReady = false;
+                operationUnderwayMessage = "Shutting down...";
+                await InvokeAsync(StateHasChanged);
+                state.OperationUnderway = true;
 
                 // If we're connected to devices, disconnect first to ensure a clean shutdown.
                 if (state.Connected)

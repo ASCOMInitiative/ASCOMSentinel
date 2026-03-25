@@ -30,9 +30,13 @@
 
         internal static readonly Lock writeLogLock = new(); // Lock object to synchronize access to the log when resizing
 
-        internal const int APPLICATION_SHUTDOWN_TIMEOUT = 2; // Time that the application waits for host services to stop after a shutdown request before forcing termination (Default: 30 seconds)
+        internal const int APPLICATION_SHUTDOWN_TIMEOUT = 5; // Time that the application waits for host services to stop after a shutdown request before forcing termination (Default: 30 seconds)
 
         internal const int WEBSOCKET_CLOSE_TIMEOUT = 5; // Time the web-socket transport waits for a graceful close (Default: 5 seconds)
+        internal const int SIGNALR_SERVER_TIMEOUT = 30; // Time in seconds without a server message before SignalR considers the connection lost (Default: 30 seconds)
+        internal const int SIGNALR_KEEP_ALIVE_INTERVAL = SIGNALR_SERVER_TIMEOUT / 2; // Interval in seconds at which the client sends keep-alive pings to the server (Default: 15 seconds)
+
+
         internal const int DISCONNECTED_CIRCUIT_RETENTION_PERIOD = 180; // Maximum time that circuit state is retained on the server before being cleaned out (Default 180 seconds)
 
         internal static readonly SemaphoreSlim ConnectSemaphore = new SemaphoreSlim(1, 1);

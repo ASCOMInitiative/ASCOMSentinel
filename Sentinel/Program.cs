@@ -132,13 +132,6 @@ namespace Sentinel
 
             DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
 
-            // Connect to devices if required
-            if (settings.AutoConnect && !state.Connected)
-                await ConnectionManager.ConnectAsync(state,settings,logger);
-
-
-
-
             #endregion
 
             #region Finish Building
@@ -148,6 +141,10 @@ namespace Sentinel
             builder.Services.AddServerSideBlazor(options =>
                 {
                     options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(Globals.DISCONNECTED_CIRCUIT_RETENTION_PERIOD);
+                })
+                .AddHubOptions(options =>
+                {
+                    options.KeepAliveInterval = TimeSpan.FromSeconds(Globals.SIGNALR_KEEP_ALIVE_INTERVAL);
                 });
 
             // Limit how long the host waits for graceful shutdown so the app exits promptly when stopped via the UI (default is 30 seconds).
@@ -240,8 +237,8 @@ namespace Sentinel
             {
                 if (args?.Any(str => str.Contains("--nobrowser")) ?? false)
                 { } // Don't start the browser if the user requested not to
-                else
-                    StartBrowser(settings.ServerPort);
+                else { }
+                   // StartBrowser(settings.ServerPort);
             }
             catch (Exception ex)
             {
@@ -251,6 +248,13 @@ namespace Sentinel
 
             // Register events to log shutdown progress, this helps with troubleshooting shutdown issues and ensures we log the shutdown even if the browser is closed before the server is stopped.
             applicationLifetime = app.Lifetime;
+            applicationLifetime.ApplicationStarted.Register(() =>
+            {
+                // Auto-connect after the web server has started so browsers can reach the application immediately.
+                if (settings.AutoConnect && !state.Connected)
+                    Task.Run(() => ConnectionManager.ConnectAsync(state, settings, logger));
+            });
+
             applicationLifetime.ApplicationStopping.Register(() =>
             {
                 logger.LogMessage(nameof(Main), "Application shutting down...");
@@ -279,11 +283,13 @@ namespace Sentinel
                     string? processPath = Environment.ProcessPath;
                     if (!string.IsNullOrWhiteSpace(processPath))
                     {
+                        Thread.Sleep(3000); // Add a small delay before restarting to allow the previous instance to release resources and avoid potential conflicts on startup.
+
                         // Start a new instance of the application with the --nobrowser argument to avoid opening another browser window on restart.
                         Process.Start(new ProcessStartInfo
                         {
                             FileName = processPath,
-                            Arguments = "--nobrowser",
+                            //Arguments = "--nobrowser",
                             UseShellExecute = true
                         });
                     }

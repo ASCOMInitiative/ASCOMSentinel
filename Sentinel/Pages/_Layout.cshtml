@@ -115,9 +115,25 @@
                 setTimeout(function () {
                     reconnectCallback().then(function (success) {
                         if (!success) {
-                            tryReconnect();
+                            // When using a custom onConnectionDown handler Blazor does not update the
+                            // components-reconnect-* CSS classes, so the MutationObserver-based reload
+                            // path is never triggered. Instead, probe the server directly: if it
+                            // responds the circuit is gone (server restarted) and a fresh page load is
+                            // needed; if it doesn't respond the server is still down so retry.
+                            fetch(window.location.href, { method: 'HEAD', cache: 'no-store' })
+                                .then(function () {
+                                    // Server is reachable — old circuit is gone, reload for a fresh one.
+                                    setTimeout(function () { window.location.reload(); }, reconnectJitterMs);
+                                })
+                                .catch(function () {
+                                    // Server still unreachable — schedule another attempt.
+                                    tryReconnect();
+                                });
                         }
                         // If success, Blazor handles the rest
+                    }).catch(function () {
+                        // reconnect() itself threw — treat as unreachable and retry.
+                        tryReconnect();
                     });
                 }, delayMs);
             }
@@ -128,6 +144,10 @@
         setTimeout(function () {
             Blazor.start({
                 circuit: {
+                    configureSignalR: function (builder) {
+                        builder.withServerTimeout(@(Globals.SIGNALR_SERVER_TIMEOUT * 1000));
+                        builder.withKeepAliveInterval(@(Globals.SIGNALR_KEEP_ALIVE_INTERVAL * 1000));
+                    },
                     reconnectionHandler: {
                         onConnectionDown: function (options, error) {
                             startReconnectLoop(options.reconnect);

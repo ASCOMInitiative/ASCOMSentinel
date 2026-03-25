@@ -62,9 +62,6 @@
 
             // Start a timer-based log refresh instead of subscribing to every log message. This caps the cost at 1 render + 1 JS call per interval per tab, regardless of how many log messages arrive or how many tabs are open.
             _ = LogRefreshLoopAsync(_cts.Token);
-
-            // Record that the UI is ready. This allows the navigation menu to enable its buttons.
-            state.UiReady = true;
         }
 
         // Scroll to bottom after a render that was triggered by new log content
