@@ -141,10 +141,6 @@ namespace Sentinel
             builder.Services.AddServerSideBlazor(options =>
                 {
                     options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromSeconds(Globals.DISCONNECTED_CIRCUIT_RETENTION_PERIOD);
-                })
-                .AddHubOptions(options =>
-                {
-                    options.KeepAliveInterval = TimeSpan.FromSeconds(Globals.SIGNALR_KEEP_ALIVE_INTERVAL);
                 });
 
             // Limit how long the host waits for graceful shutdown so the app exits promptly when stopped via the UI (default is 30 seconds).
@@ -232,19 +228,17 @@ namespace Sentinel
 
             app.MapFallbackToPage("/_Host");
 
-            // Start the browser.
+            // Start the browser if configured to do so.
             try
             {
-                if (args?.Any(str => str.Contains("--nobrowser")) ?? false)
-                { } // Don't start the browser if the user requested not to
-                else { }
-                   // StartBrowser(settings.ServerPort);
+                // Check whether browser start is disabled
+                if (!(args?.Any(str => str.Contains("--nobrowser")) ?? false)) // Browser start is enabled.
+                   StartBrowser(settings.ServerPort);
             }
             catch (Exception ex)
             {
                 logger.LogWarning(ex.Message);
             }
-
 
             // Register events to log shutdown progress, this helps with troubleshooting shutdown issues and ensures we log the shutdown even if the browser is closed before the server is stopped.
             applicationLifetime = app.Lifetime;
@@ -283,13 +277,13 @@ namespace Sentinel
                     string? processPath = Environment.ProcessPath;
                     if (!string.IsNullOrWhiteSpace(processPath))
                     {
-                        Thread.Sleep(3000); // Add a small delay before restarting to allow the previous instance to release resources and avoid potential conflicts on startup.
+                        Thread.Sleep(Globals.RESTART_DELAY * 1000); // Add a small delay before restarting to allow the previous instance to release resources and avoid potential conflicts on startup.
 
                         // Start a new instance of the application with the --nobrowser argument to avoid opening another browser window on restart.
                         Process.Start(new ProcessStartInfo
                         {
                             FileName = processPath,
-                            //Arguments = "--nobrowser",
+                            Arguments = "--nobrowser",
                             UseShellExecute = true
                         });
                     }
