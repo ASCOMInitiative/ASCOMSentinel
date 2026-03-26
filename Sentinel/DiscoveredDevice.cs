@@ -53,6 +53,9 @@
                         return $"{Name} ({ComProgID})";
 
                     default:
+                        if (SentinelDeviceType == SentinelDeviceType.ManuallyConfigured)
+                            return $"Manually configured - {IpAddress}:{PortNumber}";
+
                         return Globals.NOT_SET;
                 }
             }

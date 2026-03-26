@@ -21,6 +21,14 @@
             </span>
         </Template>
     </RadzenDropDown>
+    @{
+        if (CurrentValue?.SentinelDeviceType == SentinelDeviceType.ManuallyConfigured)
+        {
+            <span style="margin-left:12px;">
+                <RadzenButton>Configure Device</RadzenButton>
+            </span>
+        }
+    }
 </div>
 
 @code {
@@ -57,6 +65,9 @@
         // Check if this device is not configured
         if (device.SentinelDeviceType == SentinelDeviceType.NotSet) // Not configured so return red
             return "Red";
+
+        if (device.SentinelDeviceType == SentinelDeviceType.ManuallyConfigured) // Not configured so return red
+            return "DarkOrange";
 
         // Check whether it is Alpaca or COM
         if (device.PortNumber != 0) // Alpaca device so return blue

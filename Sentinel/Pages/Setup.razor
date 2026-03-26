@@ -740,6 +740,7 @@
         settings.PropertyCacheTime = TimeSpan.FromSeconds(cacheTime);
         settings.Save();
     }
+
     private async Task AlpacaGetPropertyTimeoutChanged(object args)
     {
         if (args == null)
@@ -878,15 +879,17 @@
             safetyMonitorDevicesAlpaca.Clear();
 
 #if WINDOWS
-            ObservingConditionsDevicesCom.Clear();
-            SwitchDevicesCom.Clear();
-            SafetyMonitorDevicesCom.Clear();
+    ObservingConditionsDevicesCom.Clear();
+    SwitchDevicesCom.Clear();
+    SafetyMonitorDevicesCom.Clear();
 #endif
 
             state.DiscoveredObservingConditionsDevices.Clear();
             state.DiscoveredSafetyMonitorDevices.Clear();
 
             state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice());
+            state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManuallyConfigured });
+
             state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice());
 
             ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
