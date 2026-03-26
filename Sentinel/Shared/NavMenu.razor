@@ -197,19 +197,13 @@ else
 
     private async Task Reconnect()
     {
-        bool? confirmed;
         // Check whether we need to get confirmation for this action
-        if (settings.ConfirmReConnect) // Confirmation required
-        {
-            confirmed = await DialogService.Confirm(
-               "Reconnect devices?",
-               "Disconnect and reconnect devices",
-               new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
-        }
-        else // No confirmation is required so just do it
-            confirmed = true;
+        bool? confirmed = await DialogService.Confirm(
+           "Reconnect devices?",
+           "Disconnect and reconnect devices",
+           new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
 
-        if (confirmed == true)
+        if (confirmed.HasValue && confirmed.Value)
         {
             // Clear the reconnect message.
             state.DisplayReconnectMessage = false;
@@ -245,7 +239,7 @@ else
         else // No confirmation is required so just do it
             confirmed = true;
 
-        if (confirmed == true)
+        if (confirmed.HasValue && confirmed.Value)
         {
             state.DisplayReconnectMessage = false;
             await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
@@ -254,14 +248,13 @@ else
 
     private async Task RestartApplicationAsync()
     {
-        bool? confirmed;
         // Check whether we need to get confirmation for this action
-        confirmed = await DialogService.Confirm(
+        bool? confirmed = await DialogService.Confirm(
         "Restart the application?",
             "Confirm Restart",
             new ConfirmOptions { OkButtonText = "Restart", CancelButtonText = "Cancel" });
 
-        if (confirmed == true)
+        if (confirmed.HasValue && confirmed.Value)
         {
             // Signal that a restart is needed, then stop the application. Program.Main will start the new instance after the port is released.
             await Task.Run(async () =>
@@ -294,7 +287,7 @@ else
             "Confirm Shutdown",
             new ConfirmOptions { OkButtonText = "Shutdown", CancelButtonText = "Cancel" });
 
-        if (confirmed == true)
+        if (confirmed.HasValue && confirmed.Value)
         {
             // Signal that a shutdown is needed and stop the application.
             await Task.Run(async () =>

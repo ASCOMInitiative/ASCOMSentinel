@@ -19,13 +19,16 @@ namespace Sentinel
 
         public override Task OnConnectionUpAsync(Circuit circuit, CancellationToken cancellationToken)
         {
-            logger.LogDebug("CircuitHandler", $"OnConnectionUpAsync - Circuit {circuit.Id} is up. Connection count: {_connections.Count}");
+            logger.LogDebug("CircuitHandler", $"Connection {circuit.Id[..12]} is up.  Circuit count: {_connections.Count}");
             return Task.CompletedTask;
         }
-
+        // OnConnectionUp
+        // OnConnectionDown
+        // OnCircuitOpened
+        // OnCircuitClosed
         public override Task OnConnectionDownAsync(Circuit circuit, CancellationToken cancellationToken)
         {
-            logger.LogDebug("CircuitHandler", $"OnConnectionDownAsync - Circuit {circuit.Id} is down. Connection count: {_connections.Count}");
+            logger.LogDebug("CircuitHandler", $"Connection {circuit.Id[..12]} is down.");
             return Task.CompletedTask;
         }
 
@@ -36,7 +39,7 @@ namespace Sentinel
                 if (!_connections.Contains(circuit.Id))
                 {
                     _connections.Add(circuit.Id);
-                    logger.LogDebug("CircuitHandler", $"OnCircuitOpenedAsync - Circuit {circuit.Id} opened. Connection count: {_connections.Count}");
+                    logger.LogDebug("CircuitHandler", $"Circuit    {circuit.Id[..12]} opened.");
                 }
             }
             return Task.CompletedTask;
@@ -47,7 +50,7 @@ namespace Sentinel
             lock (_lock)
             {
                 _connections.Remove(circuit.Id);
-                logger.LogDebug("CircuitHandler", $"OnCircuitClosedAsync - Circuit {circuit.Id} closed. Connection count: {_connections.Count}");
+                logger.LogDebug("CircuitHandler", $"Circuit    {circuit.Id[..12]} closed. Circuit count: {_connections.Count}");
             }
             return Task.CompletedTask;
         }

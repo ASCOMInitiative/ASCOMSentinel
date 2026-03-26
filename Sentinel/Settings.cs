@@ -302,9 +302,8 @@ namespace Sentinel
             { PropertyName.WindSpeed, new GaugeConfiguration() }
         };
 
+        public bool StartBrowserOnLaunch { get; set; } = true;
         public bool LogSafetyWarnings { get; set; } = true;
-        public bool ConfirmRestart { get; set; } = true;
-        public bool ConfirmReset { get; set; } = true;
         public bool ConfirmConnectToDevices { get; set; } = true;
         public bool ConfirmReConnect { get; set; } = true;
         public bool ConfirmOnline { get; set; } = true;

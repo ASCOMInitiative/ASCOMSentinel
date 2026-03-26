@@ -28,7 +28,7 @@ namespace Sentinel
         internal static IHostApplicationLifetime? applicationLifetime;
         internal static bool RestartRequested;
 
-        public static async Task  Main(string[] args)
+        public static async Task Main(string[] args)
         {
 
             #region Startup and Logging
@@ -231,9 +231,9 @@ namespace Sentinel
             // Start the browser if configured to do so.
             try
             {
-                // Check whether browser start is disabled
-                if (!(args?.Any(str => str.Contains("--nobrowser")) ?? false)) // Browser start is enabled.
-                   StartBrowser(settings.ServerPort);
+                // Check whether browser start is disabled or suppressed through the command line
+                if (settings.StartBrowserOnLaunch && !(args?.Any(str => str.Contains("--nobrowser")) ?? false)) // Browser start is enabled.
+                    StartBrowser(settings.ServerPort);
             }
             catch (Exception ex)
             {

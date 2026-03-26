@@ -45,25 +45,43 @@
                                     <RadzenNumeric Value=@SrvServerPort
                                                    TValue=ushort
                                                    Step="1"
-                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 140px; text-align:left; border: 1px solid black;"
+                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 100px; text-align:left; border: 1px solid black;"
                                                    Change=@(args => @ServerPortChanged(args))
                                                    Min="1"
+                                                   TextAlign="TextAlign.Right"
                                                    ShowUpDown="true"
                                                    Name="SrvServerPort" />
-                                    <span style="margin-left:12px;">(Requires restart)</span>
+                                    <span style="margin-left:12px;">(Requires restart - default 32324)</span>
                                 </div>
                                 <div style="margin-bottom: 0px; margin-top: 0px">
                                     <label class="indentedlist">Alpaca communication timeout (seconds):</label>
                                     <RadzenNumeric Value=@settings.AlpacaGetPropertyTimeout
                                                    TValue=int
                                                    Step="1"
-                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 140px; text-align:left; border: 1px solid black;"
+                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 100px; text-align:left; border: 1px solid black;"
                                                    Change=@(args => AlpacaGetPropertyTimeoutChanged(args))
                                                    Min="1"
+                                                   TextAlign="TextAlign.Right"
                                                    ShowUpDown="true"
                                                    Name="AlpacaGetPropertyTimeout" />
                                     <span style="margin-left:12px;">(Requires devices to be reconnected)</span>
                                 </div>
+                                <div style="margin-bottom: 0px; margin-top: 12px">
+                                    <label class="indentedlist">Property cache time (seconds):</label>
+                                    <RadzenNumeric Value=@settings.PropertyCacheTime.TotalSeconds
+                                                   TValue=double
+                                                   Step="1"
+                                                   Style="margin-top:00px;margin-left:0px; margin-right:0px; width: 100px; text-align:left; border: 1px solid black;"
+                                                   Change=@(args => PropertyCacheTimeChanged(args))
+                                                   Min="0"
+                                                   Format="0.0"
+                                                   TextAlign="TextAlign.Right"
+                                                   ShowUpDown="true"
+                                                   Name="PropertyCacheTime" />
+                                    <span style="margin-left:12px;">(Limits real device property queries to once every x seconds)</span>
+                                </div>
+
+
                                 <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Bind to all host network addresses:</label>
                                     <input style="margin-left:52px;" type="checkbox" @bind="BindToAllNetworkAddresses" />
@@ -115,6 +133,10 @@
                                 <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Connect to configured devices when started:</label>
                                     <input type="checkbox" @bind="AutoConnect" />
+                                    <div style="margin-bottom: 12px; margin-top: 12px">
+                                        <label>Start browser on launch:</label>
+                                        <input style="margin-left:142px;" type="checkbox" @bind="StartBrowserOnLaunch" />
+                                    </div>
                                 </div>
 
                             </RadzenCard>
@@ -163,14 +185,7 @@
                                     <label>Confirm connect to devices:</label>
                                     <input style="margin-left:6px;" type="checkbox" @bind="ConfirmConnectToDevices" />
                                 </div>
-                                <div style="margin-bottom: 12px; margin-top: 12px">
-                                    <label>Confirm restart:</label>
-                                    <input style="margin-left:92px;" type="checkbox" @bind="ConfirmRestart" />
-                                </div>
-                                <div style="margin-bottom: 12px; margin-top: 12px">
-                                    <label>Confirm reconnect:</label>
-                                    <input style="margin-left:68px;" type="checkbox" @bind="ConfirmReconnect" />
-                                </div>
+
                                 <div style="margin-top:24px;padding-top:24px;">
                                     <SentinelButton Click="@UncheckConfirmSettings" Text="Uncheck all settings" Disabled="@(state.OperationUnderway)" />
                                 </div>
@@ -252,7 +267,7 @@
             </RadzenTabs>
         </RadzenTabsItem>
 
-        <RadzenTabsItem Text="Observing Conditions Display">
+        <RadzenTabsItem Text="Observing Conditions Display" Visible="@false">
             <div class="row" style="margin-top: 12px">
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Select safety monitor devices to be aggregated into the composite safety monitor IsSafe property.</h4>
@@ -582,6 +597,12 @@
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
 
+    private bool StartBrowserOnLaunch
+    {
+        get => settings.StartBrowserOnLaunch;
+        set { settings.StartBrowserOnLaunch = value; settings.Save(); }
+    }
+
     private bool ConfirmOnline
     {
         get => settings.ConfirmOnline;
@@ -593,30 +614,12 @@
         get => settings.ConfirmConnectToDevices;
         set { settings.ConfirmConnectToDevices = value; settings.Save(); }
     }
-    private bool ConfirmReset
-    {
-        get => settings.ConfirmReset;
-        set { settings.ConfirmReset = value; settings.Save(); }
-    }
-    private bool ConfirmRestart
-    {
-        get => settings.ConfirmRestart;
-        set { settings.ConfirmRestart = value; settings.Save(); }
-    }
 
     private async Task UncheckConfirmSettings()
     {
         settings.ConfirmConnectToDevices = false;
         settings.ConfirmOnline = false;
-        settings.ConfirmReConnect = false;
-        settings.ConfirmRestart = false;
         settings.Save();
-    }
-
-    private bool ConfirmReconnect
-    {
-        get => settings.ConfirmReConnect;
-        set { settings.ConfirmReConnect = value; settings.Save(); }
     }
 
     private bool EnableRemoteClientsAtStartup
@@ -635,7 +638,8 @@
     private async Task OnTabChanged(int item)
     {
         state.StatusText = string.Empty;
-        if ((!state.DiscoveryHasRun) & ((item == 1) || (item == 4)))
+        logger.LogMessage("OnTabChanged", $"Tab changed to {item}");
+        if ((!state.DiscoveryHasRun) && ((item == 2) || (item == 5)))
         {
             await StartDiscovery();
         }
@@ -717,6 +721,15 @@
         }
     }
 
+    private void PropertyCacheTimeChanged(object args)
+    {
+        if (args is null)
+            return;
+
+        double cacheTime = Convert.ToDouble(args);
+        settings.PropertyCacheTime = TimeSpan.FromSeconds(cacheTime);
+        settings.Save();
+    }
     private async Task AlpacaGetPropertyTimeoutChanged(object args)
     {
         if (args == null)
@@ -750,17 +763,12 @@
     private async Task ResetSettings()
     {
         bool? confirmed;
-        if (settings.ConfirmReset)
-        {
-            confirmed = await DialogService.Confirm(
-            "Are you sure you want to reset all settings? This cannot be undone.",
-            "Confirm Reset",
-            new ConfirmOptions { OkButtonText = "Reset", CancelButtonText = "Cancel" });
-        }
-        else
-            confirmed = true;
+        confirmed = await DialogService.Confirm(
+        "Are you sure you want to reset all settings? This cannot be undone.",
+        "Confirm Reset",
+        new ConfirmOptions { OkButtonText = "Reset", CancelButtonText = "Cancel" });
 
-        if (confirmed == true)
+        if (confirmed.HasValue && confirmed.Value)
         {
             settings.ResetToDefaults();
             state.Connected = false;
