@@ -15,7 +15,7 @@
 
         #region public properties
 
-        public bool EnableRemoteClients { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(EnableRemoteClients)); } } } = false;
+        public bool Online { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(Online)); } } } = false;
 
         public bool Connected { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(Connected)); } } } = false;
 

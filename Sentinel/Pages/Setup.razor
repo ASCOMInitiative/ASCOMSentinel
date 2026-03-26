@@ -81,7 +81,6 @@
                                     <span style="margin-left:12px;">(Limits real device property queries to once every x seconds)</span>
                                 </div>
 
-
                                 <div style="margin-bottom: 12px; margin-top: 12px">
                                     <label>Bind to all host network addresses:</label>
                                     <input style="margin-left:52px;" type="checkbox" @bind="BindToAllNetworkAddresses" />
@@ -178,12 +177,12 @@
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                                 <h4 style="color:cornflowerblue;">Confirmation</h4>
                                 <div style="margin-bottom: 12px; margin-top: 12px">
-                                    <label>Confirm online state change:</label>
+                                    <label>Confirm changing online state:</label>
                                     <input type="checkbox" @bind="ConfirmOnline" />
                                 </div>
                                 <div style="margin-bottom: 12px; margin-top: 12px">
-                                    <label>Confirm connect to devices:</label>
-                                    <input style="margin-left:6px;" type="checkbox" @bind="ConfirmConnectToDevices" />
+                                    <label>Confirm changing device state when online:</label>
+                                    <input style="margin-left:6px;" type="checkbox" @bind="ConfirmDisconnectDevices" />
                                 </div>
 
                                 <div style="margin-top:24px;padding-top:24px;">
@@ -609,15 +608,15 @@
         set { settings.ConfirmOnline = value; settings.Save(); }
     }
 
-    private bool ConfirmConnectToDevices
+    private bool ConfirmDisconnectDevices
     {
-        get => settings.ConfirmConnectToDevices;
-        set { settings.ConfirmConnectToDevices = value; settings.Save(); }
+        get => settings.ConfirmDisconnectDevices;
+        set { settings.ConfirmDisconnectDevices = value; settings.Save(); }
     }
 
     private async Task UncheckConfirmSettings()
     {
-        settings.ConfirmConnectToDevices = false;
+        settings.ConfirmDisconnectDevices = false;
         settings.ConfirmOnline = false;
         settings.Save();
     }

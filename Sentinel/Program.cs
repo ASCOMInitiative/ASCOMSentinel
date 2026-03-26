@@ -191,7 +191,7 @@ namespace Sentinel
             builder.Services.AddSingleton<PasswordManager>();
 
             // Initialise state with any values from settings that are needed at startup
-            state.EnableRemoteClients = settings.EnableRemoteClients;
+            state.Online = settings.EnableRemoteClients;
             state.RequireAdministratorLoginAtStartup = settings.RequireAdministratorLogin;
 
             // Add event handler to detect when the browser closes

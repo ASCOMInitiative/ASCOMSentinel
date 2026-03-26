@@ -69,9 +69,9 @@ else
 
                 <div style="margin-top:0px;margin-bottom:0px;display:flex;justify-content:center;">
 
-                    <RadzenButton Click="() => EnableRemoteClients()"
-                                  Text="@(state.EnableRemoteClients? "Online" : "Offline")"
-                                  Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.EnableRemoteClients) ? ButtonStyle.Success : ButtonStyle.Danger)"
+                    <RadzenButton Click="() => GoOnline()"
+                                  Text="@(state.Online? "Online" : "Offline")"
+                                  Style="width:165px;margin-left:0px; margin-right:0px; border-radius:20px; text-transform:none;" ButtonStyle="@((state.Online) ? ButtonStyle.Success : ButtonStyle.Danger)"
                                   Disabled="@(state.OperationUnderway)" />
                 </div>
                 <div style="color:white;font-size:small;justify-content:center;display:flex;margin-top:0px;margin-bottom:48px;">Click to change state</div>
@@ -130,23 +130,23 @@ else
 
 @code {
 
-    private async Task EnableRemoteClients()
+    private async Task GoOnline()
     {
         bool? confirmed;
         // Check whether we need to get confirmation for this action
         if (settings.ConfirmOnline) // Confirmation required
         {
             confirmed = await DialogService.Confirm(
-            state.EnableRemoteClients ? "Prevent client access?" : "Enable client access",
+            state.Online ? "Prevent client access?" : "Enable client access",
                 "Client access",
-                new ConfirmOptions { OkButtonText = state.EnableRemoteClients ? "Prevent" : "Enable", CancelButtonText = "Cancel" });
+                new ConfirmOptions { OkButtonText = state.Online ? "Prevent" : "Enable", CancelButtonText = "Cancel" });
         }
         else // No confirmation is required so just do it
             confirmed = true;
 
         if (confirmed == true)
-            state.EnableRemoteClients = !state.EnableRemoteClients;
-        logger.LogMessage("Online state changed", $"{Globals.APPLICATION_NAME} is now {(state.EnableRemoteClients ? "Online" : "Offline")}");
+            state.Online = !state.Online;
+        logger.LogMessage("Online state changed", $"{Globals.APPLICATION_NAME} is now {(state.Online ? "Online" : "Offline")}");
         logger.LogMessage("", "");
     }
 
@@ -197,11 +197,18 @@ else
 
     private async Task Reconnect()
     {
-        // Check whether we need to get confirmation for this action
-        bool? confirmed = await DialogService.Confirm(
-           "Reconnect devices?",
-           "Disconnect and reconnect devices",
-           new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
+        bool? confirmed;
+
+        if (state.Online && settings.ConfirmDisconnectDevices)
+        {
+            // Check whether we need to get confirmation for this action
+            confirmed = await DialogService.Confirm(
+               "You are online, are you sure you want to reconnect devices?",
+               "Reconnect devices",
+               new ConfirmOptions { OkButtonText = "Reconnect", CancelButtonText = "Cancel" });
+        }
+        else
+            confirmed = true; // If we're offline we can just reconnect without confirmation since there are no clients connected.
 
         if (confirmed.HasValue && confirmed.Value)
         {
@@ -228,11 +235,12 @@ else
     private async Task ConnectDisconnect()
     {
         bool? confirmed;
+
         // Check whether we need to get confirmation for this action
-        if (settings.ConfirmConnectToDevices) // Confirmation required
+        if (state.Online && settings.ConfirmDisconnectDevices) // Confirmation required
         {
             confirmed = await DialogService.Confirm(
-              state.Connected ? "Disconnect from  devices" : "Connect to devices?",
+              state.Connected ? "You are online, are you sure you want to disconnect from  devices?" : "Connect to devices?",
                 "Device connection",
                 new ConfirmOptions { OkButtonText = state.Connected ? "Disconnect" : "Connect", CancelButtonText = "Cancel" });
         }

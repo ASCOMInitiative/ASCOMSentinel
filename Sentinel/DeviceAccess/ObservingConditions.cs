@@ -35,7 +35,7 @@ namespace Sentinel.DeviceAccess
         private void CheckEnabled()
         {
             // Check whether the application is online
-            if (!state.EnableRemoteClients)
+            if (!state.Online)
                 throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME} is offline.");
 
             // Check whether the real devices are connected
@@ -48,7 +48,7 @@ namespace Sentinel.DeviceAccess
         private void CheckEnabled(PropertyName propertyName)
         {
             // Check whether the application is online
-            if (!state.EnableRemoteClients)
+            if (!state.Online)
                 throw new ASCOM.InvalidOperationException($"{Globals.APPLICATION_NAME} is offline.");
 
             // Check whether the real devices are connected
