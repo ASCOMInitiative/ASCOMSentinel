@@ -213,19 +213,25 @@
                                 </div>
                                 <div style="margin-bottom: 12px">
                                     <label>User Name:</label>
-                                    <input type="text" @bind="SrvUserName" style="width:21ch;margin-left:72px;" disabled="@SrvDisableAuth" />
+                                    <input type="text" @bind="_srvUserNameInput" @bind:event="oninput" @onkeydown="CommitUserNameOnEnter" style="width:21ch;margin-left:72px;" disabled="@SrvDisableAuth" />
                                 </div>
                                 <div style="margin-bottom: 12px">
                                     <label>Password:</label>
-                                    <input type="password" @bind="SrvPassword" style="width:21ch;margin-left:84px;" disabled="@SrvDisableAuth" />
+                                    <input type="password" @bind="_srvPassword" @bind:event="oninput" @onkeydown="CommitPasswordOnEnter" style="width:21ch;margin-left:84px;" disabled="@SrvDisableAuth" />
                                 </div>
                                 <div style="margin-bottom: 12px">
                                     <label>Repeat:</label>
-                                    <input type="password" @bind="SrvPassword2" style="width:21ch;margin-left:102px;" disabled="@SrvDisableAuth" />
+                                    <input type="password" @bind="_srvPassword2" @bind:event="oninput" @onkeydown="CommitPasswordOnEnter" style="width:21ch;margin-left:102px;" disabled="@SrvDisableAuth" />
                                 </div>
+
+                                <div style="margin-bottom:0px;margin-top:12px;">
+                                    <RadzenButton Click="TrySavePassword" Text="Change Password" ButtonStyle="ButtonStyle.Primary"
+                                                  Style="border-radius:20px; text-transform:none;" />
+                                </div>
+        
                                 @if (!string.IsNullOrEmpty(_srvPasswordStatus))
                                 {
-                                    <p style="color: @PasswordStatusColor">@_srvPasswordStatus</p>
+                                    <p style="margin-top:12px; color: @PasswordStatusColor">@_srvPasswordStatus</p>
                                 }
                             </RadzenCard>
                         </div>
@@ -653,6 +659,11 @@
         state.StatusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
         state.DisplayRestartMessage = true;
         await InvokeAsync(StateHasChanged);
+    }
+
+    protected override void OnInitialized()
+    {
+        _srvUserNameInput = settings.UserName;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -1117,31 +1128,25 @@
 
     private bool SrvDisableAuth => !SrvRequireAuthorization;
 
-    private string SrvUserName
+    private string _srvUserNameInput = "";
+    private string _srvPassword = string.Empty;
+    private string _srvPassword2 = string.Empty;
+
+    private void CommitUserNameOnEnter(KeyboardEventArgs e)
     {
-        get => settings.UserName;
-        set
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(_srvUserNameInput))
         {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                settings.UserName = value;
-                settings.Save();
-            }
+            settings.UserName = _srvUserNameInput;
+            settings.Save();
         }
     }
 
-    private string _srvPassword = string.Empty;
-    private string SrvPassword
+    private async Task CommitPasswordOnEnter(KeyboardEventArgs e)
     {
-        get => _srvPassword;
-        set { _srvPassword = value; TrySavePassword(); }
-    }
-
-    private string _srvPassword2 = string.Empty;
-    private string SrvPassword2
-    {
-        get => _srvPassword2;
-        set { _srvPassword2 = value; TrySavePassword(); }
+        if (e.Key == "Enter")
+        {
+            TrySavePassword();
+        }
     }
 
     private string _srvPasswordStatus = string.Empty;

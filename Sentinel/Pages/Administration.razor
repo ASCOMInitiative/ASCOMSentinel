@@ -26,11 +26,13 @@
         @* Request password *@
         <div style="margin-bottom:16px; margin-top:18px;">
             <label style="display:inline-block; min-width:100px;">Password:</label>
-            <InputText id="password"
-                       name="password"
-                       type="@(_showLoginPassword ? "text" : "password")"
-                       autocomplete="new-password"
-                       @bind-Value="_loginPassword" />
+            <input id="password"
+                   name="password"
+                   type="@(_showLoginPassword ? "text" : "password")"
+                   autocomplete="new-password"
+                   @bind="LoginPassword"
+                   @bind:event="oninput"
+                   @onkeydown="HandleKeyDown" />
 
             <span style="margin-bottom:10px;">
                 <input style="margin-left:24px;" type="checkbox" @bind="_showLoginPassword" /> <span style="margin-left:6px;">View Password</span>
@@ -64,7 +66,10 @@ else if (circuitState.MustChangePassword)
                            name="new-password"
                            type="@(_showChangePassword ? "text" : "password")"
                            autocomplete="new-password"
-                           @bind="_newPassword" />
+                           placeholder="Enter password..."
+                           @bind="_newPassword"
+                           @bind:event="oninput"
+                           @onkeydown="ChangePasswordKeyDown" />
                 </div>
 
                 <div style="margin-top:12px;">
@@ -73,7 +78,10 @@ else if (circuitState.MustChangePassword)
                            name="password_confirmation"
                            type="@(_showChangePassword ? "text" : "password")"
                            autocomplete="new-password"
-                           @bind="_confirmPassword" />
+                           placeholder="Confirm password..."
+                           @bind="_confirmPassword"
+                           @bind:event="oninput"
+                           @onkeydown="ChangePasswordKeyDown" />
                 </div>
             </form>
             <span>
@@ -125,7 +133,9 @@ else
                                style="width:21ch;"
                                type="@(_showChangePassword ? "text" : "password")"
                                autocomplete="new-password"
-                               @bind="_newPassword" />
+                               @bind="_newPassword"
+                               @bind:event="oninput"
+                               @onkeydown="ChangePasswordKeyDown" />
                     </div>
 
                     <!-- Confirm new password -->
@@ -136,7 +146,9 @@ else
                                style="width:21ch;"
                                type="@(_showChangePassword ? "text" : "password")"
                                autocomplete="new-password"
-                               @bind="_confirmPassword" />
+                               @bind="_confirmPassword"
+                               @bind:event="oninput"
+                               @onkeydown="ChangePasswordKeyDown" />
                         <span style="margin-left:12px;">
                             <input type="checkbox" @bind="_showChangePassword" /> <label>View Password</label>
                         </span>
@@ -162,6 +174,8 @@ else
 }
 
 @code {
+    private string LoginPassword { get { return _loginPassword; } set { _loginPassword = value; } }
+
     private string _loginPassword = "";
     private bool _showLoginPassword;
     private string _loginStatus = "";
@@ -174,16 +188,32 @@ else
     private string _changeStatus = "";
     private string _changeStatusColor = "red";
 
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await LoginAsync();
+        }
+    }
+
+    private async Task ChangePasswordKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ChangePasswordAsync();
+        }
+    }
+
     private async Task LoginAsync()
     {
-        if (string.IsNullOrEmpty(_loginPassword))
+        if (string.IsNullOrEmpty(LoginPassword))
         {
             _loginStatus = "Please enter a password.";
             _loginStatusColor = "red";
             return;
         }
 
-        if (passwordManager.VerifyPassword(_loginPassword))
+        if (passwordManager.VerifyPassword(LoginPassword))
         {
             // Create a session token and store it in the browser's sessionStorage
             string token = PasswordManager.CreateAuthToken();
@@ -194,7 +224,7 @@ else
 
             logger.LogMessage("Administration", "Administrator logged in.");
             _loginStatus = "";
-            _loginPassword = "";
+            LoginPassword = "";
         }
         else
         {
