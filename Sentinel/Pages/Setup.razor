@@ -904,7 +904,7 @@
             // Add all manually configured observing conditions devices to the list
             List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
                 .Where(d => (d.SentinelDeviceType == SentinelDeviceType.ObservingConditions) || (d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions))
-                .DistinctBy(d => (d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+                .DistinctBy(d => (d.DisplayName, d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
 
             state.DiscoveredObservingConditionsDevices.AddRange(uniqueObservingConditionsDevices);
 
@@ -928,19 +928,19 @@
             safetyMonitorDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
 
 #if WINDOWS
-            foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.Switch))
-            {
-            }
+    foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.Switch))
+    {
+    }
 
-            foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.ObservingConditions))
-            {
-                ObservingConditionsDevicesCom.Add(driver);
-            }
+    foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.ObservingConditions))
+    {
+    ObservingConditionsDevicesCom.Add(driver);
+    }
 
-            foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.SafetyMonitor))
-            {
-                SafetyMonitorDevicesCom.Add(driver);
-            }
+    foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.SafetyMonitor))
+    {
+    SafetyMonitorDevicesCom.Add(driver);
+    }
 #endif
 
             // Add discovered observing conditions Alpaca devices
@@ -963,16 +963,16 @@
             }
 
 #if WINDOWS
-            foreach (ASCOM.Com.ASCOMRegistration device in ObservingConditionsDevicesCom)
-            {
-                state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
-                {
-                    SentinelDeviceType = SentinelDeviceType.ObservingConditions,
-                    Protocol = Protocol.COM,
-                    Name = device.Name,
-                    ComProgID = device.ProgID
-                });
-            }
+    foreach (ASCOM.Com.ASCOMRegistration device in ObservingConditionsDevicesCom)
+    {
+    state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
+    {
+    SentinelDeviceType = SentinelDeviceType.ObservingConditions,
+    Protocol = Protocol.COM,
+    Name = device.Name,
+    ComProgID = device.ProgID
+    });
+    }
 #endif
 
             foreach (DiscoveredDevice device in state.DiscoveredObservingConditionsDevices)
@@ -1000,17 +1000,17 @@
             }
 
 #if WINDOWS
-            foreach (ASCOM.Com.ASCOMRegistration device in SafetyMonitorDevicesCom)
-            {
-                logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
-                state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
-                {
-                    Protocol = Protocol.COM,
-                    SentinelDeviceType = SentinelDeviceType.SafetyMonitor,
-                    Name = device.Name,
-                    ComProgID = device.ProgID
-                });
-            }
+    foreach (ASCOM.Com.ASCOMRegistration device in SafetyMonitorDevicesCom)
+    {
+    logger.LogDebug("", $"DiscoveredDevices - Adding {device.Name}, {device.ProgID} ");
+    state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
+    {
+    Protocol = Protocol.COM,
+    SentinelDeviceType = SentinelDeviceType.SafetyMonitor,
+    Name = device.Name,
+    ComProgID = device.ProgID
+    });
+    }
 
 #endif
             foreach (DiscoveredDevice device in state.DiscoveredSafetyMonitorDevices)
@@ -1020,6 +1020,9 @@
             }
 
             logger.LogMessage("", $"Discovery complete.");
+
+            // Sort all devices into order
+            State.SortDiscoveredDevices(state, SortByDevice.All);
 
             state.StatusText = "Discovery completed";
             await InvokeAsync(StateHasChanged);

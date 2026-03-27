@@ -13,6 +13,46 @@
 
         #endregion
 
+        #region Static methods
+
+        public static void SortDiscoveredDevices(State state, SortByDevice sortbyDevice)
+        {
+            if ((sortbyDevice == SortByDevice.ObservingConditions) || (sortbyDevice == SortByDevice.All))
+            {
+                state.DiscoveredObservingConditionsDevices.Sort((a, b) =>
+                {
+                    int diff = DeviceSortOrder(a).CompareTo(DeviceSortOrder(b));
+                    return diff != 0 ? diff : string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
+                });
+            }
+
+            if ((sortbyDevice == SortByDevice.SafetyMonitor) || (sortbyDevice == SortByDevice.All))
+            {
+                state.DiscoveredSafetyMonitorDevices.Sort((a, b) =>
+                {
+                    int diff = DeviceSortOrder(a).CompareTo(DeviceSortOrder(b));
+                    return diff != 0 ? diff : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+                });
+            }
+        }
+
+        private static int DeviceSortOrder(DiscoveredDevice d) => d.Protocol switch
+        {
+            Protocol.NotConfigured => 1,
+            Protocol.Alpaca => d.SentinelDeviceType switch
+            {
+                SentinelDeviceType.ManualObservingConditions => 2,
+                SentinelDeviceType.ManualSafetyMonitor => 3,
+                SentinelDeviceType.ObservingConditions => 4,
+                SentinelDeviceType.SafetyMonitor => 5,
+                _ => 6,
+            },
+            Protocol.COM => 7,
+            _ => 8,
+        };
+
+        #endregion
+
         #region public properties
 
         public bool Online { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(Online)); } } } = false;

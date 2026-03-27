@@ -56,7 +56,10 @@
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
+        {
+            State.SortDiscoveredDevices(state, SortByDevice.All);
             _initialized = true;
+        }
     }
 
     /// <summary>
@@ -93,27 +96,30 @@
             if (settings.ConfiguredDevices[Property].SentinelDeviceType == SentinelDeviceType.ManualObservingConditions)
             {
                 // Calculate how many observing conditions properties are using this same device instance
-                int count = state.ObservingConditionsDeviceMap.TryGetValue(Property, out var targetDevice)
-                    ? state.ObservingConditionsDeviceMap.Values.Count(v => ReferenceEquals(v, targetDevice))
-                    : 0;
+                int count = settings.ConfiguredDevices.Count(d =>
+                   d.Value.DisplayName == CurrentValue?.DisplayName &&
+                   d.Value.SentinelDeviceType == CurrentValue?.SentinelDeviceType &&
+                   d.Value.Protocol == CurrentValue?.Protocol &&
+                   d.Value.IpAddress == CurrentValue?.IpAddress &&
+                   d.Value.PortNumber == CurrentValue?.PortNumber &&
+                   d.Value.RemoteDeviceNumber == CurrentValue?.RemoteDeviceNumber);
 
                 // Only remove from the discovered list if no other properties are using the same device instance, to avoid removing it while it's still in use by another property
                 if (count < 2)
                 {
                     var toMatch = settings.ConfiguredDevices[Property];
                     int removed = state.DiscoveredObservingConditionsDevices.RemoveAll(d =>
+                        d.DisplayName == toMatch.DisplayName &&
                         d.SentinelDeviceType == toMatch.SentinelDeviceType &&
                         d.Protocol == toMatch.Protocol &&
-                        d.Name == toMatch.Name &&
+                        d.DisplayName == toMatch.DisplayName &&
                         d.IpAddress == toMatch.IpAddress &&
                         d.PortNumber == toMatch.PortNumber &&
                         d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&
                         d.ComProgID == toMatch.ComProgID);
-                    logger.LogMessage("", $"Removed {removed} matching device(s) from DiscoveredObservingConditionsDevices.");
-                }
-                else
-                    logger.LogMessage("", $"Removed no matching device(s) from DiscoveredObservingConditionsDevices.");
 
+                    State.SortDiscoveredDevices(state, SortByDevice.ObservingConditions);
+                }
             }
 
             // Remove the un-configured manual safety monitor devices from the discovered device list if the new value is not set
@@ -123,11 +129,14 @@
                 int removed = state.DiscoveredSafetyMonitorDevices.RemoveAll(d =>
                     d.SentinelDeviceType == toMatch.SentinelDeviceType &&
                     d.Protocol == toMatch.Protocol &&
-                    d.Name == toMatch.Name &&
+                    d.DisplayName == toMatch.DisplayName &&
                     d.IpAddress == toMatch.IpAddress &&
                     d.PortNumber == toMatch.PortNumber &&
                     d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&
                     d.ComProgID == toMatch.ComProgID);
+
+                State.SortDiscoveredDevices(state, SortByDevice.SafetyMonitor);
+
                 logger.LogMessage("", $"Removed {removed} matching device(s) from DiscoveredSafetyMonitorDevices.");
             }
         }

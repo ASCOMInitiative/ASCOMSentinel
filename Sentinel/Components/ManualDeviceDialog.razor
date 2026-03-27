@@ -52,7 +52,10 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-            await JSRuntime.InvokeVoidAsync("HTMLInputElement.prototype.select.call", _nameInput);
+        {
+            await _nameInput.FocusAsync();
+            await JSRuntime.InvokeVoidAsync("eval", "document.activeElement.select()");
+        }
     }
 
     [Parameter]
