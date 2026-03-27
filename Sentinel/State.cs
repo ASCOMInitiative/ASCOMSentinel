@@ -31,25 +31,28 @@
                 state.DiscoveredSafetyMonitorDevices.Sort((a, b) =>
                 {
                     int diff = DeviceSortOrder(a).CompareTo(DeviceSortOrder(b));
-                    return diff != 0 ? diff : string.Compare(a.DisplayName, b.DisplayName, StringComparison.OrdinalIgnoreCase);
+                    return diff != 0 ? diff : string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
                 });
             }
         }
 
-        private static int DeviceSortOrder(DiscoveredDevice d) => d.Protocol switch
+        private static int DeviceSortOrder(DiscoveredDevice d)
         {
-            Protocol.NotConfigured => 1,
-            Protocol.Alpaca => d.SentinelDeviceType switch
+            return d.Protocol switch
             {
-                SentinelDeviceType.ManualObservingConditions => 2,
-                SentinelDeviceType.ManualSafetyMonitor => 3,
-                SentinelDeviceType.ObservingConditions => 4,
-                SentinelDeviceType.SafetyMonitor => 5,
-                _ => 6,
-            },
-            Protocol.COM => 7,
-            _ => 8,
-        };
+                Protocol.NotConfigured => 1,
+                Protocol.Alpaca => d.SentinelDeviceType switch
+                {
+                    SentinelDeviceType.ManualObservingConditions => 2,
+                    SentinelDeviceType.ManualSafetyMonitor => 3,
+                    SentinelDeviceType.ObservingConditions => 4,
+                    SentinelDeviceType.SafetyMonitor => 5,
+                    _ => 6,
+                },
+                Protocol.COM => 7,
+                _ => 8,
+            };
+        }
 
         #endregion
 
