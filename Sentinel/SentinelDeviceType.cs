@@ -3,7 +3,8 @@
     public enum SentinelDeviceType
     {
         NotSet,
-        ManuallyConfigured,
+        ManualObservingConditions,
+        ManualSafetyMonitor,
         ObservingConditions,
         SafetyMonitor,
         Switch

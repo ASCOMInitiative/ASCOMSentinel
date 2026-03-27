@@ -15,17 +15,17 @@
         /// <summary>
         /// Device name.
         /// </summary>
-        public string Name { get; set; } = "UnknownName";
+        public string Name { get; set; } = "Not configured";
 
         /// <summary>
         /// Alapca host name or IP address.
         /// </summary>
-        public string IpAddress { get; set; } = "UnknownHostName";
+        public string IpAddress { get; set; } = "127.0.0.1";
 
         /// <summary>
         /// IP port for the device.
         /// </summary>
-        public int PortNumber { get; set; } = 0;
+        public int PortNumber { get; set; } = 11111;
 
         /// <summary>
         /// Alpaca device number
@@ -47,16 +47,21 @@
                 switch (Protocol)
                 {
                     case Protocol.Alpaca:
-                        return $"{Name} ({IpAddress}:{PortNumber})";
+                        return $"{Name} ({IpAddress}:{PortNumber} Device {RemoteDeviceNumber})";
 
                     case Protocol.COM:
                         return $"{Name} ({ComProgID})";
 
                     default:
-                        if (SentinelDeviceType == SentinelDeviceType.ManuallyConfigured)
-                            return $"Manually configured - {IpAddress}:{PortNumber}";
+                        switch (this.SentinelDeviceType)
+                        {
+                            case SentinelDeviceType.ManualObservingConditions:
+                            case SentinelDeviceType.ManualSafetyMonitor:
+                                return $"New Manual Configuration";
 
-                        return Globals.NOT_SET;
+                            default:
+                                return Globals.NOT_SET;
+                        }
                 }
             }
         }

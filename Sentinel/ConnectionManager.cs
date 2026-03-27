@@ -103,12 +103,12 @@ namespace Sentinel
             {
                 // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
                 List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
-                    .Where(d => d.SentinelDeviceType == SentinelDeviceType.ObservingConditions)
+                    .Where(d => (d.SentinelDeviceType == SentinelDeviceType.ObservingConditions) || (d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions))
                     .DistinctBy(d => (d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
 
                 // Get a list of safety monitor devices to which to connect.
                 Dictionary<PropertyName, DiscoveredDevice> safetyMonitorDevices = settings.ConfiguredDevices
-                    .Where(d => d.Value.SentinelDeviceType == SentinelDeviceType.SafetyMonitor).ToDictionary(d => d.Key, d => d.Value);
+                    .Where(d => (d.Value.SentinelDeviceType == SentinelDeviceType.SafetyMonitor) || (d.Value.SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor)).ToDictionary(d => d.Key, d => d.Value);
 
                 // Get counts for re-use multiple times
                 int observingConditionsCount = uniqueObservingConditionsDevices.Count();
@@ -175,6 +175,10 @@ namespace Sentinel
                                 }
                                 break;
 #endif
+                            case Protocol.NotConfigured:
+                                // Do nothing here, report a message later.
+                                break;
+
                             default:
                                 throw new InvalidOperationException($"ConnectionManager.ConnectAsync - Invalid protocol: {device.Protocol}");
                         }
@@ -189,10 +193,16 @@ namespace Sentinel
                             {
                                 try
                                 {
-                                    logger.LogDebug("Connect", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
-                                    observingConditionsDeviceInstances[device].Connected = true;
-                                    connectSucceeded = true;
-                                    logger.LogMessage("Connect", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
+                                    // Check whether this device is configured
+                                    if (device.Protocol == Protocol.NotConfigured) // Not configured so ignore
+                                        logger.LogError("Connect", $"Ignoring un-configured ObservingConditions device - check configuration!");
+                                    else // Configured so try to connect
+                                    {
+                                        logger.LogDebug("Connect", $"Setting Connected True for {device.DisplayName} {device.Protocol}");
+                                        observingConditionsDeviceInstances[device].Connected = true;
+                                        connectSucceeded = true;
+                                        logger.LogMessage("Connect", $"Connected set True OK for {device.DisplayName} {device.Protocol}");
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
@@ -218,7 +228,7 @@ namespace Sentinel
                             if (!connectSucceeded)
                             {
                                 try { observingConditionsDeviceInstances[device]?.Dispose(); observingConditionsDeviceInstances[device] = null!; } catch { }
-                                logger.LogError("Connect", $"Failed to connect to {device.DisplayName} after {sw.Elapsed.TotalSeconds:0.0}s.");
+                                logger.LogError("Connect", $"Failed to connect to {device.DisplayName}.");
                             }
                         });
 
@@ -261,6 +271,10 @@ namespace Sentinel
                                 break;
 #endif
 
+                            case Protocol.NotConfigured:
+                                // Ignore un-configured manual devices here and give message later.
+                                break;
+
                             default:
                                 throw new InvalidOperationException($"ConnectionManager.ConnectAsync - Invalid protocol: {device.Value.Protocol}");
                         }
@@ -272,9 +286,15 @@ namespace Sentinel
                             {
                                 try
                                 {
-                                    logger.LogDebug("Connect", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
-                                    state.SafetyMonitorDevices[device.Key].Connected = true;
-                                    logger.LogMessage("Connect", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
+                                    // Check whether this device is configured
+                                    if (device.Value.Protocol == Protocol.NotConfigured) // Not configured so ignore
+                                        logger.LogError("Connect", $"Ignoring un-configured SafetyMonitor device - check configuration!");
+                                    else // Configured so try to connect
+                                    {
+                                        logger.LogDebug("Connect", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
+                                        state.SafetyMonitorDevices[device.Key].Connected = true;
+                                        logger.LogMessage("Connect", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
@@ -310,11 +330,12 @@ namespace Sentinel
                     state.ObservingConditionsDeviceMap.Clear();
 
                     // Iterate over each property and find the matching device instance based on the configured device for that property
-                    foreach (PropertyName property in Enum.GetValues<PropertyName>())
+                    foreach (PropertyName property in Globals.ObservingConditionsProperties)
                     {
                         // Get the discovered device information for this property, ignoring devices that are not configured
                         DiscoveredDevice configured = settings.ConfiguredDevices[property];
-                        if (configured.SentinelDeviceType == SentinelDeviceType.ObservingConditions)
+                        //logger.LogMessage("", $"processing property: {property}, device type: {configured.SentinelDeviceType}");
+                        if ((configured.SentinelDeviceType == SentinelDeviceType.ObservingConditions) || (configured.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions))
                         {
                             try
                             {
@@ -332,18 +353,18 @@ namespace Sentinel
                                 {
                                     // Add the matching device instance to the device map so that we can easily find the device for each property later when we need to read values from it.
                                     bool addOutcome = state.ObservingConditionsDeviceMap.TryAdd(property, device.Value);
-                                    logger.LogDebug("Connect", $"Added device instance ({addOutcome}) for ObservingConditions.{property,-14} {device.Key.DisplayName} {device.Key.Protocol}");
+                                    logger.LogMessage("Connect", $"ObservingConditions.{property,-14} is connected to {device.Key.DisplayName} {device.Key.Protocol}");
                                 }
-                                else
-                                    logger.LogDebug("Connect", $"No device instance for ObservingConditions.{property}");
                             }
                             catch (Exception ex)
                             {
                                 logger.LogError("Connect", $"Exception {property}: \r\n{ex}");
                             }
                         }
+                        else
+                            logger.LogMessage("Connect", $"ObservingConditions.{property,-14} is not functional.");
                     }
-                    logger.LogDebug("Connect", "");
+                    logger.LogMessage("Connect", "");
                 }
                 catch (Exception ex)
                 {

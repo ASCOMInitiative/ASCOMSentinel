@@ -4,6 +4,7 @@
 @inject SentinelLogger logger
 @inject Settings settings
 @inject State state
+@inject DialogService DialogService
 
 <div>
     <span style="display:inline-block; width:150px; margin:0px; text-align:left; font-weight:700">@PropertyDescription</span>
@@ -22,10 +23,12 @@
         </Template>
     </RadzenDropDown>
     @{
-        if (CurrentValue?.SentinelDeviceType == SentinelDeviceType.ManuallyConfigured)
+        if ((CurrentValue?.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions) || (CurrentValue?.SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor))
         {
             <span style="margin-left:12px;">
-                <RadzenButton>Configure Device</RadzenButton>
+                <RadzenButton Click="ConfigureManualDevice" Text="Configure Device"
+                              ButtonStyle="ButtonStyle.Secondary"
+                              Style="border-radius:20px; text-transform:none;" />
             </span>
         }
     }
@@ -33,7 +36,7 @@
 
 @code {
     [Parameter]
-    public IEnumerable<DiscoveredDevice> DiscoveredDevices { get; set; } = Enumerable.Empty<DiscoveredDevice>();
+    public List<DiscoveredDevice> DiscoveredDevices { get; set; } = new();
 
     [Parameter]
     public string PropertyDescription { get; set; } = Globals.NOT_SET;
@@ -47,6 +50,7 @@
     [Parameter]
 
     public EventCallback<DiscoveredDevice> OnDeviceChanged { get; set; }
+
     private bool _initialized;
 
     protected override void OnAfterRender(bool firstRender)
@@ -66,8 +70,8 @@
         if (device.SentinelDeviceType == SentinelDeviceType.NotSet) // Not configured so return red
             return "Red";
 
-        if (device.SentinelDeviceType == SentinelDeviceType.ManuallyConfigured) // Not configured so return red
-            return "DarkOrange";
+        if (device.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions || device.SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor) // Manual device so return fuchsia
+            return "Fuchsia";
 
         // Check whether it is Alpaca or COM
         if (device.PortNumber != 0) // Alpaca device so return blue
@@ -83,12 +87,119 @@
 
         DiscoveredDevice device = (DiscoveredDevice)args;
 
+        // Remove the un-configured manual observing conditions devices from the discovered device list if the new value is not set
+        if (device.SentinelDeviceType == SentinelDeviceType.NotSet)
+        {
+            if (settings.ConfiguredDevices[Property].SentinelDeviceType == SentinelDeviceType.ManualObservingConditions)
+            {
+                // Calculate how many observing conditions properties are using this same device instance
+                int count = state.ObservingConditionsDeviceMap.TryGetValue(Property, out var targetDevice)
+                    ? state.ObservingConditionsDeviceMap.Values.Count(v => ReferenceEquals(v, targetDevice))
+                    : 0;
+
+                // Only remove from the discovered list if no other properties are using the same device instance, to avoid removing it while it's still in use by another property
+                if (count < 2)
+                {
+                    var toMatch = settings.ConfiguredDevices[Property];
+                    int removed = state.DiscoveredObservingConditionsDevices.RemoveAll(d =>
+                        d.SentinelDeviceType == toMatch.SentinelDeviceType &&
+                        d.Protocol == toMatch.Protocol &&
+                        d.Name == toMatch.Name &&
+                        d.IpAddress == toMatch.IpAddress &&
+                        d.PortNumber == toMatch.PortNumber &&
+                        d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&
+                        d.ComProgID == toMatch.ComProgID);
+                    logger.LogMessage("", $"Removed {removed} matching device(s) from DiscoveredObservingConditionsDevices.");
+                }
+                else
+                    logger.LogMessage("", $"Removed no matching device(s) from DiscoveredObservingConditionsDevices.");
+
+            }
+
+            // Remove the un-configured manual safety monitor devices from the discovered device list if the new value is not set
+            if (settings.ConfiguredDevices[Property].SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor)
+            {
+                var toMatch = settings.ConfiguredDevices[Property];
+                int removed = state.DiscoveredSafetyMonitorDevices.RemoveAll(d =>
+                    d.SentinelDeviceType == toMatch.SentinelDeviceType &&
+                    d.Protocol == toMatch.Protocol &&
+                    d.Name == toMatch.Name &&
+                    d.IpAddress == toMatch.IpAddress &&
+                    d.PortNumber == toMatch.PortNumber &&
+                    d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&
+                    d.ComProgID == toMatch.ComProgID);
+                logger.LogMessage("", $"Removed {removed} matching device(s) from DiscoveredSafetyMonitorDevices.");
+            }
+        }
+
         settings.ConfiguredDevices[Property] = device;
         settings.Save();
 
         state.DisplayReconnectMessage = true;
 
         await OnDeviceChanged.InvokeAsync(device);
+    }
+
+    /// <summary>
+    /// Opens a dialog for the user to enter an IP address and port for a manually configured Alpaca device.
+    /// </summary>
+    private async Task ConfigureManualDevice()
+    {
+        if (CurrentValue is null)
+            return;
+
+        var parameters = new Dictionary<string, object?>
+        {
+            { nameof(ManualDeviceDialog.Name), CurrentValue.Name == "UnknownName" ? "" : CurrentValue.Name },
+            { nameof(ManualDeviceDialog.IpAddress), CurrentValue.IpAddress == "UnknownHostName" ? "" : CurrentValue.IpAddress },
+            { nameof(ManualDeviceDialog.Port), CurrentValue.PortNumber > 0 ? CurrentValue.PortNumber : 11111 },
+            { nameof(ManualDeviceDialog.DeviceNumber), CurrentValue.RemoteDeviceNumber }
+        };
+
+        var result = await DialogService.OpenAsync<ManualDeviceDialog>(
+            "Manually Configured Alpaca Address",
+            parameters,
+            new DialogOptions
+            {
+                Width = "420px",
+                CloseDialogOnOverlayClick = true,
+                CloseDialogOnEsc = true,
+                ShowClose = true
+            });
+
+        if (result is ManualDeviceResult config && !string.IsNullOrWhiteSpace(config.IpAddress))
+        {
+            CurrentValue.Name = string.IsNullOrWhiteSpace(config.Name) ? "Manual Device" : config.Name;
+            CurrentValue.IpAddress = config.IpAddress;
+            CurrentValue.PortNumber = config.Port;
+            CurrentValue.RemoteDeviceNumber = config.DeviceNumber;
+            CurrentValue.Protocol = Protocol.Alpaca;
+
+            settings.ConfiguredDevices[Property] = CurrentValue;
+            settings.Save();
+
+
+            // Add a replacement Not set value
+            switch (CurrentValue.SentinelDeviceType)
+            {
+                case SentinelDeviceType.ManualObservingConditions:
+                    if (!state.DiscoveredObservingConditionsDevices.Any(d => d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions && d.Protocol == Protocol.NotConfigured))
+
+                        state.DiscoveredObservingConditionsDevices.Insert(1, new DiscoveredDevice { SentinelDeviceType = SentinelDeviceType.ManualObservingConditions });
+                    break;
+
+                case SentinelDeviceType.ManualSafetyMonitor:
+                    if (!state.DiscoveredSafetyMonitorDevices.Any(d => d.SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor && d.Protocol == Protocol.NotConfigured))
+                        state.DiscoveredSafetyMonitorDevices.Insert(1, new DiscoveredDevice { SentinelDeviceType = SentinelDeviceType.ManualSafetyMonitor });
+                    break;
+
+                default:
+                    break;
+            }
+
+            state.DisplayReconnectMessage = true;
+            await OnDeviceChanged.InvokeAsync(CurrentValue);
+        }
     }
 
 

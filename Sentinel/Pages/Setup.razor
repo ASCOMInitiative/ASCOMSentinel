@@ -285,7 +285,12 @@
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Select devices from the drop-downs to feed each property in the composite device.</h4>
                     <div style="margin-top:16px;margin-bottom:24px;">
-                        <span>Alpaca devices are </span><span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, COM devices are </span><span style="color:lightseagreen;font-weight:bold;">coloured green</span><span> (Windows only).</span>
+                        <span>Discovered Alpaca devices are </span>
+                        <span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, manually configured Alpaca devices are </span>
+                        <span style="color:fuchsia;font-weight:bold;">coloured pink</span>
+                        <span>and COM devices are </span>
+                        <span style="color:lightseagreen;font-weight:bold;">coloured green</span>
+                        <span> (Windows only).</span>
                     </div>
 
                     <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
@@ -482,7 +487,12 @@
                 <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
                     <h4 style="color: #479cc8; margin-bottom: 0;">Select safety monitor devices to be aggregated into the composite safety monitor IsSafe property.</h4>
                     <div style="margin-top:16px;margin-bottom:24px;">
-                        <span>Alpaca devices are </span><span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, COM devices are </span><span style="color:lightseagreen;font-weight:bold;">coloured green</span><span> (Windows only).</span>
+                        <span>Discovered Alpaca devices are </span>
+                        <span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, manually configured Alpaca devices are </span>
+                        <span style="color:fuchsia;font-weight:bold;">coloured pink</span>
+                        <span>and COM devices are </span>
+                        <span style="color:lightseagreen;font-weight:bold;">coloured green</span>
+                        <span> (Windows only).</span>
                     </div>
 
                     <DeviceSelection Property="PropertyName.SafetyMonitor0"
@@ -643,7 +653,6 @@
     private async Task OnTabChanged(int item)
     {
         state.StatusText = string.Empty;
-        logger.LogMessage("OnTabChanged", $"Tab changed to {item}");
         if ((!state.DiscoveryHasRun) && ((item == 2) || (item == 5)))
         {
             await StartDiscovery();
@@ -884,13 +893,34 @@
     SafetyMonitorDevicesCom.Clear();
 #endif
 
+            // Clear the discovered devices lists
             state.DiscoveredObservingConditionsDevices.Clear();
             state.DiscoveredSafetyMonitorDevices.Clear();
 
+            // Add not configured and manual configuration observing conditions list entries.
             state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice());
-            state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManuallyConfigured });
+            state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManualObservingConditions });
 
+            // Add all manually configured observing conditions devices to the list
+            List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
+                .Where(d => (d.SentinelDeviceType == SentinelDeviceType.ObservingConditions) || (d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions))
+                .DistinctBy(d => (d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+
+            state.DiscoveredObservingConditionsDevices.AddRange(uniqueObservingConditionsDevices);
+
+            // Add not configured and manual configuration safety monitor list entries.
             state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice());
+            state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManualSafetyMonitor });
+
+            // Add all manually configured safety monitor devices to the list
+            foreach (PropertyName propertyName in Globals.SafetyMonitorNames)
+            {
+                // Only include manual configured devices that have actually been configured
+                if ((settings.ConfiguredDevices[propertyName].Protocol != Protocol.NotConfigured) && (settings.ConfiguredDevices[propertyName].SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor))
+                {
+                    state.DiscoveredSafetyMonitorDevices.Add(settings.ConfiguredDevices[propertyName]);
+                }
+            }
 
             ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
             observingConditionsDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
@@ -913,7 +943,7 @@
             }
 #endif
 
-            // Add discovered Alpaca devices
+            // Add discovered observing conditions Alpaca devices
             foreach (AscomDevice device in observingConditionsDevicesAlpaca)
             {
                 // Exclude our observing conditions device from the list
@@ -951,7 +981,7 @@
                     logger.LogMessage("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
             }
 
-            // Add discovered Alpaca devices
+            // Add discovered safety monitor Alpaca devices
             foreach (AscomDevice device in safetyMonitorDevicesAlpaca)
             {
                 // Exclude our safety monitor device from the list

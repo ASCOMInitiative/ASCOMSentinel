@@ -1,0 +1,79 @@
+@namespace Sentinel.Components
+
+@inject DialogService DialogService
+@inject IJSRuntime JSRuntime
+
+<div style="min-width:340px; padding:12px;">
+    <div style="margin-bottom:16px;">
+        <label style="display:inline-block; min-width:130px;">Name:</label>
+        <input type="text"
+               @ref="_nameInput"
+               @bind="Name"
+               @bind:event="oninput"
+               style="width:20ch; border:1px solid black;"
+               placeholder="Device name" />
+    </div>
+    <div style="margin-bottom:16px;">
+        <label style="display:inline-block; min-width:130px;">IP Address:</label>
+        <input type="text"
+               @bind="IpAddress"
+               @bind:event="oninput"
+               style="width:20ch; border:1px solid black;"
+               placeholder="e.g. 192.168.1.100" />
+    </div>
+    <div style="margin-bottom:16px;">
+        <label style="display:inline-block; min-width:130px;">Port:</label>
+        <RadzenNumeric @bind-Value="Port"
+                       TValue="int"
+                       Min="1"
+                       Max="65535"
+                       Style="width:20ch; border:1px solid black;"
+                       ShowUpDown="true" />
+    </div>
+    <div style="margin-bottom:16px;">
+        <label style="display:inline-block; min-width:130px;">Device Number:</label>
+        <RadzenNumeric @bind-Value="DeviceNumber"
+                       TValue="int"
+                       Min="0"
+                       Style="width:20ch; border:1px solid black;"
+                       ShowUpDown="true" />
+    </div>
+    <div style="margin-top:20px; display:flex; gap:12px; justify-content:flex-end;">
+        <RadzenButton Text="OK" Click="OnOk" ButtonStyle="ButtonStyle.Primary"
+                      Style="border-radius:20px; text-transform:none;" />
+        <RadzenButton Text="Cancel" Click="OnCancel" ButtonStyle="ButtonStyle.Light"
+                      Style="border-radius:20px; text-transform:none;" />
+    </div>
+</div>
+
+@code {
+    private ElementReference _nameInput;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JSRuntime.InvokeVoidAsync("HTMLInputElement.prototype.select.call", _nameInput);
+    }
+
+    [Parameter]
+    public string Name { get; set; } = "";
+
+    [Parameter]
+    public string IpAddress { get; set; } = "";
+
+    [Parameter]
+    public int Port { get; set; } = 11111;
+
+    [Parameter]
+    public int DeviceNumber { get; set; } = 0;
+
+    private void OnOk()
+    {
+        DialogService.Close(new ManualDeviceResult(Name, IpAddress, Port, DeviceNumber));
+    }
+
+    private void OnCancel()
+    {
+        DialogService.Close((ManualDeviceResult?)null);
+    }
+}
