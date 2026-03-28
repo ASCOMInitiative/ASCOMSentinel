@@ -104,11 +104,41 @@ namespace Sentinel
                 // Get a list of unique observing conditions devices to which to connect. we only need one instance even if that device is used for multiple properties.
                 List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
                     .Where(d => (d.SentinelDeviceType == SentinelDeviceType.ObservingConditions) || (d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions))
-                    .DistinctBy(d => (d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+                    .DistinctBy(d => (d.DisplayName, d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+
+                // Log a warning if there are duplicate entries where the DisplayName values differ — same DisplayName means intentional sharing of one device across multiple properties.
+                foreach (var group in settings.ConfiguredDevices
+                    .Where(d => d.Value.SentinelDeviceType == SentinelDeviceType.ObservingConditions ||
+                                d.Value.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions)
+                    .GroupBy(d => ( d.Value.ComProgID, d.Value.IpAddress, d.Value.PortNumber, d.Value.RemoteDeviceNumber))
+                    .Where(g => g.Count() > 1 && g.Select(d => d.Value.DisplayName).Distinct().Count() > 1))
+                {
+                    if(group.)
+
+                    logger.LogWarning("Connect", $"Duplicate Observing Conditions device configured {group.Count()} times: " +
+                        $"IpAddress={group.Key.IpAddress}, Port={group.Key.PortNumber}, " +
+                        $"DeviceNumber={group.Key.RemoteDeviceNumber}, ComProgID='{group.Key.ComProgID}'");
+                    foreach (var entry in group)
+                        logger.LogWarning("Connect", $"  -> Property: {entry.Key,-14} - Device: {entry.Value.DisplayName}");
+                }
 
                 // Get a list of safety monitor devices to which to connect.
                 Dictionary<PropertyName, DiscoveredDevice> safetyMonitorDevices = settings.ConfiguredDevices
                     .Where(d => (d.Value.SentinelDeviceType == SentinelDeviceType.SafetyMonitor) || (d.Value.SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor)).ToDictionary(d => d.Key, d => d.Value);
+
+                // Log a warning if there are duplicate entries where the DisplayName values differ — same DisplayName means intentional sharing of one device across multiple properties.
+                foreach (var group in settings.ConfiguredDevices
+                    .Where(d => d.Value.SentinelDeviceType == SentinelDeviceType.SafetyMonitor ||
+                                d.Value.SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor)
+                    .GroupBy(d => (d.Value.ComProgID, d.Value.IpAddress, d.Value.PortNumber, d.Value.RemoteDeviceNumber))
+                    .Where(g => g.Count() > 1))
+                {
+                    logger.LogWarning("Connect", $"Duplicate Safety Monitor device configured {group.Count()} times: " +
+                        $"IpAddress={group.Key.IpAddress}, Port={group.Key.PortNumber}, " +
+                        $"DeviceNumber={group.Key.RemoteDeviceNumber}, ComProgID='{group.Key.ComProgID}'");
+                    foreach (var entry in group)
+                        logger.LogWarning("Connect", $"  -> Device: {entry.Key,-14} - Device: {entry.Value.DisplayName}");
+                }
 
                 // Get counts for re-use multiple times
                 int observingConditionsCount = uniqueObservingConditionsDevices.Count();
@@ -341,6 +371,7 @@ namespace Sentinel
                             {
                                 // Find the matching device instance based on the configured device for this property
                                 KeyValuePair<DiscoveredDevice, IObservingConditionsV2> device = observingConditionsDeviceInstances.FirstOrDefault(d =>
+                                    d.Key.DisplayName == configured.DisplayName &&
                                     d.Key.Protocol == configured.Protocol &&
                                     d.Key.SentinelDeviceType == configured.SentinelDeviceType &&
                                     d.Key.IpAddress == configured.IpAddress &&

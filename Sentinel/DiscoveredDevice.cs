@@ -18,14 +18,14 @@
         public string Name { get; set; } = "Not configured";
 
         /// <summary>
-        /// Alapca host name or IP address.
+        /// Alpaca host name or IP address.
         /// </summary>
         public string IpAddress { get; set; } = "127.0.0.1";
 
         /// <summary>
         /// IP port for the device.
         /// </summary>
-        public int PortNumber { get; set; } = 11111;
+        public int PortNumber { get; set; } = 32323;
 
         /// <summary>
         /// Alpaca device number
@@ -35,7 +35,7 @@
         /// <summary>
         /// COM ProgID for the device.
         /// </summary>
-        public string ComProgID { get; set; } = "UnknownProgID";
+        public string ComProgID { get; set; } = "Not configured";
 
         /// <summary>
         /// Formatted name for use in UI

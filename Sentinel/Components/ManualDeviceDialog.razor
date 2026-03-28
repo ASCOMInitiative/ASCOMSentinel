@@ -53,6 +53,7 @@
     {
         if (firstRender)
         {
+            // Select all the text in the name field
             await _nameInput.FocusAsync();
             await JSRuntime.InvokeVoidAsync("eval", "document.activeElement.select()");
         }
