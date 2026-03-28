@@ -23,6 +23,9 @@
         internal const bool ALPACA_SEARCH_STRICT_CASING = false;
         internal const string USER_AGENT_PRODUCT_NAME = "ObservatoryManager";
 
+        // Suppressible messages
+        internal const string DISCOVERY_PACKET_MESSAGE = "Received a discovery packet from"; // Message that is logged when a discovery packet is received, which can be suppressed in the settings.
+
         internal const string SAFETY_EVENT_ACTION_NAME = "GetSafetyState";
         internal const string SAFETY_EVENT_ACTION_NAME_LOWERCASE = "getsafetystate"; // Lowercase version of the action name for comparison when strict casing is disabled
 
@@ -72,5 +75,10 @@
             PropertyName.SafetyMonitor8,
             PropertyName.SafetyMonitor9
         };
+
+        internal static List<string> SuppressableMessages = new() // List of messages that can be suppressed by SentinelLogger.
+        {
+            DISCOVERY_PACKET_MESSAGE
+        }; 
     }
 }

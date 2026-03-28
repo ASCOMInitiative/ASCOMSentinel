@@ -51,6 +51,14 @@ namespace Sentinel
         {
             try
             {
+                if (string.IsNullOrEmpty(message))
+                {
+                    message = string.Empty;
+                }
+
+                if (message.Contains(Globals.DISCOVERY_PACKET_MESSAGE,StringComparison.OrdinalIgnoreCase) && !settings.LogDiscoveryMessages)
+                    return;
+
                 // Check if the message should be logged based on the current log level setting
                 if (logLevel >= settings.LogLevel) // Message level is within or above the current log level
                 {

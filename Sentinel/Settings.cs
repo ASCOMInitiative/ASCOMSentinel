@@ -302,6 +302,7 @@ namespace Sentinel
             { PropertyName.WindSpeed, new GaugeConfiguration() }
         };
 
+        public bool LogDiscoveryMessages { get; set; } = true;
         public bool StartBrowserOnLaunch { get; set; } = true;
         public bool LogSafetyWarnings { get; set; } = true;
         public bool ConfirmDisconnectDevices { get; set; } = true;

@@ -27,7 +27,7 @@
   <PropertyGroup>
     <!-- Set version numbers -->
     <ProductMajor>0</ProductMajor>
-    <ProductMinor>1</ProductMinor>
+    <ProductMinor>9</ProductMinor>
     <ProductPatch>0</ProductPatch>
 
     <!-- Set the pre-release string without a leading minus e.g. rc.1 or leave empty for a production release -->

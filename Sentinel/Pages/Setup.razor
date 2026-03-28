@@ -96,7 +96,11 @@
                                     <input style="margin-left:59px;" type="checkbox" @bind="LogSafetyWarnings" />
                                     <span style="margin-left:12px;">(Warnings are still sent to clients when unchecked)</span>
                                 </div>
-                                
+                                <div style="margin-bottom: 12px; margin-top: 12px">
+                                    <label>Include discovery messages in the log:</label>
+                                    <input style="margin-left:25px;" type="checkbox" @bind="LogDiscoveryMessages" />
+                                </div>
+                               
                                 <h4 style="color:cornflowerblue;margin-top:24px;">Debug settings</h4>
                                 <div style="margin-bottom:12px">
                                     <span class="indentedlist">Trace Level:</span>
@@ -736,6 +740,19 @@
         set
         {
             settings.LogSafetyWarnings = value;
+            settings.Save();
+        }
+    }
+
+    private bool LogDiscoveryMessages
+    {
+        get
+        {
+            return settings.LogDiscoveryMessages;
+        }
+        set
+        {
+            settings.LogDiscoveryMessages = value;
             settings.Save();
         }
     }
