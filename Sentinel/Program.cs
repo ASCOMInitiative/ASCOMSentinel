@@ -19,7 +19,7 @@ namespace Sentinel
         internal const string Manufacturer = "Peter Simpson";
 
         internal const string ServerName = Globals.APPLICATION_NAME;
-        internal const string ServerVersion = Globals.APPLICATION_VERSION;
+        internal static string ServerVersion ="Not set";
 
         internal static State state = new();
         internal static Settings settings = new Settings(string.Empty);
@@ -33,7 +33,9 @@ namespace Sentinel
 
             #region Startup and Logging
 
-            logger.LogMessage("", $"{ServerName} version {ServerVersion}");
+            ServerVersion=state.ApplicationVersion;
+
+            logger.LogMessage("", $"{ServerName} version {state.InformationalVersion}");
             logger.LogMessage("", $"Running on: {RuntimeInformation.OSDescription}.");
 
             //If already running start browser
@@ -94,6 +96,7 @@ namespace Sentinel
             {
                 Console.WriteLine($"http://localhost:{settings.ServerPort}");
             }
+            logger.LogBlankLine();
 
             var builder = WebApplication.CreateBuilder(args ?? []);
 
@@ -105,6 +108,7 @@ namespace Sentinel
                 logger.LogMessage("", $"No --urls arg detected, binding to: {listenUrl}");
                 builder.WebHost.UseUrls(listenUrl);
             }
+            logger.LogBlankLine();
 
             // Remove the default ASP.NET console logger and replace with one customised to create output in the application's colour and format
             builder.Logging.ClearProviders(); // Remove default console logger
@@ -130,7 +134,7 @@ namespace Sentinel
             DeviceManager.LoadObservingConditions(0, observingConditions, $"{Globals.OBSERVING_CONDITIONS_NAME} ({settings.Location})", settings.GetDeviceUniqueId("ObservingConditions", 0));
             state.ObservingConditions = observingConditions;
 
-            DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
+            DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(settings, state, logger), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
 
             #endregion
 

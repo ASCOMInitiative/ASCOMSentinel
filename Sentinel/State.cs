@@ -1,6 +1,7 @@
 ﻿namespace Sentinel
 {
     using ASCOM.Common.DeviceInterfaces;
+    using System.Reflection;
     using System.Text;
 
     public class State
@@ -9,7 +10,12 @@
 
         private static uint serverTransactionId;
 
-        public State() { }
+        public State()
+        {
+            ApplicationVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Not set";
+            ApplicationFileversion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version ?? "Not set";
+            InformationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Not set";
+        }
 
         #endregion
 
@@ -57,6 +63,11 @@
         #endregion
 
         #region public properties
+
+        public string ApplicationVersion { get; set; } = "Not set";
+        public string ApplicationFileversion { get; set; } = "Not set";
+
+        public string InformationalVersion { get; set; } = "Not set";
 
         public bool Online { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(Online)); } } } = false;
 

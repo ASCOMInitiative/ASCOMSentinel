@@ -4,6 +4,21 @@ namespace Sentinel.DeviceAccess
 {
     public class Switch : ISwitchV3
     {
+        private readonly Settings settings;
+        private readonly State state;
+        private readonly SentinelLogger logger;
+
+        public Switch(Settings settings, State state, SentinelLogger logger)
+        {
+            ArgumentNullException.ThrowIfNull(settings);
+            ArgumentNullException.ThrowIfNull(state);
+            ArgumentNullException.ThrowIfNull(logger);
+
+            this.settings = settings;
+            this.state = state;
+            this.logger = logger;
+        }
+
         public bool Connecting => throw new NotImplementedException();
 
         public List<StateValue> DeviceState => throw new NotImplementedException();
@@ -14,9 +29,16 @@ namespace Sentinel.DeviceAccess
 
         public string Description => $"{Globals.APPLICATION_NAME} - Aggregates a collection of Switch devices into a single composite device.";
 
-        public string DriverInfo => $"{Globals.APPLICATION_NAME} - Version {Globals.APPLICATION_VERSION}";
+        public string DriverInfo => $"{Globals.APPLICATION_NAME} - Version {state.InformationalVersion}";
 
-        public string DriverVersion => Globals.APPLICATION_VERSION;
+        public string DriverVersion
+        {
+            get
+            {
+                string[] parts = state.ApplicationFileversion.Split('.');
+                return parts.Length >= 2 ? $"{parts[0]}.{parts[1]}" : state.ApplicationFileversion;
+            }
+        }
 
         public short InterfaceVersion => throw new NotImplementedException();
 

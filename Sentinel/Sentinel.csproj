@@ -26,12 +26,12 @@
   </Target>
   <PropertyGroup>
     <!-- Set version numbers -->
-    <ProductMajor>0</ProductMajor>
-    <ProductMinor>9</ProductMinor>
+    <ProductMajor>1</ProductMajor>
+    <ProductMinor>0</ProductMinor>
     <ProductPatch>0</ProductPatch>
 
-    <!-- Set the pre-release string without a leading minus e.g. rc.1 or leave empty for a production release -->
-    <ProductPreRelease></ProductPreRelease>
+    <!-- Set the prerelease string without a leading minus e.g. rc.1 or leave empty for a production release -->
+    <ProductPreRelease>rc.1</ProductPreRelease>
 
     <!--Create a dynamic revision number based on time of build
 		 
@@ -58,7 +58,7 @@
 
     <!--Set the product version to the SEMVER version string -->
     <InformationalVersion>$(ProductMajor).$(ProductMinor).$(ProductPatch)$(ProductPreReleaseSeparator)$(ProductPreRelease)+$(BuildNumber)</InformationalVersion>
-
+    
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>conformu.snk</AssemblyOriginatorKeyFile>
 

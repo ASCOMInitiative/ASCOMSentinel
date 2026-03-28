@@ -7,9 +7,6 @@
         internal const string OBSERVING_CONDITIONS_NAME = $"{APPLICATION_NAME} Observing Conditions";
         internal const string SAFETY_MONITOR_NAME = $"{APPLICATION_NAME} Safety Monitor";
 
-        internal const string APPLICATION_VERSION = "0.1";
-        internal const string MANUFACTURER_VERSION = "0.0.1"; // Manufacturer version
-
         internal const int MESSAGE_LEVEL_WIDTH = 8; // Width to which the message level will be padded
         internal const int TEST_NAME_WIDTH = 35; // Width allowed for test names in screen display and log files
         internal const string APPLICATION_FOLDER_NAME = @"ASCOM\Sentinel"; // Application folder name underneath the local application data folder

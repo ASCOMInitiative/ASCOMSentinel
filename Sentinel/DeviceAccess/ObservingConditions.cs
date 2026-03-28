@@ -342,12 +342,18 @@ namespace Sentinel.DeviceAccess
             }
         }
 
-        public string Description => $"{Globals.APPLICATION_NAME} - Aggregates  a collection of ObservingConditions devices into a single composite device.";
+        public string Description => $"{Globals.APPLICATION_NAME} - Aggregates several ObservingConditions devices into a single composite device.";
 
-        public string DriverInfo => $"{Globals.APPLICATION_NAME} - Version {Globals.APPLICATION_VERSION}";
+        public string DriverInfo => $"{Globals.APPLICATION_NAME} - Version {state.InformationalVersion}";
 
-        public string DriverVersion => Globals.APPLICATION_VERSION;
-
+        public string DriverVersion
+        {
+            get
+            {
+                string[] parts = state.ApplicationFileversion.Split('.');
+                return parts.Length >= 2 ? $"{parts[0]}.{parts[1]}" : state.ApplicationFileversion;
+            }
+        }
         public short InterfaceVersion => 2;
         public string Name => $"{Globals.APPLICATION_NAME} - Observing Conditions device";
 
