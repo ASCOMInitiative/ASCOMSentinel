@@ -26,8 +26,8 @@
   </Target>
   <PropertyGroup>
     <!-- Set version numbers -->
-    <ProductMajor>1</ProductMajor>
-    <ProductMinor>0</ProductMinor>
+    <ProductMajor>0</ProductMajor>
+    <ProductMinor>9</ProductMinor>
     <ProductPatch>0</ProductPatch>
 
     <!-- Set the prerelease string without a leading minus e.g. rc.1 or leave empty for a production release -->
@@ -41,7 +41,7 @@
 
     <BuildNumber>$([MSBuild]::Add($([MSBuild]::Multiply($([MSBuild]::Modulo($([MSBuild]::Add($([MSBuild]::Multiply($([MSBuild]::Subtract($([System.DateTime]::UtcNow.Year),2022)),366)),$([System.DateTime]::UtcNow.DayOfYear))),2048)),32)),$([System.DateTime]::UtcNow.TimeOfDay.Hours)))</BuildNumber>
   </PropertyGroup>
-  <!-- Create the pre-release string minus character separator if this is a pre-release -->
+  <!-- Create the prerelease string minus character separator if this is a pre-release -->
   <PropertyGroup Condition="'$(ProductPreRelease)'!=''">
     <ProductPreReleaseSeparator>-</ProductPreReleaseSeparator>
   </PropertyGroup>
