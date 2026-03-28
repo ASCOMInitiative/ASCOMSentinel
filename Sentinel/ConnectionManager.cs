@@ -113,8 +113,6 @@ namespace Sentinel
                     .GroupBy(d => ( d.Value.ComProgID, d.Value.IpAddress, d.Value.PortNumber, d.Value.RemoteDeviceNumber))
                     .Where(g => g.Count() > 1 && g.Select(d => d.Value.DisplayName).Distinct().Count() > 1))
                 {
-                    if(group.)
-
                     logger.LogWarning("Connect", $"Duplicate Observing Conditions device configured {group.Count()} times: " +
                         $"IpAddress={group.Key.IpAddress}, Port={group.Key.PortNumber}, " +
                         $"DeviceNumber={group.Key.RemoteDeviceNumber}, ComProgID='{group.Key.ComProgID}'");
