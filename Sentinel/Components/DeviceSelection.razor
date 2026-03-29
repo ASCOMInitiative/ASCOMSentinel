@@ -12,12 +12,12 @@
                     Data=@DiscoveredDevices
                     TValue=DiscoveredDevice
                     TextProperty="@nameof(DiscoveredDevice.DisplayName)"
-                    Style="margin-top:20px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;"
-                    PopupStyle="max-height:15em); overflow:auto;"
+                    Style="margin-top:12px;margin-left:0px; margin-right:0px; width: 700px; text-align:left;"
+                    PopupStyle="max-height:40em; overflow:auto;"
                     Change="@DeviceChanged"
                     Name="DropDownBindValue">
         <Template Context="item">
-            <span style="color: @(ItemColour(item));font-size:1rem">
+            <span style="color: @(ItemColour(item));font-size:1rem;">
                 @item.DisplayName
             </span>
         </Template>
@@ -112,7 +112,6 @@
                         d.DisplayName == toMatch.DisplayName &&
                         d.SentinelDeviceType == toMatch.SentinelDeviceType &&
                         d.Protocol == toMatch.Protocol &&
-                        d.DisplayName == toMatch.DisplayName &&
                         d.IpAddress == toMatch.IpAddress &&
                         d.PortNumber == toMatch.PortNumber &&
                         d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&

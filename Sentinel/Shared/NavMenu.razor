@@ -145,9 +145,11 @@ else
             confirmed = true;
 
         if (confirmed == true)
+        {
             state.Online = !state.Online;
-        logger.LogMessage("Online state changed", $"{Globals.APPLICATION_NAME} is now {(state.Online ? "Online" : "Offline")}");
-        logger.LogMessage("", "");
+            logger.LogMessage("Online state changed", $"{Globals.APPLICATION_NAME} is now {(state.Online ? "Online" : "Offline")}");
+            logger.LogMessage("", "");
+        }
     }
 
     private bool collapseNavMenu = true;

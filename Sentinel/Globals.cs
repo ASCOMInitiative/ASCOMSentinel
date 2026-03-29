@@ -38,7 +38,7 @@
         internal const int DISCONNECTED_CIRCUIT_RETENTION_PERIOD = 180; // Maximum time that circuit state is retained on the server before being cleaned out (Default 180 seconds)
 
         internal const int LOG_REFRESH_INTERVAL = 250; // Interval at which the log is refreshed on the screen (Milliseconds)
-        internal const int RestartRESTART_DELAY = 1; // Time to wait before restarting the application after a restart request. (Seconds)
+
         internal static readonly SemaphoreSlim ConnectSemaphore = new SemaphoreSlim(1, 1);
         internal static Lock StateLock = new();
 
