@@ -35,8 +35,10 @@ namespace Sentinel
 
             ServerVersion=state.ApplicationVersion;
 
-            logger.LogMessage("", $"{ServerName} version {state.InformationalVersion}");
-            logger.LogMessage("", $"Running on: {RuntimeInformation.OSDescription}.");
+            logger.LogMessage("Main", $"{ServerName} version {state.InformationalVersion}");
+            logger.LogMessage("Main", $"Running on: {RuntimeInformation.OSDescription}.");
+            logger.LogBlankLine();
+            logger.LogWarning("Main", "This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.");
 
             //If already running start browser
             try

@@ -3,14 +3,14 @@
 @inject DialogService DialogService
 @inject IJSRuntime JSRuntime
 
-<div style="min-width:340px; padding:12px;">
+<div style="min-width:600px; padding:12px; box-sizing:border-box;">
     <div style="margin-bottom:16px;">
         <label style="display:inline-block; min-width:130px;">Name:</label>
         <input type="text"
                @ref="_nameInput"
                @bind="Name"
                @bind:event="oninput"
-               style="width:20ch; border:1px solid black;"
+               style="width:40ch; border:1px solid black;"
                placeholder="Device name" />
     </div>
     <div style="margin-bottom:16px;">
@@ -18,7 +18,7 @@
         <input type="text"
                @bind="IpAddress"
                @bind:event="oninput"
-               style="width:20ch; border:1px solid black;"
+               style="width:40ch; border:1px solid black;"
                placeholder="e.g. 192.168.1.100" />
     </div>
     <div style="margin-bottom:16px;">
@@ -27,7 +27,7 @@
                        TValue="int"
                        Min="1"
                        Max="65535"
-                       Style="width:20ch; border:1px solid black;"
+                       Style="width:10ch; border:1px solid black;"
                        ShowUpDown="true" />
     </div>
     <div style="margin-bottom:16px;">
@@ -35,7 +35,7 @@
         <RadzenNumeric @bind-Value="DeviceNumber"
                        TValue="int"
                        Min="0"
-                       Style="width:20ch; border:1px solid black;"
+                       Style="width:10ch; border:1px solid black;"
                        ShowUpDown="true" />
     </div>
     <div style="margin-top:20px; display:flex; gap:12px; justify-content:flex-end;">

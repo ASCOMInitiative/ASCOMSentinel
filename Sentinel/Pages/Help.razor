@@ -63,7 +63,18 @@
 </ul>
 <p>See below for the <code>SafetyState</code> class definition, its two associated enums, and an example JSON response string.</p>
 
-<p><b>At the time of release (March 2026) this application should be treated as experimental and used with care.</b></p>
+<p><b>This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.</b></p>
+
+<h4 style="margin-top:48px;">Getting Safety State Information</h4>
+<p>
+    ASCOM clients can check whether a safety monitor supports the GetSafetyState action by calling the 
+    <a href="https://ascom-standards.org/newdocs/safetymonitor.html#SafetyMonitor.SupportedActions" target="_blank">SafetyMonitor.SupportedActions</a> method.
+    The action name <code>GetSafetyState</code> will be returned in the list when the action is available.
+</p>
+<p>
+    The serialised JSON string can be retrieved by calling the <a href="https://ascom-standards.org/newdocs/safetymonitor.html#SafetyMonitor.Action" target="_blank">SafetyMonitor.Action</a> method.
+    e.g. <code>string serialisedJsonString = safetyMonitorClient.Action("GetSafetyState", "")</code>.
+</p>
 
 <h4 style="margin-top:48px;">Safety Event Class Definition</h4>
 <pre class="vs-code-block">
