@@ -1,6 +1,7 @@
 ﻿namespace Sentinel
 {
     using ASCOM.Common.DeviceInterfaces;
+    using System.Collections.Concurrent;
     using System.Reflection;
     using System.Text;
 
@@ -106,6 +107,11 @@
 
         public List<DiscoveredDevice> DiscoveredSafetyMonitorDevices = new List<DiscoveredDevice>();
 
+        /// <summary>
+        /// Lock protecting <see cref="DiscoveredObservingConditionsDevices"/> and <see cref="DiscoveredSafetyMonitorDevices"/> from concurrent mutation.
+        /// </summary>
+        public Lock DiscoveredDevicesLock { get; } = new();
+
         public List<SafetyState> LastSafetyState { get; set; } = [];
 
         /// <summary>
@@ -116,11 +122,11 @@
 
         public bool DiscoveryHasRun { get; set; } = false;
 
-        public Dictionary<PropertyName, IObservingConditionsV2> ObservingConditionsDeviceMap { get; set; } = [];
+        public ConcurrentDictionary<PropertyName, IObservingConditionsV2> ObservingConditionsDeviceMap { get; set; } = new();
 
-        public Dictionary<PropertyName, ISafetyMonitorV3> SafetyMonitorDevices { get; set; } = [];
+        public ConcurrentDictionary<PropertyName, ISafetyMonitorV3> SafetyMonitorDevices { get; set; } = new();
 
-        public Dictionary<int, ISwitchV3> SwitchDevices { get; set; } = [];
+        public ConcurrentDictionary<int, ISwitchV3> SwitchDevices { get; set; } = new();
 
         public IObservingConditionsV2 ObservingConditions { get; set; } = null!;
 

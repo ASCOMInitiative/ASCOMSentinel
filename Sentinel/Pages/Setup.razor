@@ -852,7 +852,7 @@
 
         if (((DiscoveredDevice)discoveredDevice).SentinelDeviceType == SentinelDeviceType.NotSet)
         {
-            state.ObservingConditionsDeviceMap.Remove(propertyName);
+            state.ObservingConditionsDeviceMap.TryRemove(propertyName, out _);
             settings.RaiseChangeEvent();
         }
 
@@ -910,6 +910,9 @@
     SafetyMonitorDevicesCom.Clear();
 #endif
 
+            // Lock the discovered device lists while repopulating them
+            lock (state.DiscoveredDevicesLock)
+            {
             // Clear the discovered devices lists
             state.DiscoveredObservingConditionsDevices.Clear();
             state.DiscoveredSafetyMonitorDevices.Clear();
@@ -1040,6 +1043,7 @@
 
             // Sort all devices into order
             State.SortDiscoveredDevices(state, SortByDevice.All);
+            }
 
             state.StatusText = "Discovery completed";
             await InvokeAsync(StateHasChanged);

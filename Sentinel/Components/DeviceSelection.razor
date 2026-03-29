@@ -107,36 +107,42 @@
                 // Only remove from the discovered list if no other properties are using the same device instance, to avoid removing it while it's still in use by another property
                 if (count < 2)
                 {
-                    var toMatch = settings.ConfiguredDevices[Property];
-                    int removed = state.DiscoveredObservingConditionsDevices.RemoveAll(d =>
-                        d.DisplayName == toMatch.DisplayName &&
-                        d.SentinelDeviceType == toMatch.SentinelDeviceType &&
-                        d.Protocol == toMatch.Protocol &&
-                        d.IpAddress == toMatch.IpAddress &&
-                        d.PortNumber == toMatch.PortNumber &&
-                        d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&
-                        d.ComProgID == toMatch.ComProgID);
+                    lock (state.DiscoveredDevicesLock)
+                    {
+                        var toMatch = settings.ConfiguredDevices[Property];
+                        int removed = state.DiscoveredObservingConditionsDevices.RemoveAll(d =>
+                            d.DisplayName == toMatch.DisplayName &&
+                            d.SentinelDeviceType == toMatch.SentinelDeviceType &&
+                            d.Protocol == toMatch.Protocol &&
+                            d.IpAddress == toMatch.IpAddress &&
+                            d.PortNumber == toMatch.PortNumber &&
+                            d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&
+                            d.ComProgID == toMatch.ComProgID);
 
-                    State.SortDiscoveredDevices(state, SortByDevice.ObservingConditions);
+                        State.SortDiscoveredDevices(state, SortByDevice.ObservingConditions);
+                    }
                 }
             }
 
             // Remove the un-configured manual safety monitor devices from the discovered device list if the new value is not set
             if (settings.ConfiguredDevices[Property].SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor)
             {
-                var toMatch = settings.ConfiguredDevices[Property];
-                int removed = state.DiscoveredSafetyMonitorDevices.RemoveAll(d =>
-                    d.SentinelDeviceType == toMatch.SentinelDeviceType &&
-                    d.Protocol == toMatch.Protocol &&
-                    d.DisplayName == toMatch.DisplayName &&
-                    d.IpAddress == toMatch.IpAddress &&
-                    d.PortNumber == toMatch.PortNumber &&
-                    d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&
-                    d.ComProgID == toMatch.ComProgID);
+                lock (state.DiscoveredDevicesLock)
+                {
+                    var toMatch = settings.ConfiguredDevices[Property];
+                    int removed = state.DiscoveredSafetyMonitorDevices.RemoveAll(d =>
+                        d.SentinelDeviceType == toMatch.SentinelDeviceType &&
+                        d.Protocol == toMatch.Protocol &&
+                        d.DisplayName == toMatch.DisplayName &&
+                        d.IpAddress == toMatch.IpAddress &&
+                        d.PortNumber == toMatch.PortNumber &&
+                        d.RemoteDeviceNumber == toMatch.RemoteDeviceNumber &&
+                        d.ComProgID == toMatch.ComProgID);
 
-                State.SortDiscoveredDevices(state, SortByDevice.SafetyMonitor);
+                    State.SortDiscoveredDevices(state, SortByDevice.SafetyMonitor);
 
-                logger.LogMessage("", $"Removed {removed} matching device(s) from DiscoveredSafetyMonitorDevices.");
+                    logger.LogMessage("", $"Removed {removed} matching device(s) from DiscoveredSafetyMonitorDevices.");
+                }
             }
         }
 
@@ -188,25 +194,27 @@
 
 
             // Add a replacement Not set value
-            switch (CurrentValue.SentinelDeviceType)
+            lock (state.DiscoveredDevicesLock)
             {
-                case SentinelDeviceType.ManualObservingConditions:
-                    if (!state.DiscoveredObservingConditionsDevices.Any(d => d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions && d.Protocol == Protocol.NotConfigured))
+                switch (CurrentValue.SentinelDeviceType)
+                {
+                    case SentinelDeviceType.ManualObservingConditions:
+                        if (!state.DiscoveredObservingConditionsDevices.Any(d => d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions && d.Protocol == Protocol.NotConfigured))
+                            state.DiscoveredObservingConditionsDevices.Insert(1, new DiscoveredDevice { SentinelDeviceType = SentinelDeviceType.ManualObservingConditions });
+                        break;
 
-                        state.DiscoveredObservingConditionsDevices.Insert(1, new DiscoveredDevice { SentinelDeviceType = SentinelDeviceType.ManualObservingConditions });
-                    break;
+                    case SentinelDeviceType.ManualSafetyMonitor:
+                        if (!state.DiscoveredSafetyMonitorDevices.Any(d => d.SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor && d.Protocol == Protocol.NotConfigured))
+                            state.DiscoveredSafetyMonitorDevices.Insert(1, new DiscoveredDevice { SentinelDeviceType = SentinelDeviceType.ManualSafetyMonitor });
+                        break;
 
-                case SentinelDeviceType.ManualSafetyMonitor:
-                    if (!state.DiscoveredSafetyMonitorDevices.Any(d => d.SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor && d.Protocol == Protocol.NotConfigured))
-                        state.DiscoveredSafetyMonitorDevices.Insert(1, new DiscoveredDevice { SentinelDeviceType = SentinelDeviceType.ManualSafetyMonitor });
-                    break;
+                    default:
+                        break;
+                }
 
-                default:
-                    break;
+                // Sort the discovered devices list
+                State.SortDiscoveredDevices(state, SortByDevice.All);
             }
-
-            // Sort the discovered devices list
-            State.SortDiscoveredDevices(state, SortByDevice.All);
 
             state.DisplayReconnectMessage = true;
             await OnDeviceChanged.InvokeAsync(CurrentValue);
