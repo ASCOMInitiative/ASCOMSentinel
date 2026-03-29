@@ -1,3 +1,4 @@
+using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
 using System.Diagnostics;
 
@@ -110,7 +111,7 @@ namespace Sentinel
                 foreach (var group in settings.ConfiguredDevices
                     .Where(d => d.Value.SentinelDeviceType == SentinelDeviceType.ObservingConditions ||
                                 d.Value.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions)
-                    .GroupBy(d => ( d.Value.ComProgID, d.Value.IpAddress, d.Value.PortNumber, d.Value.RemoteDeviceNumber))
+                    .GroupBy(d => (d.Value.ComProgID, d.Value.IpAddress, d.Value.PortNumber, d.Value.RemoteDeviceNumber))
                     .Where(g => g.Count() > 1 && g.Select(d => d.Value.DisplayName).Distinct().Count() > 1))
                 {
                     logger.LogWarning("Connect", $"Duplicate Observing Conditions device configured {group.Count()} times: " +
@@ -166,7 +167,7 @@ namespace Sentinel
 
                     List<Task> startTasks = []; // List of tasks to set Connected=true on each device
 
-                    // Iterate over the unique devices and create an instance for each one, then add it to the dictionary.
+                    // Iterate over the unique observing conditions devices, create a client instance and connect task for each one add it to the dictionary.
                     foreach (DiscoveredDevice device in uniqueObservingConditionsDevices)
                     {
                         // Create a COM or Alpaca client as appropriate for the device
@@ -179,7 +180,7 @@ namespace Sentinel
                                     IpAddressString = device.IpAddress,
                                     PortNumber = device.PortNumber,
                                     RemoteDeviceNumber = device.RemoteDeviceNumber,
-                                    EstablishConnectionTimeout = 2, // Seconds
+                                    EstablishConnectionTimeout = settings.AlpacaConnectTimeout, // Seconds
                                     StandardDeviceResponseTimeout = settings.AlpacaGetPropertyTimeout, // Seconds
                                     Logger = settings.IncludeAlpacaTrace ? logger : null,
                                     UserAgentProductName = "Sentinel",
@@ -212,11 +213,13 @@ namespace Sentinel
                         }
 
                         // Create a task to set Connected=true for this device. The inner Task.Run wraps the blocking ASCOM call;
-                        // Task.WhenAny enforces the timeout since the blocking call cannot be cancelled directly.
+                        // a CancellationTokenSource enforces the timeout. On timeout, disposal is deferred until the
+                        // orphaned connect task completes to avoid ObjectDisposedException while the ASCOM call is in flight.
                         Task task = Task.Run(async () =>
                         {
                             Stopwatch sw = Stopwatch.StartNew();
                             bool connectSucceeded = false;
+                            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(settings.AlpacaGetPropertyTimeout));
                             Task connectTask = Task.Run(() =>
                             {
                                 try
@@ -244,19 +247,42 @@ namespace Sentinel
                                 }
                             });
 
-                            // Wait for either the connect to succeed or the timeout to expire.
-                            // If the timeout expires before the connect succeeds, dispose of the device instance and set it to null so that it is not used later on when we try to read properties from it.
-                            if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaGetPropertyTimeout))) != connectTask)
+                            // Wait for the connect to succeed or the timeout to expire.
+                            bool timedOut = false;
+                            try
                             {
+                                await connectTask.WaitAsync(timeoutCts.Token);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                timedOut = true;
+                                logger.LogDebug("Connect", $"Faulted: {connectTask.IsFaulted} Cancelled: {connectTask.IsCanceled} Completed: {connectTask.IsCompleted} Completed Successfully{connectTask.IsCompletedSuccessfully} Status: {connectTask.Status}");
                                 logger.LogError("Connect", $"Timeout ({sw.Elapsed.TotalSeconds:0.0}s) connecting to {device.DisplayName}.");
-                                try { observingConditionsDeviceInstances[device]?.Dispose(); observingConditionsDeviceInstances[device] = null!; } catch { }
+
+                                // Null out the reference so it won't be used in the device map, then defer
+                                // disposal until the orphaned connect task finishes to avoid ObjectDisposedException.
+                                var orphanedDevice = observingConditionsDeviceInstances[device];
+                                observingConditionsDeviceInstances[device] = null!;
+                                _ = connectTask.ContinueWith(_ =>
+                                {
+                                    try
+                                    {
+                                        orphanedDevice?.Dispose();
+                                    }
+                                    catch { }
+                                }, TaskScheduler.Default);
                             }
 
                             // If the connect did not succeed for any reason, dispose of the device instance and set it to null so that it is not used later on when we try to read properties from it.
-                            if (!connectSucceeded)
+                            if (!timedOut && !connectSucceeded)
                             {
-                                try { observingConditionsDeviceInstances[device]?.Dispose(); observingConditionsDeviceInstances[device] = null!; } catch { }
-                                logger.LogError("Connect", $"Failed to connect to {device.DisplayName}.");
+                                try
+                                {
+                                    observingConditionsDeviceInstances[device]?.Dispose();
+                                    observingConditionsDeviceInstances[device] = null!;
+                                }
+                                catch { }
+                                //logger.LogError("Connect", $"Failed to connect to {device.DisplayName}.");
                             }
                         });
 
@@ -264,7 +290,7 @@ namespace Sentinel
                         startTasks.Add(task);
                     }
 
-                    // Create SafetyMonitor devices
+                    // Create SafetyMonitor device client instances and connect tasks
                     foreach (KeyValuePair<PropertyName, DiscoveredDevice> device in safetyMonitorDevices)
                     {
                         switch (device.Value.Protocol)
@@ -276,7 +302,7 @@ namespace Sentinel
                                     IpAddressString = device.Value.IpAddress,
                                     PortNumber = device.Value.PortNumber,
                                     RemoteDeviceNumber = device.Value.RemoteDeviceNumber,
-                                    EstablishConnectionTimeout = 2, //Seconds
+                                    EstablishConnectionTimeout = settings.AlpacaGetPropertyTimeout, //Seconds
                                     StandardDeviceResponseTimeout = settings.AlpacaGetPropertyTimeout, // Seconds
                                     Logger = settings.IncludeAlpacaTrace ? logger : null,
                                     UserAgentProductName = "Sentinel",
@@ -307,9 +333,12 @@ namespace Sentinel
                                 throw new InvalidOperationException($"ConnectionManager.ConnectAsync - Invalid protocol: {device.Value.Protocol}");
                         }
 
-                        // Connect the safety monitor device with a timeout.
+                        // Connect the safety monitor device with a timeout. Disposal is deferred until the
+                        // orphaned connect task completes to avoid ObjectDisposedException while the ASCOM call is in flight.
                         Task task = Task.Run(async () =>
                         {
+                            bool connectSucceeded = false;
+                            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout + 2.0));
                             Task connectTask = Task.Run(() =>
                             {
                                 try
@@ -321,13 +350,13 @@ namespace Sentinel
                                     {
                                         logger.LogDebug("Connect", $"Setting Connected True for {device.Value.DisplayName} {device.Value.Protocol}");
                                         state.SafetyMonitorDevices[device.Key].Connected = true;
+                                        connectSucceeded = true;
                                         logger.LogMessage("Connect", $"Connected set True OK for {device.Key} {device.Value.DisplayName} {device.Value.Protocol}");
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    state.SafetyMonitorDevices[device.Key]?.Dispose();
-                                    state.SafetyMonitorDevices[device.Key] = null!;
+                                    connectSucceeded = false;
 
                                     if (settings.LogLevel == ASCOM.Common.Interfaces.LogLevel.Debug)
                                         logger.LogError("Connect", $"Exception setting Connected true for {device.Value.DisplayName} {device.Value.Protocol} - {ex.Message}\r\n{ex}");
@@ -336,9 +365,31 @@ namespace Sentinel
                                 }
                             });
 
-                            if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(settings.AlpacaConnectTimeout))) != connectTask)
+                            // Wait for the connect to succeed or the timeout to expire.
+                            bool timedOut = false;
+                            try
                             {
+                                await connectTask.WaitAsync(timeoutCts.Token);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                logger.LogDebug("Connect", $"Faulted: {connectTask.IsFaulted} Cancelled: {connectTask.IsCanceled} Completed: {connectTask.IsCompleted} Completed Successfully{connectTask.IsCompletedSuccessfully} Status: {connectTask.Status}");
+                                timedOut = true;
                                 logger.LogError("Connect", $"Timeout ({settings.AlpacaConnectTimeout}s) connecting to a safety monitor: {device.Value.DisplayName}");
+
+                                // Null out the reference so it won't be used later, then defer disposal
+                                // until the orphaned connect task finishes.
+                                var orphanedDevice = state.SafetyMonitorDevices[device.Key];
+                                state.SafetyMonitorDevices[device.Key] = null!;
+                                _ = connectTask.ContinueWith(_ =>
+                                {
+                                    try { orphanedDevice?.Dispose(); } catch { }
+                                }, TaskScheduler.Default);
+                            }
+
+                            // If the connect did not succeed and didn't time out, clean up the device instance.
+                            if (!timedOut && !connectSucceeded)
+                            {
                                 try
                                 {
                                     state.SafetyMonitorDevices[device.Key]?.Dispose();

@@ -252,7 +252,18 @@ namespace Sentinel
             {
                 // Auto-connect after the web server has started so browsers can reach the application immediately.
                 if (settings.AutoConnect && !state.Connected)
-                    Task.Run(() => ConnectionManager.ConnectAsync(state, settings, logger));
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            state.OperationUnderway = true;
+                            await ConnectionManager.ConnectAsync(state, settings, logger);
+                        }
+                        finally
+                        {
+                            state.OperationUnderway = false;
+                        }
+                    });
             });
 
             applicationLifetime.ApplicationStopping.Register(() =>

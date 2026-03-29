@@ -214,22 +214,33 @@ else
 
         if (confirmed.HasValue && confirmed.Value)
         {
-            // Clear the reconnect message.
-            state.DisplayReconnectMessage = false;
-            state.StatusText = "";
-
-            // Check whether we are already connected.
-            if (state.Connected) // Already connected so disconnect first and the connect again.
+            try
             {
-                // Disconnect first.
-                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+                // Disable navigation and other buttons while the reconnect is in progress.
+                state.OperationUnderway = true;
 
-                // Reconnect after disconnecting.
-                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+                // Clear the reconnect message.
+                state.DisplayReconnectMessage = false;
+                state.StatusText = "";
+
+                // Check whether we are already connected.
+                if (state.Connected) // Already connected so disconnect first and the connect again.
+                {
+                    // Disconnect first.
+                    await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+
+                    // Reconnect after disconnecting.
+                    await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+                }
+                else // Currently disconnected so connect
+                {
+                    await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+                }
             }
-            else // Currently disconnected so connect
+            finally
             {
-                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+                // Ensure the reconnect message is cleared even if an exception occurs during connect/disconnect.
+                state.OperationUnderway = false;
             }
         }
     }
@@ -251,8 +262,19 @@ else
 
         if (confirmed.HasValue && confirmed.Value)
         {
-            state.DisplayReconnectMessage = false;
-            await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+            try
+            {
+                // Disable navigation and other buttons while the reconnect is in progress.
+                state.OperationUnderway = true;
+
+                state.DisplayReconnectMessage = false;
+                await ConnectionManager.ChangeConnectedStateAsync(state, settings, logger, () => InvokeAsync(StateHasChanged));
+            }
+            finally
+            {
+                // Ensure the reconnect message is cleared even if an exception occurs during connect/disconnect.
+                state.OperationUnderway = false;
+            }
         }
     }
 
