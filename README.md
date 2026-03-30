@@ -34,153 +34,14 @@ This cross-platform application:
     e.g. <code>string serialisedJsonString = safetyMonitorClient.Action("GetSafetyState", "")</code>.
 </p>
 
-<style>
-    .vs-code-block {
-        margin-top: 0.75rem;
-        padding: 1rem;
-        overflow-x: auto;
-        border-radius: 4px;
-        background-color: black;
-        color: #d4d4d4;
-        font-family: Consolas, "Courier New", monospace;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        white-space: pre;
-    }
+## SafetyState Event Class Definition
+<p>
+The <code>SafetyState</code> class is shown here: <a href="https://github.com/ASCOMInitiative/ASCOMSentinel/blob/main/Sentinel/SafetyState.cs" target="_blank">SafetyState.cs </a>
+and its associated SafetyEventType (what type of event has happened) and SafetyEventCondition (what condition triggered the event) enums are shown here: <a href="https://github.com/ASCOMInitiative/ASCOMSentinel/blob/main/Sentinel/SafetyEventType.cs" target="_blank">SafetyEventType.cs</a> and <a href="https://github.com/ASCOMInitiative/ASCOMSentinel/blob/main/Sentinel/SafetyEventCondition.cs" target="_blank">SafetyEventCondition.cs</a>.
+</p>
 
-    .vs-code-comment {
-        color: #6a9955;
-    }
-
-    .vs-code-keyword {
-        color: #569cd6;
-    }
-
-    .vs-code-type {
-        color: #4ec9b0;
-    }
-
-    .vs-code-method {
-        color: #dcdcaa;
-    }
-
-    .vs-code-string {
-        color: #ce9178;
-    }
-</style>
-
-
-<h4 style="margin-top:48px;">Safety Event Class Definition</h4>
-<pre class="vs-code-block">
-<code>
-<span class="vs-code-comment">/// &lt;summary&gt;</span>
-<span class="vs-code-comment">/// Represents a safety-related event, including its condition, type, source, message, and the UTC time it occurred.</span>
-<span class="vs-code-comment">/// &lt;/summary&gt;</span>
-<span class="vs-code-keyword">public</span> <span class="vs-code-keyword">class</span> <span class="vs-code-type">SafetyState</span>
-{
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The type of safety event that triggered the condition.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-keyword">public</span> <span class="vs-code-type">SafetyEventType</span> EventType { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The rule that triggered the safety event.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-keyword">public</span> <span class="vs-code-type">SafetyEventCondition</span> EventCondition { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The name of the application, device, or driver that generated the event.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-keyword">public</span> <span class="vs-code-keyword">string</span> EventSource { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// A message providing additional context or details about the safety event.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-keyword">public</span> <span class="vs-code-keyword">string</span> EventMessage { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The UTC time at which the event message was created.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-comment">/// &lt;remarks&gt;Please note: This is not the time at which the event started, it is the time at which the SafetyState class was created and returned to the client.&lt;/remarks&gt;</span>
-    <span class="vs-code-keyword">public</span> <span class="vs-code-type">DateTime</span> EventTimeUtc { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
-}
-
-<span class="vs-code-comment">/// &lt;summary&gt;</span>
-<span class="vs-code-comment">/// Specifies the nature of the safety rule that triggered this event.</span>
-<span class="vs-code-comment">/// &lt;/summary&gt;</span>
-<span class="vs-code-comment">/// &lt;remarks&gt;</span>
-<span class="vs-code-comment">/// Please choose the value that gives the most information about the state of the property. If you have conditions that require other states, please request them on the:</span>
-<span class="vs-code-comment">/// &lt;see href=&quot;https://ascomtalk.groups.io/g/Developer/topics&quot;&gt;ASCOM Developers Forum&lt;/see&gt;.</span>
-<span class="vs-code-comment">/// &lt;/remarks&gt;</span>
-<span class="vs-code-keyword">public</span> <span class="vs-code-keyword">enum</span> <span class="vs-code-type">SafetyEventCondition</span>
-{
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The property has fallen below the safety threshold defined for this property.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-comment">/// &lt;remarks&gt;Only for ObservingConditions devices.&lt;/remarks&gt;</span>
-    BelowLimit = 0,
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The property has reached the safety threshold defined for this property.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-comment">/// &lt;remarks&gt;Only for ObservingConditions devices.&lt;/remarks&gt;</span>
-    EqualLimit = 1,
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The property has exceeded the safety threshold defined for this property.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-comment">/// &lt;remarks&gt;Only for ObservingConditions devices.&lt;/remarks&gt;</span>
-    AboveLimit = 2,
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The property is in an unsafe state.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-comment">/// &lt;remarks&gt;Only for SafetyMonitor devices.&lt;/remarks&gt;</span>
-    Unsafe = 3,
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The property has been forced to a specific state or value.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-comment">/// &lt;remarks&gt;For all devices.&lt;/remarks&gt;</span>
-    ForcedToState = 4,
-
-    <span class="vs-code-comment">/// &lt;summary&gt;</span>
-    <span class="vs-code-comment">/// The device is in an error state.</span>
-    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
-    <span class="vs-code-comment">/// &lt;remarks&gt;For all devices.&lt;/remarks&gt;</span>
-    DeviceInErrorState = 5,
-}
-
-<span class="vs-code-comment">/// &lt;summary&gt;</span>
-<span class="vs-code-comment">/// Specifies the types of safety-related environmental events that can be monitored or reported.</span>
-<span class="vs-code-comment">/// &lt;/summary&gt;</span>
-<span class="vs-code-keyword">public</span> <span class="vs-code-keyword">enum</span> <span class="vs-code-type">SafetyEventType</span>
-{
-    CloudCover = 0,
-    DewPoint = 1,
-    Humidity = 2,
-    Pressure = 3,
-    RainRate = 4,
-    SkyBrightness = 5,
-    SkyQuality = 6,
-    SkyTemperature = 7,
-    StarFWHM = 8,
-    Temperature = 9,
-    WindDirection = 10,
-    WindGust = 11,
-    WindSpeed = 12,
-    SafetyIssue = 13,
-    SecurityIssue = 14,
-    PowerIssue = 15,
-    Other = 1000
-}
-
-</code>
-</pre>
-
-<h4 style="margin-top:48px;">Example JSON Response String</h4>
-<pre class="vs-code-block">
-<code>
+<h2 style="margin-bottom:0px;">Example JSON Response String</h2>
+<pre>
 [
     {
         "EventType":"SkyQuality",
@@ -197,11 +58,4 @@ This cross-platform application:
         "EventTimeUtc":"2026-03-28T16:44:14.1756336Z"
     }
 ]
-</code>
 </pre>
-@code {
-
-    protected override async Task OnInitializedAsync()
-    {
-    }
-}
