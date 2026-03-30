@@ -1,11 +1,207 @@
 # ASCOM Sentinel
 This cross-platform application:
-* Consolidates a number of COM or Alpaca ObservingConditions devices into a single virtual device.
-* Consolidates a number of COM or Alpaca SafetyMonitor devices into a single virtual device.
-* Allows the user to define rules for each virtual device ObservingConditions property that can trigger the the virtual safety monitor to report IsSafe as false.
-* Employs cacheing on virtual device properties to support heavy loads efficiently while protecting backend devices.
-* The virtual safety monitor provides a GetSafetyState Action that, when IsSafe as false, returns a JSON serialised object contining a list of causes.
+<ul>
+    <li>Consolidates a number of real COM or Alpaca ObservingConditions devices into a single virtual device.</li>
+    <li>Consolidates a number of real COM or Alpaca SafetyMonitor devices into a single virtual device.</li>
+    <li>Allows the user to define rules for each virtual device ObservingConditions property that can trigger the virtual safety monitor to report <code>IsSafe</code> as false.</li>
+    <li>Provides a <code>GetSafetyState</code> SupportedActions / Action that returns a set of reasons for why the safety monitor reports <code>IsSafe</code> as false. See below for details</li>
+    <li>Employs caching on virtual device properties to support heavy client loads and protect back-end devices.</li>
+    <li>Provides an optional two-level user / administrator security model to secure the online / offline state and connection / disconnection state of the real devices.</li>
+    <li>Provides a graphical depiction of current observing conditions values.</li>
+</ul>
 
-**At the time of release (March 2026) this application should be treated as experimental and used with care.**
+**This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.**
 
-**Any feeback on features or operation (positivce as well as negative) would be appreciated, please send this as a GitHub Issue.**
+**Any feedback on features, usefulness or operation is appreciated, please send this as a GitHub Issue.**
+
+## The GetSafetyState Action
+<p>The virtual safety monitor provides a <code>GetSafetyState</code> Action that returns a JSON object as a serialised string.</p>
+<ul>
+    <li><code style="display:inline-block; min-width:130px;">IsSafe = false</code> Returns an empty JSON array.</li>
+    <li><code style="display:inline-block; min-width:130px;">IsSafe = true</code> Returns a JSON array of <code>SafetyState</code> objects.</li>
+</ul>
+<p>See below for the <code>SafetyState</code> class definition, its two associated enums, and an example JSON response string.</p>
+
+
+## Getting Safety State Information
+<p>
+    ASCOM clients can check whether a safety monitor supports the GetSafetyState action by calling the 
+    <a href="https://ascom-standards.org/newdocs/safetymonitor.html#SafetyMonitor.SupportedActions" target="_blank">SafetyMonitor.SupportedActions</a> method.
+    The action name <code>GetSafetyState</code> will be returned in the list when the action is available.
+</p>
+<p>
+    The serialised JSON string can be retrieved by calling the <a href="https://ascom-standards.org/newdocs/safetymonitor.html#SafetyMonitor.Action" target="_blank">SafetyMonitor.Action</a> method.
+    e.g. <code>string serialisedJsonString = safetyMonitorClient.Action("GetSafetyState", "")</code>.
+</p>
+
+<style>
+    .vs-code-block {
+        margin-top: 0.75rem;
+        padding: 1rem;
+        overflow-x: auto;
+        border-radius: 4px;
+        background-color: black;
+        color: #d4d4d4;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        white-space: pre;
+    }
+
+    .vs-code-comment {
+        color: #6a9955;
+    }
+
+    .vs-code-keyword {
+        color: #569cd6;
+    }
+
+    .vs-code-type {
+        color: #4ec9b0;
+    }
+
+    .vs-code-method {
+        color: #dcdcaa;
+    }
+
+    .vs-code-string {
+        color: #ce9178;
+    }
+</style>
+
+
+<h4 style="margin-top:48px;">Safety Event Class Definition</h4>
+<pre class="vs-code-block">
+<code>
+<span class="vs-code-comment">/// &lt;summary&gt;</span>
+<span class="vs-code-comment">/// Represents a safety-related event, including its condition, type, source, message, and the UTC time it occurred.</span>
+<span class="vs-code-comment">/// &lt;/summary&gt;</span>
+<span class="vs-code-keyword">public</span> <span class="vs-code-keyword">class</span> <span class="vs-code-type">SafetyState</span>
+{
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The type of safety event that triggered the condition.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-keyword">public</span> <span class="vs-code-type">SafetyEventType</span> EventType { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The rule that triggered the safety event.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-keyword">public</span> <span class="vs-code-type">SafetyEventCondition</span> EventCondition { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The name of the application, device, or driver that generated the event.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-keyword">public</span> <span class="vs-code-keyword">string</span> EventSource { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// A message providing additional context or details about the safety event.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-keyword">public</span> <span class="vs-code-keyword">string</span> EventMessage { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The UTC time at which the event message was created.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-comment">/// &lt;remarks&gt;Please note: This is not the time at which the event started, it is the time at which the SafetyState class was created and returned to the client.&lt;/remarks&gt;</span>
+    <span class="vs-code-keyword">public</span> <span class="vs-code-type">DateTime</span> EventTimeUtc { <span class="vs-code-keyword">get</span>; <span class="vs-code-keyword">set</span>; }
+}
+
+<span class="vs-code-comment">/// &lt;summary&gt;</span>
+<span class="vs-code-comment">/// Specifies the nature of the safety rule that triggered this event.</span>
+<span class="vs-code-comment">/// &lt;/summary&gt;</span>
+<span class="vs-code-comment">/// &lt;remarks&gt;</span>
+<span class="vs-code-comment">/// Please choose the value that gives the most information about the state of the property. If you have conditions that require other states, please request them on the:</span>
+<span class="vs-code-comment">/// &lt;see href=&quot;https://ascomtalk.groups.io/g/Developer/topics&quot;&gt;ASCOM Developers Forum&lt;/see&gt;.</span>
+<span class="vs-code-comment">/// &lt;/remarks&gt;</span>
+<span class="vs-code-keyword">public</span> <span class="vs-code-keyword">enum</span> <span class="vs-code-type">SafetyEventCondition</span>
+{
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The property has fallen below the safety threshold defined for this property.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-comment">/// &lt;remarks&gt;Only for ObservingConditions devices.&lt;/remarks&gt;</span>
+    BelowLimit = 0,
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The property has reached the safety threshold defined for this property.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-comment">/// &lt;remarks&gt;Only for ObservingConditions devices.&lt;/remarks&gt;</span>
+    EqualLimit = 1,
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The property has exceeded the safety threshold defined for this property.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-comment">/// &lt;remarks&gt;Only for ObservingConditions devices.&lt;/remarks&gt;</span>
+    AboveLimit = 2,
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The property is in an unsafe state.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-comment">/// &lt;remarks&gt;Only for SafetyMonitor devices.&lt;/remarks&gt;</span>
+    Unsafe = 3,
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The property has been forced to a specific state or value.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-comment">/// &lt;remarks&gt;For all devices.&lt;/remarks&gt;</span>
+    ForcedToState = 4,
+
+    <span class="vs-code-comment">/// &lt;summary&gt;</span>
+    <span class="vs-code-comment">/// The device is in an error state.</span>
+    <span class="vs-code-comment">/// &lt;/summary&gt;</span>
+    <span class="vs-code-comment">/// &lt;remarks&gt;For all devices.&lt;/remarks&gt;</span>
+    DeviceInErrorState = 5,
+}
+
+<span class="vs-code-comment">/// &lt;summary&gt;</span>
+<span class="vs-code-comment">/// Specifies the types of safety-related environmental events that can be monitored or reported.</span>
+<span class="vs-code-comment">/// &lt;/summary&gt;</span>
+<span class="vs-code-keyword">public</span> <span class="vs-code-keyword">enum</span> <span class="vs-code-type">SafetyEventType</span>
+{
+    CloudCover = 0,
+    DewPoint = 1,
+    Humidity = 2,
+    Pressure = 3,
+    RainRate = 4,
+    SkyBrightness = 5,
+    SkyQuality = 6,
+    SkyTemperature = 7,
+    StarFWHM = 8,
+    Temperature = 9,
+    WindDirection = 10,
+    WindGust = 11,
+    WindSpeed = 12,
+    SafetyIssue = 13,
+    SecurityIssue = 14,
+    PowerIssue = 15,
+    Other = 1000
+}
+
+</code>
+</pre>
+
+<h4 style="margin-top:48px;">Example JSON Response String</h4>
+<pre class="vs-code-block">
+<code>
+[
+    {
+        "EventType":"SkyQuality",
+        "EventCondition":"BelowLimit",
+        "EventSource":"ASCOM Sentinel at My Observatory",
+        "EventMessage":"SkyQuality rule 1 violated: Value 18.50 is less than 21.5.",
+        "EventTimeUtc":"2026-03-28T16:44:14.1717927Z"
+    },
+    {
+        "EventType":"WindGust",
+        "EventCondition":"AboveLimit",
+        "EventSource":"ASCOM Sentinel at My Observatory",
+        "EventMessage":"WindGust rule 1 violated: Value 2.70 is greater than 2.5.",
+        "EventTimeUtc":"2026-03-28T16:44:14.1756336Z"
+    }
+]
+</code>
+</pre>
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+}
