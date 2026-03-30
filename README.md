@@ -6,13 +6,13 @@ This cross-platform application:
     <li>Allows the user to define rules for each virtual device ObservingConditions property that can trigger the virtual safety monitor to report <code>IsSafe</code> as false.</li>
     <li>Provides a draft <code>GetSafetyState</code> SupportedActions / Action that returns a set of reasons for why the safety monitor reports <code>IsSafe</code> as false. See below for details</li>
     <li>Employs caching on virtual device properties to support heavy client loads and protect back-end devices.</li>
-    <li>Provides an optional two-level user / administrator security model to secure the online / offline state and connection / disconnection state of the real devices.</li>
-    <li>Provides a graphical depiction of current observing conditions values.</li>
+    <li>Provides an optional two-level user / administrator security model to support use in community environments.</li>
+    <li>Provides a graphical depiction of current observing conditions values as reported by the virtual device.</li>
 </ul>
 
-**This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.**
+<p style="color:darkorange"><b>This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.</b></p>
 
-**Any feedback on features, usefulness or operation is appreciated, please send this as a GitHub Issue.**
+<p style="color:lightgreen"><b>All feedback on features, usefulness and operation is welcome, please send this as a GitHub Issue.</p>
 
 ## The GetSafetyState Action
 <p>The virtual safety monitor provides a <code>GetSafetyState</code> Action that returns a JSON object as a serialised string.</p>
