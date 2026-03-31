@@ -67,6 +67,8 @@
     }
     <Gauge Legend="Temperature (C)" MinValue="-50.0" MaxValue="50.0" OrangeGreenTransition="10.0" RedOrangeTransition="25.0" Value=@GetDoubleValue(PropertyName.Temperature, 50.0) />
     <Gauge Legend="Humidity (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value=@GetDoubleValue(PropertyName.Humidity, 100.0) />
+    <Gauge Legend="Cloud Cover (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="20" RedOrangeTransition="70" Value=@GetDoubleValue(PropertyName.CloudCover, 100.0) />
+
 </div>
 
 @code {
