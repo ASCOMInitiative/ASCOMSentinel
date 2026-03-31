@@ -29,7 +29,7 @@
 </span>
 <RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Server" Change="(item) => OnTabChanged(item)">
     <Tabs>
-        <RadzenTabsItem Text="Settings">
+        <RadzenTabsItem Text="Application Settings">
             <RadzenTabs style="margin-top:12px" RenderMode="TabRenderMode.Server">
                 <Tabs>
                     <RadzenTabsItem Text="Application">
@@ -197,6 +197,14 @@
                         </div>
                     </RadzenTabsItem>
 
+                    <RadzenTabsItem Text="Display" Visible="@true">
+                        <div class="row" style="margin-top: 12px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color: #479cc8; margin-bottom: 0;">Select safety monitor devices to be aggregated into the composite safety monitor IsSafe property.</h4>
+                            </RadzenCard>
+                        </div>
+                    </RadzenTabsItem>
+
                     <RadzenTabsItem Text="Security">
                         <div class="row" style="margin-top: 12px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px; margin-top: 12px;">
@@ -276,327 +284,332 @@
             </RadzenTabs>
         </RadzenTabsItem>
 
-        <RadzenTabsItem Text="Observing Conditions Display" Visible="@false">
-            <div class="row" style="margin-top: 12px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Select safety monitor devices to be aggregated into the composite safety monitor IsSafe property.</h4>
-                </RadzenCard>
-            </div>
+        <RadzenTabsItem Text="Device Selection">
+            <RadzenTabs style="margin-top:12px" RenderMode="TabRenderMode.Server">
+                <Tabs>
+                    <RadzenTabsItem Text="Composite Observing Conditions Device">
+                        <div class="row" style="margin-top: 12px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color: #479cc8; margin-bottom: 0;">Select devices from the drop-downs to feed each property in the composite device.</h4>
+                                <div style="margin-top:16px;margin-bottom:24px;">
+                                    <span>Discovered Alpaca devices are </span>
+                                    <span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, manually configured Alpaca devices are </span>
+                                    <span style="color:fuchsia;font-weight:bold;">coloured pink</span>
+                                    <span>and COM devices are </span>
+                                    <span style="color:lightseagreen;font-weight:bold;">coloured green</span>
+                                    <span> (Windows only).</span>
+                                </div>
+
+                                <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
+                                <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
+
+                                <DeviceSelection Property="PropertyName.CloudCover"
+                                                 PropertyDescription="Cloud Cover"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.CloudCover)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
+                                <DeviceSelection Property="PropertyName.DewPoint"
+                                                 PropertyDescription="Dew Point"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.DewPoint)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
+                                <DeviceSelection Property="PropertyName.Humidity"
+                                                 PropertyDescription="Humidity"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Humidity)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
+                                <DeviceSelection Property="PropertyName.Pressure"
+                                                 PropertyDescription="Pressure"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Pressure)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
+                                <DeviceSelection Property="PropertyName.RainRate"
+                                                 PropertyDescription="Rain Rate"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.RainRate)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
+                                <DeviceSelection Property="PropertyName.SkyBrightness"
+                                                 PropertyDescription="Sky Brightness"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyBrightness)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
+                                <DeviceSelection Property="PropertyName.SkyQuality"
+                                                 PropertyDescription="Sky Quality"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyQuality)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
+                                <DeviceSelection Property="PropertyName.SkyTemperature"
+                                                 PropertyDescription="Sky Temperature"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyTemperature)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
+                                <DeviceSelection Property="PropertyName.StarFWHM"
+                                                 PropertyDescription="Star FWHM"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.StarFWHM)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
+                                <DeviceSelection Property="PropertyName.Temperature"
+                                                 PropertyDescription="Temperature"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Temperature)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
+                                <DeviceSelection Property="PropertyName.WindDirection"
+                                                 PropertyDescription="Wind Direction"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindDirection)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
+                                <DeviceSelection Property="PropertyName.WindGust"
+                                                 PropertyDescription="Wind Gust"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindGust)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
+                                <DeviceSelection Property="PropertyName.WindSpeed"
+                                                 PropertyDescription="Wind Speed"
+                                                 DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
+                                                 OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindSpeed)"
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
+                            </RadzenCard>
+                        </div>
+                        If a property shows as <span style="color:red;">@Globals.NOT_SET</span>, the composite device will return a not implemented error.
+                    </RadzenTabsItem>
+
+                    <RadzenTabsItem Text="Composite Switch Device" Visible="false">
+                        <div class="row" style="margin-top: 12px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
+                                <div>
+                                    <p />
+                                    <span>Alpaca devices are </span><span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, COM devices are </span><span style="color:lightseagreen;font-weight:bold;">coloured green</span><span> (Windows only).</span>
+                                    <p />
+                                </div>
+                            </RadzenCard>
+                        </div>
+                    </RadzenTabsItem>
+
+                    <RadzenTabsItem Text="Composite Safety Monitor Device">
+                        <div class="row" style="margin-top: 12px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color: #479cc8; margin-bottom: 0;">Select safety monitor devices to be aggregated into the composite safety monitor IsSafe property.</h4>
+                                <div style="margin-top:16px;margin-bottom:24px;">
+                                    <span>Discovered Alpaca devices are </span>
+                                    <span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, manually configured Alpaca devices are </span>
+                                    <span style="color:fuchsia;font-weight:bold;">coloured pink</span>
+                                    <span>and COM devices are </span>
+                                    <span style="color:lightseagreen;font-weight:bold;">coloured green</span>
+                                    <span> (Windows only).</span>
+                                </div>
+
+                                <DeviceSelection Property="PropertyName.SafetyMonitor0"
+                                                 PropertyDescription="Safety monitor 0"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor0]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor0)" />
+
+                                <DeviceSelection Property="PropertyName.SafetyMonitor1"
+                                                 PropertyDescription="Safety monitor 1"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor1]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor1)" />
+                                <DeviceSelection Property="PropertyName.SafetyMonitor2"
+                                                 PropertyDescription="Safety monitor 2"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor2]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor2)" />
+                                <DeviceSelection Property="PropertyName.SafetyMonitor3"
+                                                 PropertyDescription="Safety monitor 3"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor3]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor3)" />
+                                <DeviceSelection Property="PropertyName.SafetyMonitor4"
+                                                 PropertyDescription="Safety monitor 4"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor4]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor4)" />
+                                <DeviceSelection Property="PropertyName.SafetyMonitor5"
+                                                 PropertyDescription="Safety monitor 5"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor5]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor5)" />
+                                <DeviceSelection Property="PropertyName.SafetyMonitor6"
+                                                 PropertyDescription="Safety monitor 6"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor6]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor6)" />
+                                <DeviceSelection Property="PropertyName.SafetyMonitor7"
+                                                 PropertyDescription="Safety monitor 7"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor7]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor7)" />
+                                <DeviceSelection Property="PropertyName.SafetyMonitor8"
+                                                 PropertyDescription="Safety monitor 8"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor8]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor8)" />
+                                <DeviceSelection Property="PropertyName.SafetyMonitor9"
+                                                 PropertyDescription="Safety monitor 9"
+                                                 DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
+                                                 CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor9]"
+                                                 OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor9)" />
+                            </RadzenCard>
+                        </div>
+                        <div>
+                            Remember to check the associated Enabled / Forced rule on the Safety Monitor Rules tab.
+                        </div>
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
         </RadzenTabsItem>
 
-        <RadzenTabsItem Text="Composite Observing Conditions Device">
-            <div class="row" style="margin-top: 12px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Select devices from the drop-downs to feed each property in the composite device.</h4>
-                    <div style="margin-top:16px;margin-bottom:24px;">
-                        <span>Discovered Alpaca devices are </span>
-                        <span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, manually configured Alpaca devices are </span>
-                        <span style="color:fuchsia;font-weight:bold;">coloured pink</span>
-                        <span>and COM devices are </span>
-                        <span style="color:lightseagreen;font-weight:bold;">coloured green</span>
-                        <span> (Windows only).</span>
-                    </div>
+        <RadzenTabsItem Text="Device Rules">
+            <RadzenTabs style="margin-top:12px" RenderMode="TabRenderMode.Server">
+                <Tabs>
+                    <RadzenTabsItem Text="Observing Conditions Rules">
+                        <div class="row" style="margin-top: 12px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color: #479cc8; margin-bottom: 0;">Define observing conditions rules that will trigger the composite Safety Monitor to return IsSafe = false.</h4>
+                                <div style="margin-top:16px;">
+                                    Zero, one or two rules may be enabled for each observing conditions property. The composite safety monitor will return <b>IsSafe = false</b> when <b>ONE or MORE</b> rules are triggered.
+                                </div>
 
-                    <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
-                    <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
+                                <ObservingConditionsRule Property="PropertyName.CloudCover"
+                                                         PropertyDescription="Cloud Cover"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.CloudCover].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.CloudCover].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.CloudCover].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.CloudCover].Value2"
+                                                         Units="Percent" />
+                                <ObservingConditionsRule Property="PropertyName.DewPoint"
+                                                         PropertyDescription="Dew Point"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.DewPoint].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.DewPoint].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.DewPoint].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.DewPoint].Value2"
+                                                         Units="°C" />
+                                <ObservingConditionsRule Property="PropertyName.Humidity"
+                                                         PropertyDescription="Humidity"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.Humidity].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.Humidity].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.Humidity].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.Humidity].Value2"
+                                                         Units="Percent" />
+                                <ObservingConditionsRule Property="PropertyName.Pressure"
+                                                         PropertyDescription="Pressure"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.Pressure].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.Pressure].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.Pressure].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.Pressure].Value2"
+                                                         Units="hPa" />
+                                <ObservingConditionsRule Property="PropertyName.RainRate"
+                                                         PropertyDescription="Rain Rate"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.RainRate].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.RainRate].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.RainRate].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.RainRate].Value2"
+                                                         Units="mm/hr" />
+                                <ObservingConditionsRule Property="PropertyName.SkyBrightness"
+                                                         PropertyDescription="Sky Brightness"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].Value2"
+                                                         Units="Lux" />
+                                <ObservingConditionsRule Property="PropertyName.SkyQuality"
+                                                         PropertyDescription="Sky Quality"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.SkyQuality].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.SkyQuality].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.SkyQuality].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.SkyQuality].Value2"
+                                                         Units="mag/arcsec²" />
+                                <ObservingConditionsRule Property="PropertyName.SkyTemperature"
+                                                         PropertyDescription="Sky Temperature"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].Value2"
+                                                         Units="°C" />
+                                <ObservingConditionsRule Property="PropertyName.StarFWHM"
+                                                         PropertyDescription="Star FWHM"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.StarFWHM].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.StarFWHM].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.StarFWHM].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.StarFWHM].Value2"
+                                                         Units="ArcSec" />
+                                <ObservingConditionsRule Property="PropertyName.Temperature"
+                                                         PropertyDescription="Temperature"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.Temperature].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.Temperature].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.Temperature].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.Temperature].Value2"
+                                                         Units="°C" />
+                                <ObservingConditionsRule Property="PropertyName.WindDirection"
+                                                         PropertyDescription="Wind Direction"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.WindDirection].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.WindDirection].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.WindDirection].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.WindDirection].Value2"
+                                                         Units="Degrees" />
+                                <ObservingConditionsRule Property="PropertyName.WindGust"
+                                                         PropertyDescription="Wind Gust"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.WindGust].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.WindGust].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.WindGust].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.WindGust].Value2"
+                                                         Units="m/s" />
+                                <ObservingConditionsRule Property="PropertyName.WindSpeed"
+                                                         PropertyDescription="Wind Speed"
+                                                         Equality1="settings.ObservingCondtionsRules[PropertyName.WindSpeed].EqualityType1"
+                                                         Value1="settings.ObservingCondtionsRules[PropertyName.WindSpeed].Value1"
+                                                         Equality2="settings.ObservingCondtionsRules[PropertyName.WindSpeed].EqualityType2"
+                                                         Value2="settings.ObservingCondtionsRules[PropertyName.WindSpeed].Value2"
+                                                         Units="m/s" />
+                            </RadzenCard>
+                        </div>
+                    </RadzenTabsItem>
 
-                    <DeviceSelection Property="PropertyName.CloudCover"
-                                     PropertyDescription="Cloud Cover"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.CloudCover)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.CloudCover]" />
-                    <DeviceSelection Property="PropertyName.DewPoint"
-                                     PropertyDescription="Dew Point"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.DewPoint)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.DewPoint]" />
-                    <DeviceSelection Property="PropertyName.Humidity"
-                                     PropertyDescription="Humidity"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Humidity)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.Humidity]" />
-                    <DeviceSelection Property="PropertyName.Pressure"
-                                     PropertyDescription="Pressure"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Pressure)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.Pressure]" />
-                    <DeviceSelection Property="PropertyName.RainRate"
-                                     PropertyDescription="Rain Rate"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.RainRate)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.RainRate]" />
-                    <DeviceSelection Property="PropertyName.SkyBrightness"
-                                     PropertyDescription="Sky Brightness"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyBrightness)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SkyBrightness]" />
-                    <DeviceSelection Property="PropertyName.SkyQuality"
-                                     PropertyDescription="Sky Quality"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyQuality)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SkyQuality]" />
-                    <DeviceSelection Property="PropertyName.SkyTemperature"
-                                     PropertyDescription="Sky Temperature"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.SkyTemperature)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SkyTemperature]" />
-                    <DeviceSelection Property="PropertyName.StarFWHM"
-                                     PropertyDescription="Star FWHM"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.StarFWHM)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.StarFWHM]" />
-                    <DeviceSelection Property="PropertyName.Temperature"
-                                     PropertyDescription="Temperature"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.Temperature)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.Temperature]" />
-                    <DeviceSelection Property="PropertyName.WindDirection"
-                                     PropertyDescription="Wind Direction"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindDirection)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.WindDirection]" />
-                    <DeviceSelection Property="PropertyName.WindGust"
-                                     PropertyDescription="Wind Gust"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindGust)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.WindGust]" />
-                    <DeviceSelection Property="PropertyName.WindSpeed"
-                                     PropertyDescription="Wind Speed"
-                                     DiscoveredDevices=@state.DiscoveredObservingConditionsDevices
-                                     OnDeviceChanged="(device) => OnObservingConditionsDeviceChanged(device, PropertyName.WindSpeed)"
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.WindSpeed]" />
-                </RadzenCard>
-            </div>
-            If a property shows as <span style="color:red;">@Globals.NOT_SET</span>, the composite device will return a not implemented error.
-        </RadzenTabsItem>
+                    <RadzenTabsItem Text="Safety Monitor Rules" Visible="true">
+                        <div class="row" style="margin-top: 12px">
+                            <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
+                                <h4 style="color: #479cc8; margin-bottom: 0;">Safety Monitor Rules</h4>
+                                <div style="margin-top:16px;">
+                                    The composite safety monitor will return <b>IsSafe = false</b> when <b>ANY</b> of these safety monitors return <b>IsSafe = false</b>.
+                                </div>
 
-        <RadzenTabsItem Text="Observing Conditions Rules">
-            <div class="row" style="margin-top: 12px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Define observing conditions rules that will trigger the composite Safety Monitor to return IsSafe = false.</h4>
-                    <div style="margin-top:16px;">
-                        Zero, one or two rules may be enabled for each observing conditions property. The composite safety monitor will return <b>IsSafe = false</b> when <b>ONE or MORE</b> rules are triggered.
-                    </div>
+                                <SafetyMonitorRule Name="Safety Monitor 0"
+                                                   Property="PropertyName.SafetyMonitor0"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor0].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 1"
+                                                   Property="PropertyName.SafetyMonitor1"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor1].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 2"
+                                                   Property="PropertyName.SafetyMonitor2"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor2].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 3"
+                                                   Property="PropertyName.SafetyMonitor3"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor3].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 4"
+                                                   Property="PropertyName.SafetyMonitor4"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor4].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 5"
+                                                   Property="PropertyName.SafetyMonitor5"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor5].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 6"
+                                                   Property="PropertyName.SafetyMonitor6"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor6].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 7"
+                                                   Property="PropertyName.SafetyMonitor7"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor7].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 8"
+                                                   Property="PropertyName.SafetyMonitor8"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor8].DisplayName" />
+                                <SafetyMonitorRule Name="Safety Monitor 9"
+                                                   Property="PropertyName.SafetyMonitor9"
+                                                   Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor9].DisplayName" />
+                            </RadzenCard>
+                        </div>
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
 
-                    <ObservingConditionsRule Property="PropertyName.CloudCover"
-                                             PropertyDescription="Cloud Cover"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.CloudCover].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.CloudCover].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.CloudCover].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.CloudCover].Value2"
-                                             Units="Percent" />
-                    <ObservingConditionsRule Property="PropertyName.DewPoint"
-                                             PropertyDescription="Dew Point"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.DewPoint].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.DewPoint].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.DewPoint].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.DewPoint].Value2"
-                                             Units="°C" />
-                    <ObservingConditionsRule Property="PropertyName.Humidity"
-                                             PropertyDescription="Humidity"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.Humidity].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.Humidity].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.Humidity].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.Humidity].Value2"
-                                             Units="Percent" />
-                    <ObservingConditionsRule Property="PropertyName.Pressure"
-                                             PropertyDescription="Pressure"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.Pressure].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.Pressure].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.Pressure].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.Pressure].Value2"
-                                             Units="hPa" />
-                    <ObservingConditionsRule Property="PropertyName.RainRate"
-                                             PropertyDescription="Rain Rate"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.RainRate].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.RainRate].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.RainRate].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.RainRate].Value2"
-                                             Units="mm/hr" />
-                    <ObservingConditionsRule Property="PropertyName.SkyBrightness"
-                                             PropertyDescription="Sky Brightness"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.SkyBrightness].Value2"
-                                             Units="Lux" />
-                    <ObservingConditionsRule Property="PropertyName.SkyQuality"
-                                             PropertyDescription="Sky Quality"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.SkyQuality].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.SkyQuality].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.SkyQuality].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.SkyQuality].Value2"
-                                             Units="mag/arcsec²" />
-                    <ObservingConditionsRule Property="PropertyName.SkyTemperature"
-                                             PropertyDescription="Sky Temperature"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.SkyTemperature].Value2"
-                                             Units="°C" />
-                    <ObservingConditionsRule Property="PropertyName.StarFWHM"
-                                             PropertyDescription="Star FWHM"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.StarFWHM].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.StarFWHM].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.StarFWHM].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.StarFWHM].Value2"
-                                             Units="ArcSec" />
-                    <ObservingConditionsRule Property="PropertyName.Temperature"
-                                             PropertyDescription="Temperature"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.Temperature].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.Temperature].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.Temperature].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.Temperature].Value2"
-                                             Units="°C" />
-                    <ObservingConditionsRule Property="PropertyName.WindDirection"
-                                             PropertyDescription="Wind Direction"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.WindDirection].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.WindDirection].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.WindDirection].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.WindDirection].Value2"
-                                             Units="Degrees" />
-                    <ObservingConditionsRule Property="PropertyName.WindGust"
-                                             PropertyDescription="Wind Gust"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.WindGust].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.WindGust].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.WindGust].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.WindGust].Value2"
-                                             Units="m/s" />
-                    <ObservingConditionsRule Property="PropertyName.WindSpeed"
-                                             PropertyDescription="Wind Speed"
-                                             Equality1="settings.ObservingCondtionsRules[PropertyName.WindSpeed].EqualityType1"
-                                             Value1="settings.ObservingCondtionsRules[PropertyName.WindSpeed].Value1"
-                                             Equality2="settings.ObservingCondtionsRules[PropertyName.WindSpeed].EqualityType2"
-                                             Value2="settings.ObservingCondtionsRules[PropertyName.WindSpeed].Value2"
-                                             Units="m/s" />
-                </RadzenCard>
-            </div>
-        </RadzenTabsItem>
-
-        <RadzenTabsItem Text="Composite Switch Device" Visible="false">
-            <div class="row" style="margin-top: 12px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Test Scope</h4>
-                    <div>
-                        <p />
-                        <span>Alpaca devices are </span><span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, COM devices are </span><span style="color:lightseagreen;font-weight:bold;">coloured green</span><span> (Windows only).</span>
-                        <p />
-                    </div>
-                </RadzenCard>
-            </div>
-        </RadzenTabsItem>
-
-        <RadzenTabsItem Text="Composite Safety Monitor Device">
-            <div class="row" style="margin-top: 12px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Select safety monitor devices to be aggregated into the composite safety monitor IsSafe property.</h4>
-                    <div style="margin-top:16px;margin-bottom:24px;">
-                        <span>Discovered Alpaca devices are </span>
-                        <span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, manually configured Alpaca devices are </span>
-                        <span style="color:fuchsia;font-weight:bold;">coloured pink</span>
-                        <span>and COM devices are </span>
-                        <span style="color:lightseagreen;font-weight:bold;">coloured green</span>
-                        <span> (Windows only).</span>
-                    </div>
-
-                    <DeviceSelection Property="PropertyName.SafetyMonitor0"
-                                     PropertyDescription="Safety monitor 0"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor0]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor0)" />
-
-                    <DeviceSelection Property="PropertyName.SafetyMonitor1"
-                                     PropertyDescription="Safety monitor 1"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor1]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor1)" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor2"
-                                     PropertyDescription="Safety monitor 2"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor2]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor2)" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor3"
-                                     PropertyDescription="Safety monitor 3"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor3]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor3)" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor4"
-                                     PropertyDescription="Safety monitor 4"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor4]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor4)" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor5"
-                                     PropertyDescription="Safety monitor 5"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor5]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor5)" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor6"
-                                     PropertyDescription="Safety monitor 6"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor6]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor6)" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor7"
-                                     PropertyDescription="Safety monitor 7"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor7]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor7)" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor8"
-                                     PropertyDescription="Safety monitor 8"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor8]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor8)" />
-                    <DeviceSelection Property="PropertyName.SafetyMonitor9"
-                                     PropertyDescription="Safety monitor 9"
-                                     DiscoveredDevices=@state.DiscoveredSafetyMonitorDevices
-                                     CurrentValue="settings.ConfiguredDevices[PropertyName.SafetyMonitor9]"
-                                     OnDeviceChanged="async (device) => await OnSafetyMonitorDeviceChanged(device, PropertyName.SafetyMonitor9)" />
-                </RadzenCard>
-            </div>
-            <div>
-                Remember to check the associated Enabled / Forced rule on the Safety Monitor Rules tab.
-            </div>
-        </RadzenTabsItem>
-
-        <RadzenTabsItem Text="Safety Monitor Rules" Visible="true">
-            <div class="row" style="margin-top: 12px">
-                <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                    <h4 style="color: #479cc8; margin-bottom: 0;">Safety Monitor Rules</h4>
-                    <div style="margin-top:16px;">
-                        The composite safety monitor will return <b>IsSafe = false</b> when <b>ANY</b> of these safety monitors return <b>IsSafe = false</b>.
-                    </div>
-
-                    <SafetyMonitorRule Name="Safety Monitor 0"
-                                       Property="PropertyName.SafetyMonitor0"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor0].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 1"
-                                       Property="PropertyName.SafetyMonitor1"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor1].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 2"
-                                       Property="PropertyName.SafetyMonitor2"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor2].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 3"
-                                       Property="PropertyName.SafetyMonitor3"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor3].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 4"
-                                       Property="PropertyName.SafetyMonitor4"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor4].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 5"
-                                       Property="PropertyName.SafetyMonitor5"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor5].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 6"
-                                       Property="PropertyName.SafetyMonitor6"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor6].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 7"
-                                       Property="PropertyName.SafetyMonitor7"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor7].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 8"
-                                       Property="PropertyName.SafetyMonitor8"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor8].DisplayName" />
-                    <SafetyMonitorRule Name="Safety Monitor 9"
-                                       Property="PropertyName.SafetyMonitor9"
-                                       Description="@settings.ConfiguredDevices[PropertyName.SafetyMonitor9].DisplayName" />
-                </RadzenCard>
-            </div>
         </RadzenTabsItem>
     </Tabs>
 </RadzenTabs>
@@ -913,39 +926,39 @@
             // Lock the discovered device lists while repopulating them
             lock (state.DiscoveredDevicesLock)
             {
-            // Clear the discovered devices lists
-            state.DiscoveredObservingConditionsDevices.Clear();
-            state.DiscoveredSafetyMonitorDevices.Clear();
+                // Clear the discovered devices lists
+                state.DiscoveredObservingConditionsDevices.Clear();
+                state.DiscoveredSafetyMonitorDevices.Clear();
 
-            // Add not configured and manual configuration observing conditions list entries.
-            state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice());
-            state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManualObservingConditions });
+                // Add not configured and manual configuration observing conditions list entries.
+                state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice());
+                state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManualObservingConditions });
 
-            // Add all manually configured observing conditions devices to the list
-            List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
-                .Where(d => (d.SentinelDeviceType == SentinelDeviceType.ObservingConditions) || (d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions))
-                .DistinctBy(d => (d.DisplayName, d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
+                // Add all manually configured observing conditions devices to the list
+                List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
+                    .Where(d => (d.SentinelDeviceType == SentinelDeviceType.ObservingConditions) || (d.SentinelDeviceType == SentinelDeviceType.ManualObservingConditions))
+                    .DistinctBy(d => (d.DisplayName, d.SentinelDeviceType, d.ComProgID, d.IpAddress, d.PortNumber, d.RemoteDeviceNumber)).ToList();
 
-            state.DiscoveredObservingConditionsDevices.AddRange(uniqueObservingConditionsDevices);
+                state.DiscoveredObservingConditionsDevices.AddRange(uniqueObservingConditionsDevices);
 
-            // Add not configured and manual configuration safety monitor list entries.
-            state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice());
-            state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManualSafetyMonitor });
+                // Add not configured and manual configuration safety monitor list entries.
+                state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice());
+                state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManualSafetyMonitor });
 
-            // Add all manually configured safety monitor devices to the list
-            foreach (PropertyName propertyName in Globals.SafetyMonitorNames)
-            {
-                // Only include manual configured devices that have actually been configured
-                if ((settings.ConfiguredDevices[propertyName].Protocol != Protocol.NotConfigured) && (settings.ConfiguredDevices[propertyName].SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor))
+                // Add all manually configured safety monitor devices to the list
+                foreach (PropertyName propertyName in Globals.SafetyMonitorNames)
                 {
-                    state.DiscoveredSafetyMonitorDevices.Add(settings.ConfiguredDevices[propertyName]);
+                    // Only include manual configured devices that have actually been configured
+                    if ((settings.ConfiguredDevices[propertyName].Protocol != Protocol.NotConfigured) && (settings.ConfiguredDevices[propertyName].SentinelDeviceType == SentinelDeviceType.ManualSafetyMonitor))
+                    {
+                        state.DiscoveredSafetyMonitorDevices.Add(settings.ConfiguredDevices[propertyName]);
+                    }
                 }
-            }
 
-            ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
-            observingConditionsDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
-            switchDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.Switch);
-            safetyMonitorDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
+                ArgumentNullException.ThrowIfNull(discovery, "Alpaca discovery component");
+                observingConditionsDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.ObservingConditions);
+                switchDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.Switch);
+                safetyMonitorDevicesAlpaca = discovery.GetAscomDevices(DeviceTypes.SafetyMonitor);
 
 #if WINDOWS
     foreach (ASCOM.Com.ASCOMRegistration driver in ASCOM.Com.Profile.GetDrivers(DeviceTypes.Switch))
@@ -963,24 +976,24 @@
     }
 #endif
 
-            // Add discovered observing conditions Alpaca devices
-            foreach (AscomDevice device in observingConditionsDevicesAlpaca)
-            {
-                // Exclude our observing conditions device from the list
-                if (device.AscomDeviceName != $"{Globals.OBSERVING_CONDITIONS_NAME} ({settings.Location})")
+                // Add discovered observing conditions Alpaca devices
+                foreach (AscomDevice device in observingConditionsDevicesAlpaca)
                 {
-                    logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-                    state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
+                    // Exclude our observing conditions device from the list
+                    if (device.AscomDeviceName != $"{Globals.OBSERVING_CONDITIONS_NAME} ({settings.Location})")
                     {
-                        SentinelDeviceType = SentinelDeviceType.ObservingConditions,
-                        Protocol = Protocol.Alpaca,
-                        Name = device.AscomDeviceName,
-                        IpAddress = device.IpAddress,
-                        PortNumber = device.IpPort,
-                        RemoteDeviceNumber = device.AlpacaDeviceNumber
-                    });
+                        logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
+                        state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
+                        {
+                            SentinelDeviceType = SentinelDeviceType.ObservingConditions,
+                            Protocol = Protocol.Alpaca,
+                            Name = device.AscomDeviceName,
+                            IpAddress = device.IpAddress,
+                            PortNumber = device.IpPort,
+                            RemoteDeviceNumber = device.AlpacaDeviceNumber
+                        });
+                    }
                 }
-            }
 
 #if WINDOWS
     foreach (ASCOM.Com.ASCOMRegistration device in ObservingConditionsDevicesCom)
@@ -995,29 +1008,29 @@
     }
 #endif
 
-            foreach (DiscoveredDevice device in state.DiscoveredObservingConditionsDevices)
-            {
-                if (device.SentinelDeviceType != SentinelDeviceType.NotSet)
-                    logger.LogMessage("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
-            }
-
-            // Add discovered safety monitor Alpaca devices
-            foreach (AscomDevice device in safetyMonitorDevicesAlpaca)
-            {
-                // Exclude our safety monitor device from the list
-                if (device.AscomDeviceName != $"{Globals.SAFETY_MONITOR_NAME} ({settings.Location})")
+                foreach (DiscoveredDevice device in state.DiscoveredObservingConditionsDevices)
                 {
-                    logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
-                    state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
-                    {
-                        Protocol = Protocol.Alpaca,
-                        SentinelDeviceType = SentinelDeviceType.SafetyMonitor,
-                        Name = device.AscomDeviceName,
-                        IpAddress = device.IpAddress,
-                        PortNumber = device.IpPort
-                    });
+                    if (device.SentinelDeviceType != SentinelDeviceType.NotSet)
+                        logger.LogMessage("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
                 }
-            }
+
+                // Add discovered safety monitor Alpaca devices
+                foreach (AscomDevice device in safetyMonitorDevicesAlpaca)
+                {
+                    // Exclude our safety monitor device from the list
+                    if (device.AscomDeviceName != $"{Globals.SAFETY_MONITOR_NAME} ({settings.Location})")
+                    {
+                        logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
+                        state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
+                        {
+                            Protocol = Protocol.Alpaca,
+                            SentinelDeviceType = SentinelDeviceType.SafetyMonitor,
+                            Name = device.AscomDeviceName,
+                            IpAddress = device.IpAddress,
+                            PortNumber = device.IpPort
+                        });
+                    }
+                }
 
 #if WINDOWS
     foreach (ASCOM.Com.ASCOMRegistration device in SafetyMonitorDevicesCom)
@@ -1033,16 +1046,16 @@
     }
 
 #endif
-            foreach (DiscoveredDevice device in state.DiscoveredSafetyMonitorDevices)
-            {
-                if (device.SentinelDeviceType != SentinelDeviceType.NotSet)
-                    logger.LogMessage("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
-            }
+                foreach (DiscoveredDevice device in state.DiscoveredSafetyMonitorDevices)
+                {
+                    if (device.SentinelDeviceType != SentinelDeviceType.NotSet)
+                        logger.LogMessage("", $"Discovered device: {device.SentinelDeviceType} {device.Name} ({device.Protocol} DisplayName: '{device.DisplayName}')");
+                }
 
-            logger.LogMessage("", $"Discovery complete.");
+                logger.LogMessage("", $"Discovery complete.");
 
-            // Sort all devices into order
-            State.SortDiscoveredDevices(state, SortByDevice.All);
+                // Sort all devices into order
+                State.SortDiscoveredDevices(state, SortByDevice.All);
             }
 
             state.StatusText = "Discovery completed";
