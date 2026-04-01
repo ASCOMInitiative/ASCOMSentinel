@@ -16,59 +16,20 @@
 
 <h1>@Globals.APPLICATION_NAME</h1>
 
-<RadzenMediaQuery Query="(max-width: 1330px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials2, matches)) />
-<RadzenMediaQuery Query="(min-width: 1331px) and (max-width: 1650px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials3, matches)) />
-<RadzenMediaQuery Query="(min-width: 1651px) and (max-width: 1975px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials4, matches)) />
-<RadzenMediaQuery Query="(min-width: 1976px) and (max-width: 2300px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials5, matches)) />
-<RadzenMediaQuery Query="(min-width: 2301px)" Change=@(matches => WindowWidthChanged(WindowSize.Dials6, matches)) />
-
-<div>
+<div style="display: flex; flex-wrap: wrap;">
     <Gauge Legend="Wind Speed (mi/h)" MinValue="0" MaxValue="20" OrangeGreenTransition="5" RedOrangeTransition="15" Value=@GetDoubleValue(PropertyName.WindSpeed, 20.0) />
     <Gauge Legend="Wind Gust (mi/h)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value=@GetDoubleValue(PropertyName.WindGust, 100.0) />
-    @if (currentWindowSize == WindowSize.Dials2)
-    {
-        <br />
-    }
     <Compass Value=@GetDoubleValue(PropertyName.WindDirection, 0.0) />
-    @if (currentWindowSize == WindowSize.Dials3)
-    {
-        <br />
-    }
     <Gauge Legend="Rain Rate (mm/h)" MinValue="0" MaxValue="50" OrangeGreenTransition="1" RedOrangeTransition="5" Value=@GetDoubleValue(PropertyName.RainRate, 50.0) />
-    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
-    {
-        <br />
-    }
     <Gauge Legend="Sky Brightness (Lux)" MinValue="0" MaxValue="100" OrangeGreenTransition="1" RedOrangeTransition="10" Value=@GetDoubleValue(PropertyName.SkyBrightness, 100.0) />
-    @if (currentWindowSize == WindowSize.Dials5)
-    {
-        <br />
-    }
     <Gauge Legend="Sky Quality (mag/arcsec2)" MinValue="10" MaxValue="25" OrangeGreenTransition="21.3" RedOrangeTransition="19" Value=@GetDoubleValue(PropertyName.SkyQuality, 25.0) Reverse=true />
-    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials3) | (currentWindowSize == WindowSize.Dials6))
-    {
-        <br />
-    }
     <Gauge Legend="FWHM (arc-sec)" MinValue="0" MaxValue="5" OrangeGreenTransition="1" RedOrangeTransition="2" Value=@GetDoubleValue(PropertyName.StarFWHM, 5.0) />
     <Gauge Legend="Sky Temperature (C)" MinValue="-70" MaxValue="20" OrangeGreenTransition="-20" RedOrangeTransition="0" Value=@GetDoubleValue(PropertyName.SkyTemperature, 20.0) />
-    @if ((currentWindowSize == WindowSize.Dials2) | (currentWindowSize == WindowSize.Dials4))
-    {
-        <br />
-    }
     <Gauge Legend="Dew Point (C)" MinValue="-30" MaxValue="25" OrangeGreenTransition="5" RedOrangeTransition="15" Value=@GetDoubleValue(PropertyName.DewPoint, 25.0) />
-    @if (currentWindowSize == WindowSize.Dials3)
-    {
-        <br />
-    }
     <Gauge Legend="Pressure (hPa)" MinValue="950" MaxValue="1050" OrangeGreenTransition="1060" RedOrangeTransition="1060" Value=@GetDoubleValue(PropertyName.Pressure, 1050.0) />
-    @if (currentWindowSize == WindowSize.Dials5)
-    {
-        <br />
-    }
     <Gauge Legend="Temperature (C)" MinValue="-50.0" MaxValue="50.0" OrangeGreenTransition="10.0" RedOrangeTransition="25.0" Value=@GetDoubleValue(PropertyName.Temperature, 50.0) />
     <Gauge Legend="Humidity (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="100" RedOrangeTransition="100" Value=@GetDoubleValue(PropertyName.Humidity, 100.0) />
     <Gauge Legend="Cloud Cover (%)" MinValue="0" MaxValue="100" OrangeGreenTransition="20" RedOrangeTransition="70" Value=@GetDoubleValue(PropertyName.CloudCover, 100.0) />
-
 </div>
 
 @code {
@@ -140,31 +101,4 @@
     }
 
 
-    #region Windows Size
-
-    enum WindowSize
-    {
-        Dials2,
-        Dials3,
-        Dials4,
-        Dials5,
-        Dials6
     }
-
-    WindowSize currentWindowSize = WindowSize.Dials6;
-
-    void WindowWidthChanged(WindowSize windowSize, bool matches)
-    {
-        if (matches)
-        {
-            currentWindowSize = windowSize;
-            StateHasChanged();
-        }
-        else
-        {
-        }
-    }
-
-    #endregion
-
-}
