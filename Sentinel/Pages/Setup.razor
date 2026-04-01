@@ -200,7 +200,52 @@
                     <RadzenTabsItem Text="Display" Visible="@true">
                         <div class="row" style="margin-top: 12px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                                <h4 style="color: cornflowerblue; margin-bottom: 0;">Configure Display Limits.</h4>
+                                <h4 style="color: cornflowerblue; margin-bottom: 12px;">Configure Display Gauge Limits.</h4>
+                                <div>
+                                    <b>
+                                        <span style="display:flex; gap:22px; align-items:center;">
+                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:left;">
+                                                Property
+                                            </div>
+                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;">
+                                                Minimum
+                                            </div>
+                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;">
+                                                Maximum
+                                            </div>
+                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;text-align:center;">
+                                                Green - Orange Transition
+                                            </div>
+                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;text-align:center;">
+                                                Orange - Red Transition
+                                            </div>
+                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;text-align:center;">
+                                                Number of Segments
+                                            </div>
+                                        </span>
+                                    </b>
+                                </div>
+                                <GaugeSettings Property=@PropertyName.CloudCover Configuration="@settings.GaugeSettings[PropertyName.CloudCover]" />
+                                <GaugeSettings Property=@PropertyName.DewPoint Configuration="@settings.GaugeSettings[PropertyName.DewPoint]" />
+                                <GaugeSettings Property=@PropertyName.Humidity Configuration="@settings.GaugeSettings[PropertyName.Humidity]" />
+                                <GaugeSettings Property=@PropertyName.Pressure Configuration="@settings.GaugeSettings[PropertyName.Pressure]" />
+                                <GaugeSettings Property=@PropertyName.RainRate Configuration="@settings.GaugeSettings[PropertyName.RainRate]" />
+                                <GaugeSettings Property=@PropertyName.SkyBrightness Configuration="@settings.GaugeSettings[PropertyName.SkyBrightness]" />
+                                <GaugeSettings Property=@PropertyName.SkyQuality Configuration="@settings.GaugeSettings[PropertyName.SkyQuality]" />
+                                <GaugeSettings Property=@PropertyName.SkyTemperature Configuration="@settings.GaugeSettings[PropertyName.SkyTemperature]" />
+                                <GaugeSettings Property=@PropertyName.StarFWHM Configuration="@settings.GaugeSettings[PropertyName.StarFWHM]" />
+                                <GaugeSettings Property=@PropertyName.Temperature Configuration="@settings.GaugeSettings[PropertyName.Temperature]" />
+                                <GaugeSettings Property=@PropertyName.WindSpeed Configuration="@settings.GaugeSettings[PropertyName.WindSpeed]" />
+                                <GaugeSettings Property=@PropertyName.WindGust Configuration="@settings.GaugeSettings[PropertyName.WindGust]" />
+                                <div style="margin-top:12px;">
+                                    <h4 style="color: cornflowerblue;" >Notes</h4>
+                                    <ul>
+                                        <li>All gauges have units that increase clockwise from left to right, the wind direction compass cannot be configured.</li>
+                                        <li>When the green-orange transition value is less than the orange-red transition value, the clockwise segment colour order is green => orange => red.</li>
+                                        <li>When the green-orange transition value is greater than the orange-red transition value, the clockwise segment colour order is red => orange => green.</li>
+                                        <li>To create an all-green gauge, set both transition values to the maximum value.</li>
+                                    </ul>
+                                </div>
                             </RadzenCard>
                         </div>
                     </RadzenTabsItem>

@@ -1,8 +1,8 @@
 ﻿@namespace Sentinel.Components
 
 <span>
-    <RadzenRadialGauge Style="width: 320px; height: 320px;">
-        <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step=@Step Min=@Configuration.Minimum Max=@AbsoluteMaximumValue TickPosition=GaugeTickPosition.Inside MinorStep="@MinorStep" MinorTickLength=9 TickLength=13>
+    <RadzenRadialGauge Style="width: 320px; height: 320px;" class="sentinel-gauge">
+        <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step="@Step()" Min="@Configuration.Minimum" Max="@AbsoluteMaximumValue" TickPosition=GaugeTickPosition.Inside MinorStep="@MinorStep()" MinorTickLength=9 TickLength=13>
             <RadzenRadialGaugeScalePointer Value=@Value Length="0.7" ShowValue=true Fill="dimgray">
                 <Template Context="pointer">
                     <RadzenStack AlignItems="AlignItems.Center" Gap="0" class="rz-mt-4">
@@ -44,24 +44,23 @@
     {
         get
         {
-            return Math.Max(Configuration.Maximum, Value);
+            double retval = Math.Max(Configuration.Maximum, Value);
+
+            return retval;
         }
     }
 
-    private double Step
+    private double Step()
     {
-        get
-        {
-            return Math.Max(1, (AbsoluteMaximumValue - Configuration.Minimum) / 10);
-        }
+        double retval = (AbsoluteMaximumValue - Configuration.Minimum) / Configuration.MajorSegments;
+
+        return retval;
     }
 
-    private double MinorStep
+    private double MinorStep()
     {
-        get
-        {
-            return Math.Max(0.1, Step / 5);
-        }
+        double retval = Math.Max(0.1, Step() / 5);
+        return retval;
     }
 
     #endregion

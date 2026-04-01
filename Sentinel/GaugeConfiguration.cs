@@ -8,24 +8,30 @@
 
         #region Initialisers
 
-        public GaugeConfiguration(double minimum, double maximum, double greenOrangeTransition, double orangeRedTransition)
+        public GaugeConfiguration(PropertyName propertyName, double minimum, double maximum, double greenOrangeTransition, double orangeRedTransition, int majorSegments)
         {
+            PropertyName = propertyName;
             Minimum = minimum;
             Maximum = maximum;
             GreenOrangeTransition = greenOrangeTransition;
             OrangeRedTransition = orangeRedTransition;
+            MajorSegments = majorSegments;
         }
 
         public GaugeConfiguration()
         {
         }
 
-        #endregion
+        #endregion  
+
+        public PropertyName PropertyName { get; set; } = PropertyName.WindDirection;
 
         public double Minimum { get; set; }
         public double Maximum { get; set; }
         public double GreenOrangeTransition { get; set; }
         public double OrangeRedTransition { get; set; }
+
+        public int MajorSegments { get; set; } = 10;
 
     }
 }

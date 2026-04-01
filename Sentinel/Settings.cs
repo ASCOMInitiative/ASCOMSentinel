@@ -284,19 +284,19 @@ namespace Sentinel
 
         public Dictionary<PropertyName, GaugeConfiguration> GaugeSettings { get; set; } = new()
         {
-            { PropertyName.CloudCover, new GaugeConfiguration(0, 100, 20, 70) },
-            { PropertyName.DewPoint, new GaugeConfiguration(-30, 25, 5, 15) },
-            { PropertyName.Humidity, new GaugeConfiguration(0, 100, 100, 100) },
-            { PropertyName.Pressure, new GaugeConfiguration(950, 1050, 1060, 1060) },
-            { PropertyName.RainRate, new GaugeConfiguration(0, 50, 1, 5) },
-            { PropertyName.SkyBrightness, new GaugeConfiguration(0, 100, 1, 10) },
-            { PropertyName.SkyQuality, new GaugeConfiguration(10, 25, 21.3, 19) },
-            { PropertyName.SkyTemperature, new GaugeConfiguration(-70, 20, -20, 0) },
-            { PropertyName.StarFWHM, new GaugeConfiguration(0, 5, 1, 2) },
-            { PropertyName.Temperature, new GaugeConfiguration(-50, 50, 10, 25) },
+            { PropertyName.CloudCover, new GaugeConfiguration(PropertyName.CloudCover, 0, 100, 20, 70, 10) },
+            { PropertyName.DewPoint, new GaugeConfiguration(PropertyName.DewPoint,-30, 30, 5, 15, 12) },
+            { PropertyName.Humidity, new GaugeConfiguration(PropertyName.Humidity,0, 100, 100, 100, 10) },
+            { PropertyName.Pressure, new GaugeConfiguration(PropertyName.Pressure, 950, 1050, 1060, 1060, 10) },
+            { PropertyName.RainRate, new GaugeConfiguration(PropertyName.RainRate, 0, 50, 1, 5, 10) },
+            { PropertyName.SkyBrightness, new GaugeConfiguration(PropertyName.SkyBrightness, 0, 100, 1, 10, 10) },
+            { PropertyName.SkyQuality, new GaugeConfiguration(PropertyName.SkyQuality, 12, 24, 21.3, 19, 6) },
+            { PropertyName.SkyTemperature, new GaugeConfiguration(PropertyName.SkyTemperature, -70, 20, -20, 0, 9) },
+            { PropertyName.StarFWHM, new GaugeConfiguration(PropertyName.StarFWHM, 0, 5, 1, 2 ,10) },
+            { PropertyName.Temperature, new GaugeConfiguration(PropertyName.Temperature, -50, 50, 10, 25, 10) },
             { PropertyName.WindDirection, new GaugeConfiguration() },
-            { PropertyName.WindGust, new GaugeConfiguration(0, 100, 100, 100) },
-            { PropertyName.WindSpeed, new GaugeConfiguration(0, 20, 5, 15) }
+            { PropertyName.WindGust, new GaugeConfiguration(PropertyName.WindGust, 0, 100, 10, 30, 10) },
+            { PropertyName.WindSpeed, new GaugeConfiguration(PropertyName.WindSpeed, 0, 50, 5, 15, 10) }
         };
 
         public bool LogDiscoveryMessages { get; set; } = true;

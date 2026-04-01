@@ -1,7 +1,6 @@
 ﻿using ASCOM;
 using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
-using Microsoft.OpenApi.Any;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text.Json;

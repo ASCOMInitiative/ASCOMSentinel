@@ -1,0 +1,86 @@
+﻿@namespace Sentinel.Components
+
+@inject Settings settings
+
+<div style="margin-top:8px;">
+    <span style="min-width:164px;display:inline-block;"><b>@(Property.ToString())</b></span>
+
+    <span style="margin-left:0px">
+        <RadzenNumeric @bind-Value="_minimum"
+                       TValue="double"
+                       Step="1"
+                       Style="width:120px; border:1px solid DarkGrey;"
+                       TextAlign="TextAlign.Right"
+                       ShowUpDown="true" />
+    </span>
+    <span style="margin-left:40px">
+        <RadzenNumeric @bind-Value="_maximum"
+                       TValue="double"
+                       Step="1"
+                       Style="width:120px; border:1px solid DarkGrey;"
+                       TextAlign="TextAlign.Right"
+                       ShowUpDown="true" />
+    </span>
+    <span style="margin-left:40px">
+        <RadzenNumeric @bind-Value="_greenOrangeTransition"
+                       TValue="double"
+                       Step="1"
+                       Style="width:120px; border:1px solid DarkGrey;"
+                       TextAlign="TextAlign.Right"
+                       ShowUpDown="true" />
+    </span>
+    <span style="margin-left:40px">
+        <RadzenNumeric @bind-Value="_orangeRedTransition"
+                       TValue="double"
+                       Step="1"
+                       Style="width:120px; border:1px solid DarkGrey;"
+                       TextAlign="TextAlign.Right"
+                       ShowUpDown="true" />
+    </span>
+    <span style="margin-left:40px">
+        <RadzenNumeric @bind-Value="_numberOfSegments"
+                       TValue="int"
+                       Step="1"
+                       Style="width:120px; border:1px solid DarkGrey;"
+                       TextAlign="TextAlign.Right"
+                       ShowUpDown="true" />
+    </span>
+    <span style="margin-left:24px">
+        <SentinelButton Text="Set Values" Click="@SetValues" />
+    </span>
+</div>
+
+@code
+{
+    [Parameter]
+    public PropertyName Property { get; set; } = PropertyName.CloudCover;
+
+    [Parameter]
+    public GaugeConfiguration Configuration { get; set; } = new();
+
+    private double _minimum;
+    private double _maximum;
+    private double _greenOrangeTransition;
+    private double _orangeRedTransition;
+    private int _numberOfSegments = 10;
+
+    protected override void OnParametersSet()
+    {
+        _minimum = Configuration.Minimum;
+        _maximum = Configuration.Maximum;
+        _greenOrangeTransition = Configuration.GreenOrangeTransition;
+        _orangeRedTransition = Configuration.OrangeRedTransition;
+        _numberOfSegments = Configuration.MajorSegments;
+    }
+
+    private void SetValues()
+    {
+        Configuration.Minimum = _minimum;
+        Configuration.Maximum = _maximum;
+        Configuration.GreenOrangeTransition = _greenOrangeTransition;
+        Configuration.OrangeRedTransition = _orangeRedTransition;
+        Configuration.MajorSegments = _numberOfSegments;
+
+        settings.Save();
+    }
+}

@@ -109,6 +109,7 @@ fieldset legend {
     --rz-dropdown-item-hover-background-color: #fcfcfc;
     --rz-dropdown-item-selected-background-color: #f0f0f0;
     --rz-dropdown-item-selected-hover-background-color: #f0f0f0;
+    --rz-gauge-scale-color:grey;
 }
 
 /* Normal item background (not covered by a Radzen variable) */
