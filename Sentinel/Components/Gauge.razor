@@ -11,13 +11,14 @@
                     </RadzenStack>
                 </Template>
             </RadzenRadialGaugeScalePointer>
-            @if (Reverse)
+            @* Colour the scale *@
+            @if (OrangeGreenTransition > RedOrangeTransition) // Red at left, green at right
             {
                 <RadzenRadialGaugeScaleRange From=@MinValue To=@RedOrangeTransition Fill="red" />
                 <RadzenRadialGaugeScaleRange From=@RedOrangeTransition To=@OrangeGreenTransition Fill="orange" />
                 <RadzenRadialGaugeScaleRange From=OrangeGreenTransition To=@AbsoluteMaxValue Fill="green" />
             }
-            else
+            else // Green at left, red at right
             {
                 <RadzenRadialGaugeScaleRange From="@MinValue" To=@OrangeGreenTransition Fill="green" />
                 <RadzenRadialGaugeScaleRange From=@OrangeGreenTransition To=@RedOrangeTransition Fill="orange" />
@@ -28,6 +29,9 @@
 </span>
 @code
 {
+    [Parameter]
+    public GaugeConfiguration GaugeConfiguration { get; set; } = new GaugeConfiguration();
+
     [Parameter]
     public bool Reverse { get; set; } = false;
 
