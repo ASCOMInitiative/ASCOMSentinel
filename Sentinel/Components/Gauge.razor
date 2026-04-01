@@ -2,7 +2,7 @@
 
 <span>
     <RadzenRadialGauge Style="width: 320px; height: 320px;">
-        <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step=@Step Min=@MinValue Max=@AbsoluteMaxValue TickPosition=GaugeTickPosition.Inside MinorStep="@MinorStep" MinorTickLength=9 TickLength=13>
+        <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step=@Step Min=@Configuration.Minimum Max=@AbsoluteMaximumValue TickPosition=GaugeTickPosition.Inside MinorStep="@MinorStep" MinorTickLength=9 TickLength=13>
             <RadzenRadialGaugeScalePointer Value=@Value Length="0.7" ShowValue=true Fill="dimgray">
                 <Template Context="pointer">
                     <RadzenStack AlignItems="AlignItems.Center" Gap="0" class="rz-mt-4">
@@ -12,17 +12,17 @@
                 </Template>
             </RadzenRadialGaugeScalePointer>
             @* Colour the scale *@
-            @if (OrangeGreenTransition > RedOrangeTransition) // Red at left, green at right
+            @if (Configuration.GreenOrangeTransition > Configuration.OrangeRedTransition) // Red at left, green at right
             {
-                <RadzenRadialGaugeScaleRange From=@MinValue To=@RedOrangeTransition Fill="red" />
-                <RadzenRadialGaugeScaleRange From=@RedOrangeTransition To=@OrangeGreenTransition Fill="orange" />
-                <RadzenRadialGaugeScaleRange From=OrangeGreenTransition To=@AbsoluteMaxValue Fill="green" />
+                <RadzenRadialGaugeScaleRange From=@Configuration.Minimum To=@Configuration.OrangeRedTransition Fill="red" />
+                <RadzenRadialGaugeScaleRange From=@Configuration.OrangeRedTransition To=@Configuration.GreenOrangeTransition Fill="orange" />
+                <RadzenRadialGaugeScaleRange From=Configuration.GreenOrangeTransition To=@AbsoluteMaximumValue Fill="green" />
             }
             else // Green at left, red at right
             {
-                <RadzenRadialGaugeScaleRange From="@MinValue" To=@OrangeGreenTransition Fill="green" />
-                <RadzenRadialGaugeScaleRange From=@OrangeGreenTransition To=@RedOrangeTransition Fill="orange" />
-                <RadzenRadialGaugeScaleRange From=@RedOrangeTransition To=@AbsoluteMaxValue Fill="red" />
+                <RadzenRadialGaugeScaleRange From="@Configuration.Minimum" To=@Configuration.GreenOrangeTransition Fill="green" />
+                <RadzenRadialGaugeScaleRange From=@Configuration.GreenOrangeTransition To=@Configuration.OrangeRedTransition Fill="orange" />
+                <RadzenRadialGaugeScaleRange From=@Configuration.OrangeRedTransition To=@AbsoluteMaximumValue Fill="red" />
             }
         </RadzenRadialGaugeScale>
     </RadzenRadialGauge>
@@ -30,16 +30,7 @@
 @code
 {
     [Parameter]
-    public GaugeConfiguration GaugeConfiguration { get; set; } = new GaugeConfiguration();
-
-    [Parameter]
-    public bool Reverse { get; set; } = false;
-
-    [Parameter]
-    public double MinValue { get; set; } = 0;
-
-    [Parameter]
-    public double MaxValue { get; set; } = 50;
+    public GaugeConfiguration Configuration { get; set; } = new GaugeConfiguration();
 
     [Parameter]
     public double Value { get; set; } = 0;
@@ -47,19 +38,13 @@
     [Parameter]
     public string Legend { get; set; } = Globals.NOT_SET;
 
-    [Parameter]
-    public double OrangeGreenTransition { get; set; } = 0;
-
-    [Parameter]
-    public double RedOrangeTransition { get; set; } = 0;
-
     #region Private methods
 
-    private double AbsoluteMaxValue
+    private double AbsoluteMaximumValue
     {
         get
         {
-            return Math.Max(MaxValue, Value);
+            return Math.Max(Configuration.Maximum, Value);
         }
     }
 
@@ -67,7 +52,7 @@
     {
         get
         {
-            return Math.Max(1, (AbsoluteMaxValue - MinValue) / 10);
+            return Math.Max(1, (AbsoluteMaximumValue - Configuration.Minimum) / 10);
         }
     }
 
