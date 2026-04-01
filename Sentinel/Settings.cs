@@ -1,10 +1,7 @@
-﻿using ASCOM.Tools;
-using System.Diagnostics;
+﻿using Sentinel.Components;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.RateLimiting;
-using System.Xml.Linq;
 using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
 namespace Sentinel
@@ -287,19 +284,19 @@ namespace Sentinel
 
         public Dictionary<PropertyName, GaugeConfiguration> GaugeSettings { get; set; } = new()
         {
-            { PropertyName.CloudCover, new GaugeConfiguration() },
-            { PropertyName.DewPoint, new GaugeConfiguration() },
-            { PropertyName.Humidity, new GaugeConfiguration() },
-            { PropertyName.Pressure, new GaugeConfiguration() },
-            { PropertyName.RainRate, new GaugeConfiguration() },
-            { PropertyName.SkyBrightness, new GaugeConfiguration() },
-            { PropertyName.SkyQuality, new GaugeConfiguration() },
-            { PropertyName.SkyTemperature, new GaugeConfiguration() },
-            { PropertyName.StarFWHM, new GaugeConfiguration() },
-            { PropertyName.Temperature, new GaugeConfiguration() },
+            { PropertyName.CloudCover, new GaugeConfiguration(0, 100, 20, 70) },
+            { PropertyName.DewPoint, new GaugeConfiguration(-30, 25, 5, 15) },
+            { PropertyName.Humidity, new GaugeConfiguration(0, 100, 100, 100) },
+            { PropertyName.Pressure, new GaugeConfiguration(950, 1050, 1060, 1060) },
+            { PropertyName.RainRate, new GaugeConfiguration(0, 50, 1, 5) },
+            { PropertyName.SkyBrightness, new GaugeConfiguration(0, 100, 1, 10) },
+            { PropertyName.SkyQuality, new GaugeConfiguration(10, 25, 21.3, 19) },
+            { PropertyName.SkyTemperature, new GaugeConfiguration(-70, 20, -20, 0) },
+            { PropertyName.StarFWHM, new GaugeConfiguration(0, 5, 1, 2) },
+            { PropertyName.Temperature, new GaugeConfiguration(-50, 50, 10, 25) },
             { PropertyName.WindDirection, new GaugeConfiguration() },
-            { PropertyName.WindGust, new GaugeConfiguration() },
-            { PropertyName.WindSpeed, new GaugeConfiguration() }
+            { PropertyName.WindGust, new GaugeConfiguration(0, 100, 100, 100) },
+            { PropertyName.WindSpeed, new GaugeConfiguration(0, 20, 5, 15) }
         };
 
         public bool LogDiscoveryMessages { get; set; } = true;
@@ -327,9 +324,9 @@ namespace Sentinel
         public bool PreventRemoteDisconnects { get; set; } = true;
         public bool RunInStrictAlpacaMode { get; set; } = true;
         public bool RequireAdministratorLogin { get; set; } = false;
-            public bool UseAuth { get; set; } = false;
-            public string UserName { get; set; } = "User";
-            public string Password { get; set; } = string.Empty;
+        public bool UseAuth { get; set; } = false;
+        public string UserName { get; set; } = "User";
+        public string Password { get; set; } = string.Empty;
 
         #endregion
 

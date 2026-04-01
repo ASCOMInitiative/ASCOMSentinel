@@ -7,6 +7,7 @@
 @using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 @using Sentinel.DeviceAccess
 
+@inject Settings settings
 @inject State state
 @inject SentinelLogger logger
 
@@ -17,19 +18,19 @@
 <h1>@Globals.APPLICATION_NAME</h1>
 
 <div style="display: flex; flex-wrap: wrap;">
-    <Gauge Legend="Wind Speed (mi/h)" Value=@GetDoubleValue(PropertyName.WindSpeed, 20.0) Configuration=@(new GaugeConfiguration(0, 20, 5, 15)) />
-    <Gauge Legend="Wind Gust (mi/h)" Value=@GetDoubleValue(PropertyName.WindGust, 100.0) Configuration=@(new GaugeConfiguration(0, 100, 100, 100)) />
+    <Gauge Legend="Wind Speed (mi/h)" Value=@GetDoubleValue(PropertyName.WindSpeed, 20.0) Configuration=@(settings.GaugeSettings[PropertyName.WindSpeed]) />
+    <Gauge Legend="Wind Gust (mi/h)" Value=@GetDoubleValue(PropertyName.WindGust, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.WindGust]) />
     <Compass Value=@GetDoubleValue(PropertyName.WindDirection, 0.0) />
-    <Gauge Legend="Rain Rate (mm/h)" Value=@GetDoubleValue(PropertyName.RainRate, 50.0) Configuration=@(new GaugeConfiguration(0, 50, 1, 5)) />
-    <Gauge Legend="Sky Brightness (Lux)" Value=@GetDoubleValue(PropertyName.SkyBrightness, 100.0) Configuration=@(new GaugeConfiguration(0, 100, 1, 10))  />
-    <Gauge Legend="Sky Quality (mag/arcsec2)" Value=@GetDoubleValue(PropertyName.SkyQuality, 25.0) Configuration=@(new GaugeConfiguration(10, 25, 21.3, 19)) />
-    <Gauge Legend="FWHM (arc-sec)" Value=@GetDoubleValue(PropertyName.StarFWHM, 5.0) Configuration=@(new GaugeConfiguration(0, 5, 1, 2)) />
-    <Gauge Legend="Sky Temperature (C)" Value=@GetDoubleValue(PropertyName.SkyTemperature, 20.0) Configuration=@(new GaugeConfiguration(-70, 20, -20, 0)) />
-    <Gauge Legend="Dew Point (C)" Value=@GetDoubleValue(PropertyName.DewPoint, 25.0) Configuration=@(new GaugeConfiguration(-30, 25, 5, 15)) />
-    <Gauge Legend="Pressure (hPa)" Value=@GetDoubleValue(PropertyName.Pressure, 1050.0) Configuration=@(new GaugeConfiguration(950, 1050, 1060, 1060)) />
-    <Gauge Legend="Temperature (C)" Value=@GetDoubleValue(PropertyName.Temperature, 50.0) Configuration=@(new GaugeConfiguration(-50, 50, 10, 25)) />
-    <Gauge Legend="Humidity (%)" Value=@GetDoubleValue(PropertyName.Humidity, 100.0) Configuration=@(new GaugeConfiguration(0, 100, 100, 100)) />
-    <Gauge Legend="Cloud Cover (%)" Value=@GetDoubleValue(PropertyName.CloudCover, 100.0) Configuration=@(new GaugeConfiguration(0, 100, 20, 70)) />
+    <Gauge Legend="Rain Rate (mm/h)" Value=@GetDoubleValue(PropertyName.RainRate, 50.0) Configuration=@(settings.GaugeSettings[PropertyName.RainRate]) />
+    <Gauge Legend="Sky Brightness (Lux)" Value=@GetDoubleValue(PropertyName.SkyBrightness, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyBrightness])  />
+    <Gauge Legend="Sky Quality (mag/arcsec2)" Value=@GetDoubleValue(PropertyName.SkyQuality, 25.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyQuality]) />
+    <Gauge Legend="FWHM (arc-sec)" Value=@GetDoubleValue(PropertyName.StarFWHM, 5.0) Configuration=@(settings.GaugeSettings[PropertyName.StarFWHM]) />
+    <Gauge Legend="Sky Temperature (C)" Value=@GetDoubleValue(PropertyName.SkyTemperature, 20.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyTemperature]) />
+    <Gauge Legend="Dew Point (C)" Value=@GetDoubleValue(PropertyName.DewPoint, 25.0) Configuration=@(settings.GaugeSettings[PropertyName.DewPoint]) />
+    <Gauge Legend="Pressure (hPa)" Value=@GetDoubleValue(PropertyName.Pressure, 1050.0) Configuration=@(settings.GaugeSettings[PropertyName.Pressure]) />
+    <Gauge Legend="Temperature (C)" Value=@GetDoubleValue(PropertyName.Temperature, 50.0) Configuration=@(settings.GaugeSettings[PropertyName.Temperature]) />
+    <Gauge Legend="Humidity (%)" Value=@GetDoubleValue(PropertyName.Humidity, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.Humidity]) />
+    <Gauge Legend="Cloud Cover (%)" Value=@GetDoubleValue(PropertyName.CloudCover, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.CloudCover]) />
 </div>
 
 @code {
