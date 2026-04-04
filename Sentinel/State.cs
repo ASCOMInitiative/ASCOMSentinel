@@ -7,6 +7,7 @@
 
     public class State
     {
+
         #region Variables and initialisers
 
         private static uint serverTransactionId;
@@ -86,11 +87,6 @@
         /// </summary>
         public string StatusText { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(StatusText)); } } } = "";
 
-        /// <summary>
-        /// Set to true by the Index page after its first render completes. NavMenu disables action buttons until this is true.
-        /// </summary>
-        // public bool UiReady { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(UiReady)); } } } = false;
-
         public bool OperationUnderway { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(OperationUnderway)); } } } = false;
 
         /// <summary>
@@ -136,7 +132,7 @@
 
         #endregion
 
-        #region Public functions
+        #region Public Methods and Functions
 
         public uint GetServerTransactionId()
         {
@@ -197,5 +193,6 @@
         public event EventHandler? StateChanged;
 
         #endregion
+
     }
 }

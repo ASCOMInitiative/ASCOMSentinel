@@ -116,13 +116,13 @@
 
     private async Task OnGaugeDimensionChanged(int value)
     {
-        state.GaugeDimension = (int)value;
+        state.GaugeDimension = value;
         await InvokeAsync(StateHasChanged);
     }
 
     private double GetDoubleValue(PropertyName propertyName, double defaultValue)
     {
-        if (DateTime.Now.Subtract(lastValueTime[propertyName]) < TimeSpan.FromSeconds(1.0))
+        if (DateTime.Now.Subtract(lastValueTime[propertyName]) < TimeSpan.FromSeconds(0.1))
             return lastValue[propertyName];
 
         // Check whether this device is configured and connected
