@@ -55,14 +55,14 @@
 
     private string ValueStyle()
     {
-        if (state.GaugeDimentsion > Globals.GAUGE_SMALL_TRANSTION)
+        if (state.GaugeDimension > Globals.GAUGE_SMALL_TRANSTION)
         {
-            int position = state.GaugeDimentsion / 2 - 80;
+            int position = state.GaugeDimension / 2 - 80;
             return $"margin-top:{position}px;display:inline-block;";
         }
         else
         {
-            int position = state.GaugeDimentsion / 2 - 80;
+            int position = state.GaugeDimension / 2 - 80;
             return $"margin-top:{position}px;display:inline-block;";
         }
     }
@@ -81,14 +81,14 @@
 
     private GaugeTickPosition TickPosition()
     {
-        if (state.GaugeDimentsion > 260)
+        if (state.GaugeDimension > 260)
 
             return GaugeTickPosition.Inside;
         else
             return GaugeTickPosition.Outside;
     }
 
-    private string GaugeStyle => $"width: {state.GaugeDimentsion}px; height: {state.GaugeDimentsion}px;";
+    private string GaugeStyle => $"width: {state.GaugeDimension}px; height: {state.GaugeDimension}px;";
 
     string FormatTick(double value)
     {

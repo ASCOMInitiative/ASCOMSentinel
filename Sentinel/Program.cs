@@ -199,7 +199,7 @@ namespace Sentinel
             // Initialise state with any values from settings that are needed at startup
             state.Online = settings.EnableRemoteClients;
             state.RequireAdministratorLoginAtStartup = settings.RequireAdministratorLogin;
-            state.GaugeDimentsion = settings.GaugeDimension;
+            state.GaugeDimension = settings.GaugeDimension;
 
             // Add event handler to detect when the browser closes
             builder.Services.AddSingleton<CircuitHandler, CircuitHandlerService>();

@@ -27,7 +27,7 @@
     [Parameter]
     public double Value { get; set; } = 0;
 
-    private string GaugeStyle => $"width: {state.GaugeDimentsion}px; height: {state.GaugeDimentsion}px;";
+    private string GaugeStyle => $"width: {state.GaugeDimension}px; height: {state.GaugeDimension}px;";
 
     protected override void OnInitialized()
     {
@@ -36,19 +36,18 @@
 
     private string LegendStyle()
     {
-        if (state.GaugeDimentsion > Globals.GAUGE_SMALL_TRANSTION)
+        if (state.GaugeDimension > Globals.GAUGE_SMALL_TRANSTION)
             return "";
         else
         {
-            int position = 24 + Globals.GAUGE_SMALL_OFFSET - (Globals.GAUGE_SMALL_TRANSTION - state.GaugeDimentsion) / 2;
-
+            int position = 24 + Globals.GAUGE_SMALL_OFFSET - (Globals.GAUGE_SMALL_TRANSTION - state.GaugeDimension) / 2;
             return $"margin-top:{position}px;display:inline-block;";
         }
     }
    
     private GaugeTickPosition TickPosition()
     {
-        if (state.GaugeDimentsion > 260)
+        if (state.GaugeDimension > 260)
             return GaugeTickPosition.Inside;
         else
             return GaugeTickPosition.Outside;

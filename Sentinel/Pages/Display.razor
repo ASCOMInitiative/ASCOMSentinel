@@ -20,9 +20,15 @@
     </div>
     <div style="flex:1; text-align:right;">
         <span>Gauge size</span>
-        <div style="display:inline-block">
-            <RadzenSlider Name="valueSlider" Min="170" Max="500" Value=@gaugeSize Style="width: 150px;margin-left:24px;margin-right:24px;" Change="@((int args) => OnGaugeDimensionChanged(args))" />
+        <div style="display:inline-block; position: relative;" @onmouseup="OnGaugeDimensionMouseUp">
             <div style="@MarkerStyle"></div>
+            <RadzenSlider @bind-Value="GaugeDimension"
+                          TValue="int"
+                          Min="170"
+                          Max="500"
+                          Step="1"
+                          Change="OnGaugeDimensionChanged"
+                          Style="width: 150px;margin-left:24px;margin-right:24px;" />
         </div>
         <span>
             <SentinelButton Click="@SetGaugeSize" Text="Set Size" />
@@ -48,14 +54,11 @@
     <p style="margin-top:24px; font-size:small;">The gauge minimum, maximum and transition points can be configured on the Configuration / Application Settings / Display tab.</p>
 </div>
 @code {
-    // Marker at 30%
-    double MarkerValue => 53.5;
+    // Marker at slider midpoint
+    const double MARKER_POSITION_PERCENT = 53.5;
+    private const int MARKER_SNAP_DISTANCE = 20;
 
-    string MarkerStyle =>
-        $"position: absolute; top: 50%; left: {MarkerValue}%; " +
-        $"width: 4px; height: 30px; background-color: red; " +
-        $"border-radius: 2px; pointer-events: none; z-index: 10; " +
-        $"transform: translate(-50%, -50%);";
+    private string MarkerStyle = $"position: absolute; top: 50%; left: {MARKER_POSITION_PERCENT}%; width: 4px; height: 30px; background-color: red; border-radius: 2px; pointer-events: none; transform: translate(-50%, -50%);";
 
     private readonly CancellationTokenSource _cts = new();
 
@@ -92,23 +95,30 @@
         { PropertyName.CloudCover, DateTime.MinValue },
     };
 
-    private int gaugeSize { get; set; }
+    private int GaugeDimension { get; set; }
+
+    private async Task OnGaugeDimensionMouseUp(MouseEventArgs args)
+    {
+        if (Math.Abs(GaugeDimension - Globals.GAUGE_DIMENSION_DEFAULT) <= MARKER_SNAP_DISTANCE)
+        {
+            GaugeDimension = Globals.GAUGE_DIMENSION_DEFAULT;
+            state.GaugeDimension = Globals.GAUGE_DIMENSION_DEFAULT;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
 
     private async Task SetGaugeSize()
     {
-        settings.GaugeDimension = state.GaugeDimentsion;
+        settings.GaugeDimension = state.GaugeDimension;
         settings.Save();
     }
 
-    private async Task OnGaugeDimensionChanged(object value)
+    private async Task OnGaugeDimensionChanged(int value)
     {
-        if (value is null)
-            return;
-
-        state.GaugeDimentsion = (int)value;
+        state.GaugeDimension = (int)value;
         await InvokeAsync(StateHasChanged);
     }
-
 
     private double GetDoubleValue(PropertyName propertyName, double defaultValue)
     {
@@ -185,7 +195,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        gaugeSize = state.GaugeDimentsion;
+        GaugeDimension = state.GaugeDimension;
         _ = RefreshLoopAsync(_cts.Token);
     }
 
@@ -208,6 +218,4 @@
         _cts.Cancel();
         _cts.Dispose();
     }
-
-
 }
