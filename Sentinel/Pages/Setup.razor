@@ -675,6 +675,99 @@
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Subscribe to the OnResized event. This will do work when the browser is resized.
+            objRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("window.registerSetupViewportChangeCallback", objRef);
+
+            // Get the current window size and re-size to this
+            int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
+            int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
+            await OnResizeSetup(logWidth, logHeight);
+
+            settings.ConfigurationChanged += OnStateChanged;
+            state.StateChanged += OnStateChanged;
+
+        }
+    }
+
+    private async void OnStateChanged(object? sender, EventArgs e)
+    {
+        try
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (ObjectDisposedException) { }
+        catch (Exception ex)
+        {
+            logger.LogError("Setup.OnStateChanged", $"Exception: {ex.Message}");
+        }
+    }
+
+    private void OnLocationChange(string value, string name)
+    {
+        SrvLocation = value;
+    }
+
+    private async Task OnTabChanged(int item)
+    {
+        state.StatusText = string.Empty;
+        if ((!state.DiscoveryHasRun) && ((item == 1) || (item == 2)))
+        {
+            await StartDiscovery();
+        }
+    }
+
+    private async Task OnObservingConditionsDeviceChanged(object discoveredDevice, PropertyName propertyName)
+    {
+        state.DisplayReconnectMessage = true;
+
+        if (((DiscoveredDevice)discoveredDevice).SentinelDeviceType == SentinelDeviceType.NotSet)
+        {
+            state.ObservingConditionsDeviceMap.TryRemove(propertyName, out _);
+            settings.RaiseChangeEvent();
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
+    {
+        settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
+        settings.Save();
+
+        state.DisplayReconnectMessage = true;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// This method will be called when the window resizes.
+    /// It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
+    /// </summary>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    [JSInvokable]
+    public async Task OnResizeSetup(int width, int height)
+    {
+        try
+        {
+            // Calculate the number of rows that will fit in the available height
+            int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
+            windowWidth = width;
+
+            // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("OnResize", $"Exception: \r\n{ex}");
+        }
+    }
+
     private bool StartBrowserOnLaunch
     {
         get => settings.StartBrowserOnLaunch;
@@ -713,15 +806,6 @@
         }
     }
 
-    private async Task OnTabChanged(int item)
-    {
-        state.StatusText = string.Empty;
-        if ((!state.DiscoveryHasRun) && ((item == 2) || (item == 5)))
-        {
-            await StartDiscovery();
-        }
-    }
-
     private async Task RespondOnlyOnLocalhostChanged(ChangeEventArgs e)
     {
         if (e.Value is null)
@@ -736,43 +820,6 @@
     protected override void OnInitialized()
     {
         _srvUserNameInput = settings.UserName;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Subscribe to the OnResized event. This will do work when the browser is resized.
-            objRef = DotNetObjectReference.Create(this);
-            await JSRuntime.InvokeVoidAsync("window.registerSetupViewportChangeCallback", objRef);
-
-            // Get the current window size and re-size to this
-            int logWidth = await JSRuntime.InvokeAsync<int>("eval", "window.innerWidth");
-            int logHeight = await JSRuntime.InvokeAsync<int>("eval", "window.innerHeight");
-            await OnResizeSetup(logWidth, logHeight);
-
-            settings.ConfigurationChanged += OnStateChanged;
-            state.StateChanged += OnStateChanged;
-
-        }
-    }
-
-    private async void OnStateChanged(object? sender, EventArgs e)
-    {
-        try
-        {
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (ObjectDisposedException) { }
-        catch (Exception ex)
-        {
-            logger.LogError("Setup.OnStateChanged", $"Exception: {ex.Message}");
-        }
-    }
-
-    private void OnLocationChange(string value, string name)
-    {
-        SrvLocation = value;
     }
 
     private bool IncludeAlpacaTraceChanged
@@ -868,8 +915,8 @@
         {
             settings.ResetToDefaults();
             state = new State();
-            await StartDiscovery();
             await InvokeAsync(StateHasChanged);
+            await StartDiscovery();
         }
     }
 
@@ -905,34 +952,13 @@
         }
     }
 
-    private async Task OnObservingConditionsDeviceChanged(object discoveredDevice, PropertyName propertyName)
-    {
-        state.DisplayReconnectMessage = true;
-
-        if (((DiscoveredDevice)discoveredDevice).SentinelDeviceType == SentinelDeviceType.NotSet)
-        {
-            state.ObservingConditionsDeviceMap.TryRemove(propertyName, out _);
-            settings.RaiseChangeEvent();
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
-    {
-        settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
-        settings.Save();
-
-        state.DisplayReconnectMessage = true;
-        await InvokeAsync(StateHasChanged);
-    }
-
     private async Task StartDiscovery()
     {
         try
         {
 
             state.OperationUnderway = true;
+            await InvokeAsync(StateHasChanged);
 
             // Dispose the previous discovery instance to release sockets/timers
             if (discovery is not null)
@@ -1124,25 +1150,6 @@
         }
     }
 
-    // This method will be called when the window resizes.
-    // It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
-    [JSInvokable]
-    public async Task OnResizeSetup(int width, int height)
-    {
-        try
-        {
-            // Calculate the number of rows that will fit in the available height
-            int screenLogRows = Convert.ToInt32(height / 18.0) - 12;
-            windowWidth = width;
-
-            // Display the updated log on the screen - invoke required because this event handler method could be called by any thread
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError("OnResize", $"Exception: \r\n{ex}");
-        }
-    }
 
     #region Server settings
 
