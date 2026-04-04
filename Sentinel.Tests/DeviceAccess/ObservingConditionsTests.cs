@@ -35,6 +35,8 @@ public class ObservingConditionsTests
 
         _state = new State();
         _logger = new SentinelLogger(_state, _settings);
+        _state.Connected=true;
+        _state.Online=true;
 
         _fakeDevice = new FakeWeatherDevice();
 
@@ -103,7 +105,7 @@ public class ObservingConditionsTests
     [Fact]
     public void WhenDeviceThrowsException_ExceptionIsCachedAndDeviceIsCalledOnce()
     {
-        _fakeDevice.CloudCoverException = new InvalidOperationException("sensor fault");
+        _fakeDevice.CloudCoverException = new ASCOM.InvalidOperationException("sensor fault");
         try { _ = _sut.CloudCover; } catch { }
         try { _ = _sut.CloudCover; } catch { }
 
@@ -113,19 +115,19 @@ public class ObservingConditionsTests
     [Fact]
     public void WhenDeviceThrowsException_CachedExceptionTypeIsPreserved()
     {
-        _fakeDevice.CloudCoverException = new InvalidOperationException("sensor fault");
+        _fakeDevice.CloudCoverException = new ASCOM.InvalidOperationException("sensor fault");
         try { _ = _sut.CloudCover; } catch { }
 
-        Assert.Throws<InvalidOperationException>(() => _ = _sut.CloudCover);
+        Assert.Throws<ASCOM.InvalidOperationException>(() => _ = _sut.CloudCover);
     }
 
     [Fact]
     public void WhenDeviceThrowsException_CachedExceptionMessageIsPreserved()
     {
-        _fakeDevice.CloudCoverException = new InvalidOperationException("sensor fault");
+        _fakeDevice.CloudCoverException = new ASCOM.InvalidOperationException("sensor fault");
         try { _ = _sut.CloudCover; } catch { }
 
-        Exception ex = Assert.Throws<InvalidOperationException>(() => _ = _sut.CloudCover);
+        Exception ex = Assert.Throws<ASCOM.InvalidOperationException>(() => _ = _sut.CloudCover);
         Assert.Equal("sensor fault", ex.Message);
     }
 
@@ -136,7 +138,7 @@ public class ObservingConditionsTests
     [Fact]
     public void WhenDeviceThrowsExceptionAndCacheExpires_DeviceIsCalledAgain()
     {
-        _fakeDevice.CloudCoverException = new InvalidOperationException("sensor fault");
+        _fakeDevice.CloudCoverException = new ASCOM.InvalidOperationException("sensor fault");
         try { _ = _sut.CloudCover; } catch { }
 
         Thread.Sleep(CacheExpiryWaitMs);
@@ -337,7 +339,7 @@ internal sealed class FakeWeatherDevice : IObservingConditionsV2
 
     // Remaining interface members — not under test
     public bool Connecting { get; set; }
-    public bool Connected { get; set; }
+    public bool Connected { get; set; }=true;
     public List<StateValue> DeviceState => [];
     public double AveragePeriod { get; set; }
     public double DewPoint => throw new NotImplementedException();

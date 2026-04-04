@@ -136,7 +136,7 @@ namespace Sentinel
             DeviceManager.LoadObservingConditions(0, observingConditions, $"{Globals.OBSERVING_CONDITIONS_NAME} ({settings.Location})", settings.GetDeviceUniqueId("ObservingConditions", 0));
             state.ObservingConditions = observingConditions;
 
-            DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(settings, state, logger), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
+            //DeviceManager.LoadSwitch(0, new DeviceAccess.Switch(settings, state, logger), $"{Globals.APPLICATION_SHORT_NAME} - Switch Device ({settings.Location})", settings.GetDeviceUniqueId("Switch", 0));
 
             #endregion
 
