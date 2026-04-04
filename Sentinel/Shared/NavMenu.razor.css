@@ -50,13 +50,21 @@
     color: white;
 }
 
+.sidebar-nav {
+    display: flex;
+}
+
+.sidebar-nav.collapse {
+    display: none;
+}
+
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
     }
 
-    .collapse {
+    .sidebar-nav.collapse {
         /* Never collapse the sidebar for wide screens */
-        display: block;
+        display: flex;
     }
 }

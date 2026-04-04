@@ -25,7 +25,7 @@
 else
 @* No operation is in progress *@
 {
-    <div class="@NavMenuCssClass" style="display:flex; flex-direction:column; height:calc(100vh - 3.5rem);" @onclick="ToggleNavMenu">
+    <div class="sidebar-nav @NavMenuCssClass" style="flex-direction:column; height:calc(100vh - 3.5rem);" @onclick="ToggleNavMenu">
         <nav class="flex-column">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -192,9 +192,10 @@ else
         circuitState.AuthStateChanged -= OnAuthStateChanged;
     }
 
-    private void ToggleNavMenu()
+    private async Task ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task Reconnect()
