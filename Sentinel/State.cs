@@ -143,6 +143,41 @@
             return Interlocked.Increment(ref serverTransactionId);
         }
 
+        /// <summary>
+        /// Resets all runtime state properties to their initial default values.
+        /// Existing <see cref="StateChanged"/> subscribers are preserved.
+        /// Assembly-derived properties (<see cref="ApplicationVersion"/> etc.) and
+        /// <see cref="DiscoveredDevicesLock"/> are not modified.
+        /// </summary>
+        public void ResetState()
+        {
+            GaugeDimension = Globals.GAUGE_DIMENSION_DEFAULT;
+            Online = false;
+            Connected = false;
+            DisplayReconnectMessage = false;
+            DisplayRestartMessage = false;
+            StatusText = string.Empty;
+            OperationUnderway = false;
+            OperationUnderwayMessage = "Operation Underway";
+            ConnectingToDevices = false;
+            ApplicationLog = new StringBuilder(Globals.MAXIMUM_LOG_SIZE_CHARACTERS, Globals.MAXIMUM_LOG_SIZE_CHARACTERS)
+                .Append($"{Globals.WELCOME_MESSAGE}\r\n");
+            ObservingConditionsDevices = [];
+            lock (DiscoveredDevicesLock)
+            {
+                DiscoveredObservingConditionsDevices = new List<DiscoveredDevice>();
+                DiscoveredSafetyMonitorDevices = new List<DiscoveredDevice>();
+            }
+            LastSafetyState = [];
+            RequireAdministratorLoginAtStartup = true;
+            DiscoveryHasRun = false;
+            ObservingConditionsDeviceMap = new ConcurrentDictionary<PropertyName, IObservingConditionsV2>();
+            SafetyMonitorDevices = new ConcurrentDictionary<PropertyName, ISafetyMonitorV3>();
+            SwitchDevices = new ConcurrentDictionary<int, ISwitchV3>();
+            ObservingConditions = null!;
+            SafetyMonitor = null!;
+        }
+
         #endregion
 
         #region Event handlers
