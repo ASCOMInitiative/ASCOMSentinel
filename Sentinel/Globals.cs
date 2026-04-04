@@ -39,6 +39,11 @@
 
         internal const int LOG_REFRESH_INTERVAL = 250; // Interval at which the log is refreshed on the screen (Milliseconds)
 
+        internal const int GAUGE_DIMENSION_DEFAULT = 350; // Default gauge dimension in pixels
+        internal const int GAUGE_SMALL_TRANSTION = 260; // Gauge dimension in pixels at which the gauge transitions to the small layout.
+        internal const int GAUGE_SMALL_OFFSET = 54; // Offset in pixels applied to the position of the gauge value text when the gauge is in the small layout to prevent overlap with the gauge arc.
+
+
         internal static readonly SemaphoreSlim ConnectSemaphore = new SemaphoreSlim(1, 1);
         internal static Lock StateLock = new();
 

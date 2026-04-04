@@ -130,5 +130,10 @@ namespace Sentinel
                 _ => value.ToString("F1")
             };
         }
+
+        public static decimal ToDecimal(this double value)
+        {
+            return Convert.ToDecimal(value);
+        }
     }
 }

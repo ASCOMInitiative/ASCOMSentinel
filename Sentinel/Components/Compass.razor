@@ -1,11 +1,16 @@
 ﻿@namespace Sentinel.Components
+
+@inject State state
+
+@implements IDisposable
+
 <span>
-    <RadzenRadialGauge Style="width: 320px; height: 320px;">
-        <RadzenRadialGaugeScale StartAngle="0" EndAngle="360" Min="0" Max="360" Step="45" TickPosition="GaugeTickPosition.Inside" Formatter="@FormatCompassLabel" MinorStep="22.5" MinorTickLength=9 TickLength=13>
+    <RadzenRadialGauge Style="@GaugeStyle">
+        <RadzenRadialGaugeScale StartAngle="0" EndAngle="360" Min="0" Max="360" Step="45" TickPosition="@TickPosition()" Formatter="@FormatCompassLabel" MinorStep="22.5" MinorTickLength=9 TickLength=13>
             <RadzenRadialGaugeScalePointer Value=@Value Length="0.7" ShowValue=true Fill="dimgray">
                 <Template Context="pointer">
                     <RadzenStack AlignItems="AlignItems.Center" Gap="0" class="rz-mt-4">
-                        <RadzenText TextStyle="TextStyle.Body1" class="rz-m-0"><strong>@pointer.Value.ToRoundedString()</strong></RadzenText>
+                        <RadzenText Style="@LegendStyle()" TextStyle="TextStyle.Body1"><strong>@pointer.Value.ToRoundedString()</strong></RadzenText>
                         <RadzenText TextStyle="TextStyle.Caption" TextAlign="TextAlign.Center"><strong>Wind Direction</strong></RadzenText>
                     </RadzenStack>
                 </Template>
@@ -21,6 +26,44 @@
 
     [Parameter]
     public double Value { get; set; } = 0;
+
+    private string GaugeStyle => $"width: {state.GaugeDimentsion}px; height: {state.GaugeDimentsion}px;";
+
+    protected override void OnInitialized()
+    {
+        state.StateChanged += OnStateChanged;
+    }
+
+    private string LegendStyle()
+    {
+        if (state.GaugeDimentsion > Globals.GAUGE_SMALL_TRANSTION)
+            return "";
+        else
+        {
+            int position = 24 + Globals.GAUGE_SMALL_OFFSET - (Globals.GAUGE_SMALL_TRANSTION - state.GaugeDimentsion) / 2;
+
+            return $"margin-top:{position}px;display:inline-block;";
+        }
+    }
+   
+    private GaugeTickPosition TickPosition()
+    {
+        if (state.GaugeDimentsion > 260)
+            return GaugeTickPosition.Inside;
+        else
+            return GaugeTickPosition.Outside;
+    }
+
+    private async void OnStateChanged(object? sender, EventArgs e)
+    {
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        state.StateChanged -= OnStateChanged;
+    }
+
 
     private string FormatCompassLabel(double value)
     {

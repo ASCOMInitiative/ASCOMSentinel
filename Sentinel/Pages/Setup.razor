@@ -210,14 +210,14 @@
                                             <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;">
                                                 Minimum
                                             </div>
-                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;">
-                                                Maximum
-                                            </div>
                                             <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;text-align:center;">
                                                 Green - Orange Transition
                                             </div>
                                             <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;text-align:center;">
                                                 Orange - Red Transition
+                                            </div>
+                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;">
+                                                Maximum
                                             </div>
                                             <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;text-align:center;">
                                                 Number of Segments
@@ -240,6 +240,7 @@
                                 <div style="margin-top:12px;">
                                     <h4 style="color: cornflowerblue;" >Notes</h4>
                                     <ul>
+                                        <li>Change text box values in the correct order - they are constrained to follow the relationship: Minimum &lt;= Green-Orange-Transition &lt;= Orange-Red-Transition &lt;= Maximum</li>
                                         <li>All gauges have units that increase clockwise from left to right, the wind direction compass cannot be configured.</li>
                                         <li>When the green-orange transition value is less than the orange-red transition value, the clockwise segment colour order is green => orange => red.</li>
                                         <li>When the green-orange transition value is greater than the orange-red transition value, the clockwise segment colour order is red => orange => green.</li>
@@ -866,7 +867,7 @@
         if (confirmed.HasValue && confirmed.Value)
         {
             settings.ResetToDefaults();
-            state.Connected = false;
+            state = new State();
             await StartDiscovery();
             await InvokeAsync(StateHasChanged);
         }

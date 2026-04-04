@@ -121,3 +121,19 @@ fieldset legend {
     display:inline-block;
     min-width:300px;
 }
+
+.slider-wrapper {
+    position: relative;
+    width: 150px; /* or 100% */
+}
+
+.slider-marker {
+    position: absolute;
+    top: 50%;
+    width: 4px;
+    height: 20px;
+    background: red;
+    border-radius: 2px;
+    pointer-events: none; /* marker won't block slider interaction */
+    z-index: 10;
+}

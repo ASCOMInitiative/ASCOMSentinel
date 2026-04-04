@@ -13,16 +13,28 @@
 
 @implements IDisposable
 
-<PageTitle>@Globals.APPLICATION_NAME Log</PageTitle>
-
-<h1>@Globals.APPLICATION_NAME</h1>
-
+<PageTitle>@Globals.APPLICATION_NAME Display</PageTitle>
+<div style="display:flex">
+    <div style="flex:1">
+        <h1>@Globals.APPLICATION_NAME</h1>
+    </div>
+    <div style="flex:1; text-align:right;">
+        <span>Gauge size</span>
+        <div style="display:inline-block">
+            <RadzenSlider Name="valueSlider" Min="170" Max="500" Value=@gaugeSize Style="width: 150px;margin-left:24px;margin-right:24px;" Change="@((int args) => OnGaugeDimensionChanged(args))" />
+            <div style="@MarkerStyle"></div>
+        </div>
+        <span>
+            <SentinelButton Click="@SetGaugeSize" Text="Set Size" />
+        </span>
+    </div>
+</div>
 <div style="display: flex; flex-wrap: wrap;">
     <Gauge Legend="Wind Speed (mi/h)" Value=@GetDoubleValue(PropertyName.WindSpeed, 20.0) Configuration=@(settings.GaugeSettings[PropertyName.WindSpeed]) />
     <Gauge Legend="Wind Gust (mi/h)" Value=@GetDoubleValue(PropertyName.WindGust, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.WindGust]) />
     <Compass Value=@GetDoubleValue(PropertyName.WindDirection, 0.0) />
     <Gauge Legend="Rain Rate (mm/h)" Value=@GetDoubleValue(PropertyName.RainRate, 50.0) Configuration=@(settings.GaugeSettings[PropertyName.RainRate]) />
-    <Gauge Legend="Sky Brightness (Lux)" Value=@GetDoubleValue(PropertyName.SkyBrightness, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyBrightness])  />
+    <Gauge Legend="Sky Brightness (Lux)" Value=@GetDoubleValue(PropertyName.SkyBrightness, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyBrightness]) />
     <Gauge Legend="Sky Quality (mag/arcsec2)" Value=@GetDoubleValue(PropertyName.SkyQuality, 25.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyQuality]) />
     <Gauge Legend="FWHM (arc-sec)" Value=@GetDoubleValue(PropertyName.StarFWHM, 5.0) Configuration=@(settings.GaugeSettings[PropertyName.StarFWHM]) />
     <Gauge Legend="Sky Temperature (C)" Value=@GetDoubleValue(PropertyName.SkyTemperature, 20.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyTemperature]) />
@@ -32,54 +44,148 @@
     <Gauge Legend="Humidity (%)" Value=@GetDoubleValue(PropertyName.Humidity, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.Humidity]) />
     <Gauge Legend="Cloud Cover (%)" Value=@GetDoubleValue(PropertyName.CloudCover, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.CloudCover]) />
 </div>
-
+<div>
+    <p style="margin-top:24px; font-size:small;">The gauge minimum, maximum and transition points can be configured on the Configuration / Application Settings / Display tab.</p>
+</div>
 @code {
+    // Marker at 30%
+    double MarkerValue => 53.5;
+
+    string MarkerStyle =>
+        $"position: absolute; top: 50%; left: {MarkerValue}%; " +
+        $"width: 4px; height: 30px; background-color: red; " +
+        $"border-radius: 2px; pointer-events: none; z-index: 10; " +
+        $"transform: translate(-50%, -50%);";
+
     private readonly CancellationTokenSource _cts = new();
+
+    private Dictionary<PropertyName, double> lastValue = new() {
+        { PropertyName.WindSpeed, 0.0 },
+        { PropertyName.WindGust, 0.0 },
+        { PropertyName.WindDirection, 0.0 },
+        { PropertyName.RainRate, 0.0 },
+        { PropertyName.SkyBrightness, 0.0 },
+        { PropertyName.SkyQuality, 0.0 },
+        { PropertyName.StarFWHM, 0.0 },
+        { PropertyName.SkyTemperature, 0.0 },
+        { PropertyName.DewPoint, 0.0 },
+        { PropertyName.Pressure, 0.0 },
+        { PropertyName.Temperature, 0.0 },
+        { PropertyName.Humidity, 0.0 },
+        { PropertyName.CloudCover, 0.0 },
+    };
+
+    public Dictionary<PropertyName, DateTime> lastValueTime = new()
+    {
+        { PropertyName.WindSpeed, DateTime.MinValue },
+        { PropertyName.WindGust, DateTime.MinValue },
+        { PropertyName.WindDirection, DateTime.MinValue },
+        { PropertyName.RainRate, DateTime.MinValue },
+        { PropertyName.SkyBrightness, DateTime.MinValue },
+        { PropertyName.SkyQuality, DateTime.MinValue },
+        { PropertyName.StarFWHM, DateTime.MinValue },
+        { PropertyName.SkyTemperature, DateTime.MinValue },
+        { PropertyName.DewPoint, DateTime.MinValue },
+        { PropertyName.Pressure, DateTime.MinValue },
+        { PropertyName.Temperature, DateTime.MinValue },
+        { PropertyName.Humidity, DateTime.MinValue },
+        { PropertyName.CloudCover, DateTime.MinValue },
+    };
+
+    private int gaugeSize { get; set; }
+
+    private async Task SetGaugeSize()
+    {
+        settings.GaugeDimension = state.GaugeDimentsion;
+        settings.Save();
+    }
+
+    private async Task OnGaugeDimensionChanged(object value)
+    {
+        if (value is null)
+            return;
+
+        state.GaugeDimentsion = (int)value;
+        await InvokeAsync(StateHasChanged);
+    }
+
 
     private double GetDoubleValue(PropertyName propertyName, double defaultValue)
     {
+        if (DateTime.Now.Subtract(lastValueTime[propertyName]) < TimeSpan.FromSeconds(1.0))
+            return lastValue[propertyName];
+
+        // Check whether this device is configured and connected
+        if (!state.ObservingConditionsDeviceMap.ContainsKey(propertyName)) // Not available
+        {
+            double maxValue = settings.GaugeSettings[propertyName].Maximum;
+
+            lastValue[propertyName] = maxValue;
+            lastValueTime[propertyName] = DateTime.Now;
+            return maxValue;
+
+        }
+
+        double newValue = Double.NegativeInfinity;
         try
         {
             switch (propertyName)
             {
                 case PropertyName.WindSpeed:
-                    return state.ObservingConditions.WindSpeed;
+                    newValue = state.ObservingConditions.WindSpeed;
+                    break;
                 case PropertyName.WindGust:
-                    return state.ObservingConditions.WindGust;
+                    newValue = state.ObservingConditions.WindGust;
+                    break;
                 case PropertyName.WindDirection:
-                    return state.ObservingConditions.WindDirection;
+                    newValue = state.ObservingConditions.WindDirection;
+                    break;
                 case PropertyName.RainRate:
-                    return state.ObservingConditions.RainRate;
+                    newValue = state.ObservingConditions.RainRate;
+                    break;
                 case PropertyName.SkyBrightness:
-                    return state.ObservingConditions.SkyBrightness;
+                    newValue = state.ObservingConditions.SkyBrightness;
+                    break;
                 case PropertyName.SkyQuality:
-                    return state.ObservingConditions.SkyQuality;
+                    newValue = state.ObservingConditions.SkyQuality;
+                    break;
                 case PropertyName.StarFWHM:
-                    return state.ObservingConditions.StarFWHM;
+                    newValue = state.ObservingConditions.StarFWHM;
+                    break;
                 case PropertyName.SkyTemperature:
-                    return state.ObservingConditions.SkyTemperature;
+                    newValue = state.ObservingConditions.SkyTemperature;
+                    break;
                 case PropertyName.DewPoint:
-                    return state.ObservingConditions.DewPoint;
+                    newValue = state.ObservingConditions.DewPoint;
+                    break;
                 case PropertyName.Pressure:
-                    return state.ObservingConditions.Pressure;
+                    newValue = state.ObservingConditions.Pressure;
+                    break;
                 case PropertyName.Temperature:
-                    return state.ObservingConditions.Temperature;
+                    newValue = state.ObservingConditions.Temperature;
+                    break;
                 case PropertyName.Humidity:
-                    return state.ObservingConditions.Humidity;
+                    newValue = state.ObservingConditions.Humidity;
+                    break;
                 case PropertyName.CloudCover:
-                    return state.ObservingConditions.CloudCover;
+                    newValue = state.ObservingConditions.CloudCover;
+                    break;
             }
         }
         catch (Exception ex)
         {
-            logger.LogVerbose("GetDoubleValue", $"Gauge.DetDoubleValue - Error getting double value for {propertyName}: {ex.Message}");
+            //logger.LogVerbose("GetDoubleValue", $"Gauge.GetDoubleValue - Error getting double value for {propertyName}: {ex.Message}");
+            newValue = settings.GaugeSettings[propertyName].Maximum;
         }
 
-        return defaultValue;
+        lastValue[propertyName] = newValue;
+        lastValueTime[propertyName] = DateTime.Now;
+        return newValue;
     }
 
     protected override async Task OnInitializedAsync()
     {
+        gaugeSize = state.GaugeDimentsion;
         _ = RefreshLoopAsync(_cts.Token);
     }
 

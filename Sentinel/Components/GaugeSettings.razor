@@ -6,39 +6,49 @@
     <span style="min-width:164px;display:inline-block;"><b>@(Property.ToString())</b></span>
 
     <span style="margin-left:0px">
-        <RadzenNumeric @bind-Value="_minimum"
+        <RadzenNumeric Value="_minimum"
                        TValue="double"
+                       Max="_greenOrangeTransition.ToDecimal()"
+                       Step="1"
+                       Style="width:120px; border:1px solid DarkGrey;"
+                       TextAlign="TextAlign.Right"
+                       ValueChanged="@((args)=> ValueChanged(GaugeValue.Minimum, args))"
+                       ShowUpDown="true" />
+    </span>
+    <span style="margin-left:40px">
+        <RadzenNumeric Value="_greenOrangeTransition"
+                       TValue="double"
+                       ValueChanged="@((args)=> ValueChanged(GaugeValue.GreenOrangeTransition, args))"
+                       Min="_minimum.ToDecimal()"
+                       Max="_orangeRedTransition.ToDecimal()"
                        Step="1"
                        Style="width:120px; border:1px solid DarkGrey;"
                        TextAlign="TextAlign.Right"
                        ShowUpDown="true" />
     </span>
     <span style="margin-left:40px">
-        <RadzenNumeric @bind-Value="_maximum"
+        <RadzenNumeric Value="_orangeRedTransition"
                        TValue="double"
+                       ValueChanged="@((args)=> ValueChanged(GaugeValue.OrangeRedTransition, args))"
+                       Min="_greenOrangeTransition.ToDecimal()"
+                       Max="_maximum.ToDecimal()"
                        Step="1"
                        Style="width:120px; border:1px solid DarkGrey;"
                        TextAlign="TextAlign.Right"
                        ShowUpDown="true" />
     </span>
     <span style="margin-left:40px">
-        <RadzenNumeric @bind-Value="_greenOrangeTransition"
+        <RadzenNumeric Value="_maximum"
                        TValue="double"
+                       ValueChanged="@((args)=> ValueChanged(GaugeValue.Maximum, args))"
+                       Min="_orangeRedTransition.ToDecimal()"
                        Step="1"
                        Style="width:120px; border:1px solid DarkGrey;"
                        TextAlign="TextAlign.Right"
                        ShowUpDown="true" />
     </span>
     <span style="margin-left:40px">
-        <RadzenNumeric @bind-Value="_orangeRedTransition"
-                       TValue="double"
-                       Step="1"
-                       Style="width:120px; border:1px solid DarkGrey;"
-                       TextAlign="TextAlign.Right"
-                       ShowUpDown="true" />
-    </span>
-    <span style="margin-left:40px">
-        <RadzenNumeric @bind-Value="_numberOfSegments"
+        <RadzenNumeric Value="_numberOfSegments"
                        TValue="int"
                        Step="1"
                        Style="width:120px; border:1px solid DarkGrey;"
@@ -52,6 +62,15 @@
 
 @code
 {
+    private enum GaugeValue
+    {
+        Minimum,
+        GreenOrangeTransition,
+        OrangeRedTransition,
+        Maximum,
+        NumberOfSegments
+    }
+
     [Parameter]
     public PropertyName Property { get; set; } = PropertyName.CloudCover;
 
@@ -64,13 +83,44 @@
     private double _orangeRedTransition;
     private int _numberOfSegments = 10;
 
+    private GaugeConfiguration _lastConfiguration = new();
+
+    private async Task ValueChanged(GaugeValue gauge, double value)
+    {
+        switch (gauge)
+        {
+            case GaugeValue.Minimum:
+                _minimum = value;
+                break;
+
+            case GaugeValue.GreenOrangeTransition:
+                _greenOrangeTransition = value;
+                break;
+
+            case GaugeValue.OrangeRedTransition:
+                _orangeRedTransition = value;
+                break;
+
+            case GaugeValue.Maximum:
+                _maximum = value;
+                break;
+        }
+        SetValues();
+        await InvokeAsync(StateHasChanged);
+    }
+
+
     protected override void OnParametersSet()
     {
-        _minimum = Configuration.Minimum;
-        _maximum = Configuration.Maximum;
-        _greenOrangeTransition = Configuration.GreenOrangeTransition;
-        _orangeRedTransition = Configuration.OrangeRedTransition;
-        _numberOfSegments = Configuration.MajorSegments;
+        if (!ReferenceEquals(_lastConfiguration, Configuration))
+        {
+            _lastConfiguration = Configuration;
+            _minimum = Configuration.Minimum;
+            _maximum = Configuration.Maximum;
+            _greenOrangeTransition = Configuration.GreenOrangeTransition;
+            _orangeRedTransition = Configuration.OrangeRedTransition;
+            _numberOfSegments = Configuration.MajorSegments;
+        }
     }
 
     private void SetValues()

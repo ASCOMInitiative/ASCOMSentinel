@@ -289,7 +289,7 @@ namespace Sentinel
             { PropertyName.Humidity, new GaugeConfiguration(PropertyName.Humidity,0, 100, 100, 100, 10) },
             { PropertyName.Pressure, new GaugeConfiguration(PropertyName.Pressure, 950, 1050, 1060, 1060, 10) },
             { PropertyName.RainRate, new GaugeConfiguration(PropertyName.RainRate, 0, 50, 1, 5, 10) },
-            { PropertyName.SkyBrightness, new GaugeConfiguration(PropertyName.SkyBrightness, 0, 100, 1, 10, 10) },
+            { PropertyName.SkyBrightness, new GaugeConfiguration(PropertyName.SkyBrightness, 0, 0.5, 0.1, 0.25, 10) },
             { PropertyName.SkyQuality, new GaugeConfiguration(PropertyName.SkyQuality, 12, 24, 21.3, 19, 6) },
             { PropertyName.SkyTemperature, new GaugeConfiguration(PropertyName.SkyTemperature, -70, 20, -20, 0, 9) },
             { PropertyName.StarFWHM, new GaugeConfiguration(PropertyName.StarFWHM, 0, 5, 1, 2 ,10) },
@@ -298,6 +298,8 @@ namespace Sentinel
             { PropertyName.WindGust, new GaugeConfiguration(PropertyName.WindGust, 0, 100, 10, 30, 10) },
             { PropertyName.WindSpeed, new GaugeConfiguration(PropertyName.WindSpeed, 0, 50, 5, 15, 10) }
         };
+
+        public int GaugeDimension { get; set; } = Globals.GAUGE_DIMENSION_DEFAULT;
 
         public bool LogDiscoveryMessages { get; set; } = true;
         public bool StartBrowserOnLaunch { get; set; } = true;

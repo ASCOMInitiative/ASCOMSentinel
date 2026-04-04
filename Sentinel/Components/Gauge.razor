@@ -1,13 +1,25 @@
 ﻿@namespace Sentinel.Components
 
+@inject State state
+
 <span>
-    <RadzenRadialGauge Style="width: 320px; height: 320px;" class="sentinel-gauge">
-        <RadzenRadialGaugeScale StartAngle="-150" EndAngle="150" Step="@Step()" Min="@Configuration.Minimum" Max="@AbsoluteMaximumValue" TickPosition=GaugeTickPosition.Inside MinorStep="@MinorStep()" MinorTickLength=9 TickLength=13>
+    <RadzenRadialGauge Style="@GaugeStyle" class="sentinel-gauge">
+        <RadzenRadialGaugeScale StartAngle="-150"
+                                EndAngle="150"
+                                Step="@Step()"
+                                Min="@Configuration.Minimum"
+                                Max="@Configuration.Maximum"
+                                TickPosition="@TickPosition()"
+                                Formatter="@FormatTick"
+                                MinorStep="@MinorStep()"
+                                MinorTickLength=9
+                                TickLength=13>
+
             <RadzenRadialGaugeScalePointer Value=@Value Length="0.7" ShowValue=true Fill="dimgray">
                 <Template Context="pointer">
                     <RadzenStack AlignItems="AlignItems.Center" Gap="0" class="rz-mt-4">
-                        <RadzenText TextStyle="TextStyle.Body1" class="rz-m-0"><strong>@pointer.Value.ToRoundedString()</strong></RadzenText>
-                        <RadzenText TextStyle="TextStyle.Caption" TextAlign="TextAlign.Center"><strong>@Legend</strong></RadzenText>
+                        <RadzenText Style="@ValueStyle()" TextStyle="TextStyle.Body1"><strong>@pointer.Value.ToRoundedString()</strong></RadzenText>
+                        <RadzenText Style="@LegendStyle()" TextStyle="TextStyle.Caption" TextAlign="TextAlign.Center"><strong>@Legend</strong></RadzenText>
                     </RadzenStack>
                 </Template>
             </RadzenRadialGaugeScalePointer>
@@ -16,17 +28,18 @@
             {
                 <RadzenRadialGaugeScaleRange From=@Configuration.Minimum To=@Configuration.OrangeRedTransition Fill="red" />
                 <RadzenRadialGaugeScaleRange From=@Configuration.OrangeRedTransition To=@Configuration.GreenOrangeTransition Fill="orange" />
-                <RadzenRadialGaugeScaleRange From=Configuration.GreenOrangeTransition To=@AbsoluteMaximumValue Fill="green" />
+                <RadzenRadialGaugeScaleRange From=Configuration.GreenOrangeTransition To=@Configuration.Maximum Fill="green" />
             }
             else // Green at left, red at right
             {
                 <RadzenRadialGaugeScaleRange From="@Configuration.Minimum" To=@Configuration.GreenOrangeTransition Fill="green" />
                 <RadzenRadialGaugeScaleRange From=@Configuration.GreenOrangeTransition To=@Configuration.OrangeRedTransition Fill="orange" />
-                <RadzenRadialGaugeScaleRange From=@Configuration.OrangeRedTransition To=@AbsoluteMaximumValue Fill="red" />
+                <RadzenRadialGaugeScaleRange From=@Configuration.OrangeRedTransition To=@Configuration.Maximum Fill="red" />
             }
         </RadzenRadialGaugeScale>
     </RadzenRadialGauge>
 </span>
+
 @code
 {
     [Parameter]
@@ -40,27 +53,73 @@
 
     #region Private methods
 
-    private double AbsoluteMaximumValue
+    private string ValueStyle()
     {
-        get
+        if (state.GaugeDimentsion > Globals.GAUGE_SMALL_TRANSTION)
         {
-            double retval = Math.Max(Configuration.Maximum, Value);
-
-            return retval;
+            int position = state.GaugeDimentsion / 2 - 80;
+            return $"margin-top:{position}px;display:inline-block;";
         }
+        else
+        {
+            int position = state.GaugeDimentsion / 2 - 80;
+            return $"margin-top:{position}px;display:inline-block;";
+        }
+    }
+
+    private string LegendStyle()
+    {
+        // if (state.GaugeDimentsion > Globals.GAUGE_SMALL_TRANSTION)
+        //     return "";
+        // else
+        // {
+        int position =0;
+
+        return $"margin-top:{position}px;display:inline-block;";
+        //        }
+    }
+
+    private GaugeTickPosition TickPosition()
+    {
+        if (state.GaugeDimentsion > 260)
+
+            return GaugeTickPosition.Inside;
+        else
+            return GaugeTickPosition.Outside;
+    }
+
+    private string GaugeStyle => $"width: {state.GaugeDimentsion}px; height: {state.GaugeDimentsion}px;";
+
+    string FormatTick(double value)
+    {
+        switch (Configuration.Maximum)
+        {
+            case <= 0.01:
+                return value.ToString("0.0000");
+
+            case <= 0.1:
+                return value.ToString("0.000");
+
+            case <= 1.0:
+                return value.ToString("0.00");
+            case <= 10.0:
+                return value.ToString("0.0");
+            default:
+                return value.ToString("0");
+        }
+
+
+        // return Math.Round(value, 3).ToString("0.00");
     }
 
     private double Step()
     {
-        double retval = (AbsoluteMaximumValue - Configuration.Minimum) / Configuration.MajorSegments;
-
-        return retval;
+        return (Configuration.Maximum - Configuration.Minimum) / Configuration.MajorSegments;
     }
 
     private double MinorStep()
     {
-        double retval = Math.Max(0.1, Step() / 5);
-        return retval;
+        return Step() / 5;
     }
 
     #endregion

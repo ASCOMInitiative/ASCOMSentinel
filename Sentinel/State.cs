@@ -65,6 +65,8 @@
 
         #region public properties
 
+        public int GaugeDimentsion { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(GaugeDimentsion)); } } }
+
         public string ApplicationVersion { get; set; } = "Not set";
         public string ApplicationFileversion { get; set; } = "Not set";
 
