@@ -212,7 +212,7 @@
                     break;
             }
         }
-        catch (Exception ex)
+        catch
         {
             //logger.LogVerbose("GetDoubleValue", $"Gauge.GetDoubleValue - Error getting double value for {propertyName}: {ex.Message}");
             newValue = settings.GaugeSettings[propertyName].Maximum;

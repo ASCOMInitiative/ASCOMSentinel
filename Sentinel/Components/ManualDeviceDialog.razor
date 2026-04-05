@@ -63,7 +63,7 @@
     public string Name { get; set; } = "";
 
     [Parameter]
-    public string IpAddress { get; set; } = "";
+    public string IpAddress { get; set { field = value.Trim(); } } = "";
 
     [Parameter]
     public int Port { get; set; } = 11111;

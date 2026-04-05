@@ -113,9 +113,6 @@
                                     <input style="margin-left:42px;" type="checkbox" @bind="IncludeAlpacaTraceChanged" disabled="@(TraceLevel >= LogLevel.Information)" />
                                     <span>(Requires devices to be reconnected - Only functional when trace level is Debug).</span>
                                 </div>
-                                <div style="margin-top:24px;padding-top:24px;">
-                                    <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" Disabled="@(state.OperationUnderway)" />
-                                </div>
                             </RadzenCard>
                         </div>
                     </RadzenTabsItem>
@@ -237,14 +234,14 @@
                                 <GaugeSettings Property=@PropertyName.WindSpeed Configuration="@settings.GaugeSettings[PropertyName.WindSpeed]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
                                 <GaugeSettings Property=@PropertyName.WindGust Configuration="@settings.GaugeSettings[PropertyName.WindGust]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
                                 <div style="margin-top:12px;">
-                                    <h4 style="color: cornflowerblue;" >Notes</h4>
+                                    <h4 style="color: cornflowerblue;">Notes</h4>
                                     <ul>
+                                        <li>Display Order controls the order of gauges on the Display page. Set to zero to omit a gauge from the display (flagged red).Duplicate order values are flagged orange. </li>
                                         <li>Change values in the correct order - they are constrained to follow the relationship: Minimum &lt;= Green-Orange-Transition &lt;= Orange-Red-Transition &lt;= Maximum</li>
                                         <li>All gauges have units that increase clockwise from minimum at left to maximum at right. The wind direction compass cannot be configured.</li>
                                         <li>When the green-orange transition value is less than the orange-red transition value, the clockwise segment colour order is green => orange => red.</li>
                                         <li>When the green-orange transition value is greater than the orange-red transition value, the clockwise segment colour order is red => orange => green.</li>
                                         <li>To create an all-green gauge, set both transition values to the maximum value.</li>
-                                        <li>Display Order controls the order of gauges on the Display page (1 = first). Duplicate order values are highlighted in orange. Set to zero to omit a guage from the display.</li>
                                     </ul>
                                 </div>
                             </RadzenCard>
@@ -328,24 +325,18 @@
 
                 </Tabs>
             </RadzenTabs>
+            <div style="margin-top:18px;">
+                <SentinelButton Click="@ResetSettings" Text="Reset To Defaults" Disabled="@(state.OperationUnderway)" />
+            </div>
         </RadzenTabsItem>
 
         <RadzenTabsItem Text="Device Selection">
             <RadzenTabs style="margin-top:12px" RenderMode="TabRenderMode.Server">
                 <Tabs>
                     <RadzenTabsItem Text="Composite Observing Conditions Device">
-                        <div class="row" style="margin-top: 12px">
+                        <div class="row" style="margin-top: 0px">
                             <RadzenCard Style="margin-bottom: 20px; margin-right: 20px">
-                                <h4 style="color: #479cc8; margin-bottom: 0;">Select devices from the drop-downs to feed each property in the composite device.</h4>
-                                <div style="margin-top:16px;margin-bottom:24px;">
-                                    <span>Discovered Alpaca devices are </span>
-                                    <span style="color:dodgerblue;font-weight:bold;">coloured blue</span><span>, manually configured Alpaca devices are </span>
-                                    <span style="color:fuchsia;font-weight:bold;">coloured pink</span>
-                                    <span>and COM devices are </span>
-                                    <span style="color:lightseagreen;font-weight:bold;">coloured green</span>
-                                    <span> (Windows only).</span>
-                                </div>
-
+                                <h4 style="color: #479cc8; margin-bottom: 24px;">Select devices from the drop-downs to feed each property in the composite device.</h4>
                                 <span style="display:inline-block; width:150px; text-align:left; margin:0"><b>Property</b></span>
                                 <span style="display:inline-block; width:600px; text-align:center; margin:0"><b>Served from Device</b></span>
 
@@ -417,6 +408,16 @@
                             </RadzenCard>
                         </div>
                         If a property shows as <span style="color:red;">@Globals.NOT_SET</span>, the composite device will return a not implemented error.
+                        <div style="margin-top:16px;margin-bottom:24px;">
+                            <span>Devices are colour coded as follows: </span>
+                            <span style="color:dodgerblue;font-weight:bold;">Discovered Alpaca devices</span>
+                            <span> - </span>
+                            <span style="color:fuchsia;font-weight:bold;">Manually configured Alpaca devices</span>
+                            <span> - </span>
+                            <span style="color:lightseagreen;font-weight:bold;">COM devices</span>
+                            <span> (Windows only).</span>
+                        </div>
+
                     </RadzenTabsItem>
 
                     <RadzenTabsItem Text="Composite Switch Device" Visible="false">
@@ -505,7 +506,7 @@
                 </Tabs>
             </RadzenTabs>
 
-            <div style="margin-top:24px;;margin-left:0px;">
+            <div style="margin-top:24px;margin-left:0px;">
                 <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.OperationUnderway" />
                 <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;color:red;font-weight:bold;">@state.StatusText</RadzenText>
             </div>

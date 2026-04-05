@@ -116,7 +116,7 @@
         /// Captured at startup from Settings.RequireAdministratorLogin.
         /// Changes to the setting do not take effect until the application is restarted.
         /// </summary>
-        public bool RequireAdministratorLoginAtStartup { get; set; } = true;
+        public bool RequireAdministratorLoginAtStartup { get; set; } = false;
 
         public bool DiscoveryHasRun { get; set; } = false;
 
@@ -165,13 +165,11 @@
                 DiscoveredSafetyMonitorDevices = new List<DiscoveredDevice>();
             }
             LastSafetyState = [];
-            RequireAdministratorLoginAtStartup = true;
+            RequireAdministratorLoginAtStartup = false;
             DiscoveryHasRun = false;
             ObservingConditionsDeviceMap = new ConcurrentDictionary<PropertyName, IObservingConditionsV2>();
             SafetyMonitorDevices = new ConcurrentDictionary<PropertyName, ISafetyMonitorV3>();
             SwitchDevices = new ConcurrentDictionary<int, ISwitchV3>();
-            ObservingConditions = null!;
-            SafetyMonitor = null!;
         }
 
         #endregion

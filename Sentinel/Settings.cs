@@ -300,7 +300,6 @@ namespace Sentinel
         };
 
         public int GaugeDimension { get; set; } = Globals.GAUGE_DIMENSION_DEFAULT;
-
         public bool LogDiscoveryMessages { get; set; } = true;
         public bool StartBrowserOnLaunch { get; set; } = true;
         public bool LogSafetyWarnings { get; set; } = true;
@@ -322,7 +321,7 @@ namespace Sentinel
         public bool BindToAllNetworkAddresses { get; set; } = true;
         public bool AllowDiscovery { get; set; } = true;
         public bool DiscoveryResponseOnlyOnLocalHost { get; set; } = true;
-        public bool EnableRemoteClients { get; set; } = true;
+        public bool EnableRemoteClients { get; set; } = false;
         public bool PreventRemoteDisconnects { get; set; } = true;
         public bool RunInStrictAlpacaMode { get; set; } = true;
         public bool RequireAdministratorLogin { get; set; } = false;
@@ -481,7 +480,7 @@ namespace Sentinel
         {
             foreach (PropertyInfo property in source.GetType().GetProperties())
             {
-                // Skip internal-only properties that must not be overwritten from a deserialized instance
+                // Skip internal-only properties that must not be overwritten from a de-serialized instance
                 if (property.Name == nameof(SettingsFileName) || property.Name == nameof(Status))
                     continue;
 
