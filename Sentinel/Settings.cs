@@ -284,19 +284,19 @@ namespace Sentinel
 
         public Dictionary<PropertyName, GaugeConfiguration> GaugeSettings { get; set; } = new()
         {
-            { PropertyName.CloudCover, new GaugeConfiguration(PropertyName.CloudCover, 0, 100, 20, 70, 10) },
-            { PropertyName.DewPoint, new GaugeConfiguration(PropertyName.DewPoint,-30, 30, 5, 15, 12) },
-            { PropertyName.Humidity, new GaugeConfiguration(PropertyName.Humidity,0, 100, 100, 100, 10) },
-            { PropertyName.Pressure, new GaugeConfiguration(PropertyName.Pressure, 950, 1050, 1060, 1060, 10) },
-            { PropertyName.RainRate, new GaugeConfiguration(PropertyName.RainRate, 0, 50, 1, 5, 10) },
-            { PropertyName.SkyBrightness, new GaugeConfiguration(PropertyName.SkyBrightness, 0, 0.5, 0.1, 0.25, 10) },
-            { PropertyName.SkyQuality, new GaugeConfiguration(PropertyName.SkyQuality, 12, 24, 21.3, 19, 6) },
-            { PropertyName.SkyTemperature, new GaugeConfiguration(PropertyName.SkyTemperature, -70, 20, -20, 0, 9) },
-            { PropertyName.StarFWHM, new GaugeConfiguration(PropertyName.StarFWHM, 0, 5, 1, 2 ,10) },
-            { PropertyName.Temperature, new GaugeConfiguration(PropertyName.Temperature, -50, 50, 10, 25, 10) },
-            { PropertyName.WindDirection, new GaugeConfiguration() },
-            { PropertyName.WindGust, new GaugeConfiguration(PropertyName.WindGust, 0, 100, 10, 30, 10) },
-            { PropertyName.WindSpeed, new GaugeConfiguration(PropertyName.WindSpeed, 0, 50, 5, 15, 10) }
+            { PropertyName.CloudCover, new GaugeConfiguration(PropertyName.CloudCover, 0, 100, 20, 70, 10, 13) },
+            { PropertyName.DewPoint, new GaugeConfiguration(PropertyName.DewPoint,-30, 30, 5, 15, 12, 9) },
+            { PropertyName.Humidity, new GaugeConfiguration(PropertyName.Humidity,0, 100, 100, 100, 10, 12) },
+            { PropertyName.Pressure, new GaugeConfiguration(PropertyName.Pressure, 950, 1050, 1060, 1060, 10, 10) },
+            { PropertyName.RainRate, new GaugeConfiguration(PropertyName.RainRate, 0, 50, 1, 5, 10, 4) },
+            { PropertyName.SkyBrightness, new GaugeConfiguration(PropertyName.SkyBrightness, 0, 0.5, 0.1, 0.25, 10, 5) },
+            { PropertyName.SkyQuality, new GaugeConfiguration(PropertyName.SkyQuality, 12, 24, 21.3, 19, 6, 6) },
+            { PropertyName.SkyTemperature, new GaugeConfiguration(PropertyName.SkyTemperature, -70, 20, -20, 0, 9, 8) },
+            { PropertyName.StarFWHM, new GaugeConfiguration(PropertyName.StarFWHM, 0, 5, 1, 2 ,10, 7) },
+            { PropertyName.Temperature, new GaugeConfiguration(PropertyName.Temperature, -50, 50, 10, 25, 10, 11) },
+            { PropertyName.WindDirection, new GaugeConfiguration(PropertyName.WindDirection, 0, 360, 360, 360, 8, 3) },
+            { PropertyName.WindGust, new GaugeConfiguration(PropertyName.WindGust, 0, 100, 10, 30, 10, 2) },
+            { PropertyName.WindSpeed, new GaugeConfiguration(PropertyName.WindSpeed, 0, 50, 5, 15, 10, 1) }
         };
 
         public int GaugeDimension { get; set; } = Globals.GAUGE_DIMENSION_DEFAULT;

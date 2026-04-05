@@ -137,3 +137,19 @@ fieldset legend {
     pointer-events: none; /* marker won't block slider interaction */
     z-index: 10;
 }
+
+/* Display order colour states for RadzenNumeric inputs */
+.order-hidden .rz-inputtext,
+.order-hidden .rz-spinner-button {
+    color: black;
+}
+
+.order-duplicate .rz-inputtext,
+.order-duplicate .rz-spinner-button {
+    color: black;
+}
+
+.order-valid .rz-inputtext,
+.order-valid .rz-spinner-button {
+    color: black;
+}

@@ -41,9 +41,7 @@
     }
 </style>
 
-<h1>Help</h1>
-
-<h4 style="margin-top:24px;">Introduction</h4>
+<h2 style="margin-top:0px;">Introduction</h2>
 @Globals.APPLICATION_NAME is a cross-platform application that:
 <ul>
     <li>Consolidates a number of real COM or Alpaca ObservingConditions devices into a single virtual device.</li>
@@ -55,7 +53,7 @@
     <li>Provides a graphical depiction of current observing conditions values as reported by the virtual device.</li>
 </ul>
 
-<h4 style="margin-top:24px;">The GetSafetyState Action</h4>
+<h2 style="margin-top:24px;">The GetSafetyState Action</h2>
 <p>The virtual safety monitor provides a <code>GetSafetyState</code> Action that returns a JSON object as a serialised string.</p>
 <ul>
     <li><code style="display:inline-block; min-width:130px;">IsSafe = false</code> Returns an empty JSON array.</li>
@@ -65,7 +63,7 @@
 
 <p style="color:darkorange"><b>This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.</b></p>
 
-<h4 style="margin-top:48px;">Getting Safety State Information</h4>
+<h2 style="margin-top:48px;">Getting Safety State Information</h2>
 <p>
     ASCOM clients can check whether a safety monitor supports the GetSafetyState action by calling the 
     <a href="https://ascom-standards.org/newdocs/safetymonitor.html#SafetyMonitor.SupportedActions" target="_blank">SafetyMonitor.SupportedActions</a> method.
@@ -76,7 +74,7 @@
     e.g. <code>string serialisedJsonString = safetyMonitorClient.Action("GetSafetyState", "")</code>.
 </p>
 
-<h4 style="margin-top:48px;">SafetyState Event Class Definition</h4>
+<h2 style="margin-top:48px;">SafetyState Event Class Definition</h2>
 <pre class="vs-code-block">
 <code>
 <span class="vs-code-comment">/// &lt;summary&gt;</span>
@@ -184,7 +182,7 @@
 </code>
 </pre>
 
-<h4 style="margin-top:48px;">Example JSON Response String</h4>
+<h2 style="margin-top:48px;">Example JSON Response String</h2>
 <pre class="vs-code-block">
 <code>
 [

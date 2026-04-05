@@ -16,7 +16,7 @@
 <PageTitle>@Globals.APPLICATION_NAME Display</PageTitle>
 <div style="display:flex">
     <div style="flex:1">
-        <h1>@Globals.APPLICATION_NAME</h1>
+        <h2>Current Observing Conditions</h2>
     </div>
     <div style="flex:1; text-align:right;">
         <span>Gauge size</span>
@@ -36,19 +36,17 @@
     </div>
 </div>
 <div style="display: flex; flex-wrap: wrap;">
-    <Gauge Legend="Wind Speed (mi/h)" Value=@GetDoubleValue(PropertyName.WindSpeed, 20.0) Configuration=@(settings.GaugeSettings[PropertyName.WindSpeed]) />
-    <Gauge Legend="Wind Gust (mi/h)" Value=@GetDoubleValue(PropertyName.WindGust, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.WindGust]) />
-    <Compass Value=@GetDoubleValue(PropertyName.WindDirection, 0.0) />
-    <Gauge Legend="Rain Rate (mm/h)" Value=@GetDoubleValue(PropertyName.RainRate, 50.0) Configuration=@(settings.GaugeSettings[PropertyName.RainRate]) />
-    <Gauge Legend="Sky Brightness (Lux)" Value=@GetDoubleValue(PropertyName.SkyBrightness, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyBrightness]) />
-    <Gauge Legend="Sky Quality (mag/arcsec2)" Value=@GetDoubleValue(PropertyName.SkyQuality, 25.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyQuality]) />
-    <Gauge Legend="FWHM (arc-sec)" Value=@GetDoubleValue(PropertyName.StarFWHM, 5.0) Configuration=@(settings.GaugeSettings[PropertyName.StarFWHM]) />
-    <Gauge Legend="Sky Temperature (C)" Value=@GetDoubleValue(PropertyName.SkyTemperature, 20.0) Configuration=@(settings.GaugeSettings[PropertyName.SkyTemperature]) />
-    <Gauge Legend="Dew Point (C)" Value=@GetDoubleValue(PropertyName.DewPoint, 25.0) Configuration=@(settings.GaugeSettings[PropertyName.DewPoint]) />
-    <Gauge Legend="Pressure (hPa)" Value=@GetDoubleValue(PropertyName.Pressure, 1050.0) Configuration=@(settings.GaugeSettings[PropertyName.Pressure]) />
-    <Gauge Legend="Temperature (C)" Value=@GetDoubleValue(PropertyName.Temperature, 50.0) Configuration=@(settings.GaugeSettings[PropertyName.Temperature]) />
-    <Gauge Legend="Humidity (%)" Value=@GetDoubleValue(PropertyName.Humidity, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.Humidity]) />
-    <Gauge Legend="Cloud Cover (%)" Value=@GetDoubleValue(PropertyName.CloudCover, 100.0) Configuration=@(settings.GaugeSettings[PropertyName.CloudCover]) />
+    @foreach (var property in GetOrderedGaugeProperties())
+    {
+        if (property == PropertyName.WindDirection)
+        {
+            <Compass Value=@GetDoubleValue(PropertyName.WindDirection, 0.0) />
+        }
+        else
+        {
+            <Gauge Legend="@GaugeInfo[property].Legend" Value=@GetDoubleValue(property, GaugeInfo[property].DefaultValue) Configuration=@(settings.GaugeSettings[property]) />
+        }
+    }
 </div>
 <div>
     <p style="margin-top:24px; font-size:small;">The gauge minimum, maximum and transition points can be configured on the Configuration / Application Settings / Display tab.</p>
@@ -61,6 +59,38 @@
     private string MarkerStyle = $"position: absolute; top: 50%; left: {MARKER_POSITION_PERCENT}%; width: 4px; height: 30px; background-color: red; border-radius: 2px; pointer-events: none; transform: translate(-50%, -50%);";
 
     private readonly CancellationTokenSource _cts = new();
+
+    /// <summary>
+    /// Legend text and default value for each gauge on the Display page.
+    /// </summary>
+    private static readonly Dictionary<PropertyName, (string Legend, double DefaultValue)> GaugeInfo = new()
+    {
+        { PropertyName.WindSpeed, ("Wind Speed (mi/h)", 20.0) },
+        { PropertyName.WindGust, ("Wind Gust (mi/h)", 100.0) },
+        { PropertyName.WindDirection, ("Wind Direction", 0.0) },
+        { PropertyName.RainRate, ("Rain Rate (mm/h)", 50.0) },
+        { PropertyName.SkyBrightness, ("Sky Brightness (Lux)", 100.0) },
+        { PropertyName.SkyQuality, ("Sky Quality (mag/arcsec2)", 25.0) },
+        { PropertyName.StarFWHM, ("FWHM (arc-sec)", 5.0) },
+        { PropertyName.SkyTemperature, ("Sky Temperature (C)", 20.0) },
+        { PropertyName.DewPoint, ("Dew Point (C)", 25.0) },
+        { PropertyName.Pressure, ("Pressure (hPa)", 1050.0) },
+        { PropertyName.Temperature, ("Temperature (C)", 50.0) },
+        { PropertyName.Humidity, ("Humidity (%)", 100.0) },
+        { PropertyName.CloudCover, ("Cloud Cover (%)", 100.0) },
+    };
+
+    /// <summary>
+    /// Returns gauge property names sorted by their configured display order. Gauges with order 0 are excluded.
+    /// </summary>
+    private IEnumerable<PropertyName> GetOrderedGaugeProperties()
+    {
+        return settings.GaugeSettings
+            .Where(kvp => kvp.Value.DisplayOrder > 0)
+            .OrderBy(kvp => kvp.Value.DisplayOrder)
+            .ThenBy(kvp => kvp.Key)
+            .Select(kvp => kvp.Key);
+    }
 
     private Dictionary<PropertyName, double> lastValue = new() {
         { PropertyName.WindSpeed, 0.0 },

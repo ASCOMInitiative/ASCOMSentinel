@@ -5,59 +5,80 @@
 <div style="margin-top:8px;">
     <span style="min-width:164px;display:inline-block;"><b>@(Property.ToString())</b></span>
 
-    <span style="margin-left:0px">
-        <RadzenNumeric Value="_minimum"
-                       TValue="double"
-                       Max="_greenOrangeTransition.ToDecimal()"
-                       Step="1"
-                       Style="width:120px; border:1px solid DarkGrey;"
-                       TextAlign="TextAlign.Right"
-                       ValueChanged="@((args)=> ValueChanged(GaugeValue.Minimum, args))"
-                       ShowUpDown="true" />
-    </span>
-    <span style="margin-left:40px">
-        <RadzenNumeric Value="_greenOrangeTransition"
-                       TValue="double"
-                       ValueChanged="@((args)=> ValueChanged(GaugeValue.GreenOrangeTransition, args))"
-                       Min="_minimum.ToDecimal()"
-                       Max="_orangeRedTransition.ToDecimal()"
-                       Step="1"
-                       Style="width:120px; border:1px solid DarkGrey;"
-                       TextAlign="TextAlign.Right"
-                       ShowUpDown="true" />
-    </span>
-    <span style="margin-left:40px">
-        <RadzenNumeric Value="_orangeRedTransition"
-                       TValue="double"
-                       ValueChanged="@((args)=> ValueChanged(GaugeValue.OrangeRedTransition, args))"
-                       Min="_greenOrangeTransition.ToDecimal()"
-                       Max="_maximum.ToDecimal()"
-                       Step="1"
-                       Style="width:120px; border:1px solid DarkGrey;"
-                       TextAlign="TextAlign.Right"
-                       ShowUpDown="true" />
-    </span>
-    <span style="margin-left:40px">
-        <RadzenNumeric Value="_maximum"
-                       TValue="double"
-                       ValueChanged="@((args)=> ValueChanged(GaugeValue.Maximum, args))"
-                       Min="_orangeRedTransition.ToDecimal()"
-                       Step="1"
-                       Style="width:120px; border:1px solid DarkGrey;"
-                       TextAlign="TextAlign.Right"
-                       ShowUpDown="true" />
-    </span>
-    <span style="margin-left:40px">
-        <RadzenNumeric Value="_numberOfSegments"
+    @if (!IsCompass)
+    {
+        <span style="margin-left:0px">
+            <RadzenNumeric Value="_minimum"
+                           TValue="double"
+                           Max="_greenOrangeTransition.ToDecimal()"
+                           Step="1"
+                           Style="width:120px; border:1px solid DarkGrey;"
+                           TextAlign="TextAlign.Right"
+                           ValueChanged="@((args)=> ValueChanged(GaugeValue.Minimum, args))"
+                           ShowUpDown="true" />
+        </span>
+        <span style="margin-left:40px">
+            <RadzenNumeric Value="_greenOrangeTransition"
+                           TValue="double"
+                           ValueChanged="@((args)=> ValueChanged(GaugeValue.GreenOrangeTransition, args))"
+                           Min="_minimum.ToDecimal()"
+                           Max="_orangeRedTransition.ToDecimal()"
+                           Step="1"
+                           Style="width:120px; border:1px solid DarkGrey;"
+                           TextAlign="TextAlign.Right"
+                           ShowUpDown="true" />
+        </span>
+        <span style="margin-left:40px">
+            <RadzenNumeric Value="_orangeRedTransition"
+                           TValue="double"
+                           ValueChanged="@((args)=> ValueChanged(GaugeValue.OrangeRedTransition, args))"
+                           Min="_greenOrangeTransition.ToDecimal()"
+                           Max="_maximum.ToDecimal()"
+                           Step="1"
+                           Style="width:120px; border:1px solid DarkGrey;"
+                           TextAlign="TextAlign.Right"
+                           ShowUpDown="true" />
+        </span>
+        <span style="margin-left:40px">
+            <RadzenNumeric Value="_maximum"
+                           TValue="double"
+                           ValueChanged="@((args)=> ValueChanged(GaugeValue.Maximum, args))"
+                           Min="_orangeRedTransition.ToDecimal()"
+                           Step="1"
+                           Style="width:120px; border:1px solid DarkGrey;"
+                           TextAlign="TextAlign.Right"
+                           ShowUpDown="true" />
+        </span>
+        <span style="margin-left:40px">
+            <RadzenNumeric Value="_numberOfSegments"
+                           TValue="int"
+                           Step="1"
+                           Style="width:120px; border:1px solid DarkGrey;"
+                           TextAlign="TextAlign.Right"
+                           ShowUpDown="true" />
+        </span>
+    }
+    else
+    {
+        <span style="display:inline-block; width:779px;"></span>
+    }
+    <span style="margin-left:40px" class="@OrderClass">
+        <RadzenNumeric Value="_displayOrder"
                        TValue="int"
+                       Min="0"
+                       Max="13"
                        Step="1"
-                       Style="width:120px; border:1px solid DarkGrey;"
+                       Style="@OrderStyle"
                        TextAlign="TextAlign.Right"
+                       ValueChanged="@((args) => DisplayOrderChanged(args))"
                        ShowUpDown="true" />
     </span>
-    <span style="margin-left:24px">
-        <SentinelButton Text="Set Values" Click="@SetValues" />
-    </span>
+    @* @if (!IsCompass)
+    {
+        <span style="margin-left:24px">
+            <SentinelButton Text="Set Values" Click="@SetValues" />
+        </span>
+    } *@
 </div>
 
 @code
@@ -77,11 +98,34 @@
     [Parameter]
     public GaugeConfiguration Configuration { get; set; } = new();
 
+    /// <summary>
+    /// Set of display order values that are used by more than one gauge.
+    /// </summary>
+    [Parameter]
+    public HashSet<int> DuplicateOrders { get; set; } = [];
+
+    private bool IsCompass => Property == PropertyName.WindDirection;
+
+    private string OrderStyle => _displayOrder switch
+    {
+        0 => "width:120px; border:4px solid red; font-weight:bold;",
+        _ when DuplicateOrders.Contains(_displayOrder) => "width:120px; border:4px solid orange; font-weight:bold;",
+        _ => "width:120px; border:1px solid black; font-weight:bold;"
+    };
+
+    private string OrderClass => _displayOrder switch
+    {
+        0 => "order-hidden",
+        _ when DuplicateOrders.Contains(_displayOrder) => "order-duplicate",
+        _ => "order-valid"
+    };
+
     private double _minimum;
     private double _maximum;
     private double _greenOrangeTransition;
     private double _orangeRedTransition;
     private int _numberOfSegments = 10;
+    private int _displayOrder;
 
     private GaugeConfiguration _lastConfiguration = new();
 
@@ -109,6 +153,14 @@
         await InvokeAsync(StateHasChanged);
     }
 
+    private async Task DisplayOrderChanged(int value)
+    {
+        _displayOrder = value;
+        Configuration.DisplayOrder = _displayOrder;
+        settings.Save();
+        await InvokeAsync(StateHasChanged);
+    }
+
 
     protected override void OnParametersSet()
     {
@@ -120,6 +172,7 @@
             _greenOrangeTransition = Configuration.GreenOrangeTransition;
             _orangeRedTransition = Configuration.OrangeRedTransition;
             _numberOfSegments = Configuration.MajorSegments;
+            _displayOrder = Configuration.DisplayOrder;
         }
     }
 
@@ -130,6 +183,7 @@
         Configuration.GreenOrangeTransition = _greenOrangeTransition;
         Configuration.OrangeRedTransition = _orangeRedTransition;
         Configuration.MajorSegments = _numberOfSegments;
+        Configuration.DisplayOrder = _displayOrder;
 
         settings.Save();
     }

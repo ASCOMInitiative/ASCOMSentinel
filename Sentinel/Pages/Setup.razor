@@ -22,11 +22,6 @@
 
 <PageTitle>Application Setup</PageTitle>
 
-<h1>Application Setup</h1>
-<span style="margin-left:0px;">
-    <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.OperationUnderway" />
-    <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;color:red;font-weight:bold;">@state.StatusText</RadzenText>
-</span>
 <RadzenTabs style="height: 820px;margin-top:20px; width:auto; height: auto" RenderMode="TabRenderMode.Server" Change="(item) => OnTabChanged(item)">
     <Tabs>
         <RadzenTabsItem Text="Application Settings">
@@ -222,29 +217,34 @@
                                             <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;text-align:center;">
                                                 Number of Segments
                                             </div>
+                                            <div style="min-height:24px; width:140px; display:flex; align-items:center; justify-content:center;text-align:center;">
+                                                Display Order
+                                            </div>
                                         </span>
                                     </b>
                                 </div>
-                                <GaugeSettings Property=@PropertyName.CloudCover Configuration="@settings.GaugeSettings[PropertyName.CloudCover]" />
-                                <GaugeSettings Property=@PropertyName.DewPoint Configuration="@settings.GaugeSettings[PropertyName.DewPoint]" />
-                                <GaugeSettings Property=@PropertyName.Humidity Configuration="@settings.GaugeSettings[PropertyName.Humidity]" />
-                                <GaugeSettings Property=@PropertyName.Pressure Configuration="@settings.GaugeSettings[PropertyName.Pressure]" />
-                                <GaugeSettings Property=@PropertyName.RainRate Configuration="@settings.GaugeSettings[PropertyName.RainRate]" />
-                                <GaugeSettings Property=@PropertyName.SkyBrightness Configuration="@settings.GaugeSettings[PropertyName.SkyBrightness]" />
-                                <GaugeSettings Property=@PropertyName.SkyQuality Configuration="@settings.GaugeSettings[PropertyName.SkyQuality]" />
-                                <GaugeSettings Property=@PropertyName.SkyTemperature Configuration="@settings.GaugeSettings[PropertyName.SkyTemperature]" />
-                                <GaugeSettings Property=@PropertyName.StarFWHM Configuration="@settings.GaugeSettings[PropertyName.StarFWHM]" />
-                                <GaugeSettings Property=@PropertyName.Temperature Configuration="@settings.GaugeSettings[PropertyName.Temperature]" />
-                                <GaugeSettings Property=@PropertyName.WindSpeed Configuration="@settings.GaugeSettings[PropertyName.WindSpeed]" />
-                                <GaugeSettings Property=@PropertyName.WindGust Configuration="@settings.GaugeSettings[PropertyName.WindGust]" />
+                                <GaugeSettings Property=@PropertyName.CloudCover Configuration="@settings.GaugeSettings[PropertyName.CloudCover]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.DewPoint Configuration="@settings.GaugeSettings[PropertyName.DewPoint]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.Humidity Configuration="@settings.GaugeSettings[PropertyName.Humidity]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.Pressure Configuration="@settings.GaugeSettings[PropertyName.Pressure]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.RainRate Configuration="@settings.GaugeSettings[PropertyName.RainRate]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.SkyBrightness Configuration="@settings.GaugeSettings[PropertyName.SkyBrightness]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.SkyQuality Configuration="@settings.GaugeSettings[PropertyName.SkyQuality]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.SkyTemperature Configuration="@settings.GaugeSettings[PropertyName.SkyTemperature]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.StarFWHM Configuration="@settings.GaugeSettings[PropertyName.StarFWHM]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.Temperature Configuration="@settings.GaugeSettings[PropertyName.Temperature]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.WindDirection Configuration="@settings.GaugeSettings[PropertyName.WindDirection]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.WindSpeed Configuration="@settings.GaugeSettings[PropertyName.WindSpeed]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
+                                <GaugeSettings Property=@PropertyName.WindGust Configuration="@settings.GaugeSettings[PropertyName.WindGust]" DuplicateOrders="@GetDuplicateDisplayOrders()" />
                                 <div style="margin-top:12px;">
                                     <h4 style="color: cornflowerblue;" >Notes</h4>
                                     <ul>
-                                        <li>Change text box values in the correct order - they are constrained to follow the relationship: Minimum &lt;= Green-Orange-Transition &lt;= Orange-Red-Transition &lt;= Maximum</li>
-                                        <li>All gauges have units that increase clockwise from left to right, the wind direction compass cannot be configured.</li>
+                                        <li>Change values in the correct order - they are constrained to follow the relationship: Minimum &lt;= Green-Orange-Transition &lt;= Orange-Red-Transition &lt;= Maximum</li>
+                                        <li>All gauges have units that increase clockwise from minimum at left to maximum at right. The wind direction compass cannot be configured.</li>
                                         <li>When the green-orange transition value is less than the orange-red transition value, the clockwise segment colour order is green => orange => red.</li>
                                         <li>When the green-orange transition value is greater than the orange-red transition value, the clockwise segment colour order is red => orange => green.</li>
                                         <li>To create an all-green gauge, set both transition values to the maximum value.</li>
+                                        <li>Display Order controls the order of gauges on the Display page (1 = first). Duplicate order values are highlighted in orange. Set to zero to omit a guage from the display.</li>
                                     </ul>
                                 </div>
                             </RadzenCard>
@@ -504,6 +504,12 @@
                     </RadzenTabsItem>
                 </Tabs>
             </RadzenTabs>
+
+            <div style="margin-top:24px;;margin-left:0px;">
+                <SentinelButton Click="@StartDiscovery" Text="Update Device List" Disabled="@state.OperationUnderway" />
+                <RadzenText TagName="TagName.Span" Style="display:inline-block; min-width:616px;margin-left:24px;color:red;font-weight:bold;">@state.StatusText</RadzenText>
+            </div>
+
         </RadzenTabsItem>
 
         <RadzenTabsItem Text="Device Rules">
@@ -675,6 +681,11 @@
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
 
+    protected override void OnInitialized()
+    {
+        _srvUserNameInput = settings.UserName;
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -710,6 +721,18 @@
     private void OnLocationChange(string value, string name)
     {
         SrvLocation = value;
+    }
+
+    /// <summary>
+    /// Returns the set of display order values that are shared by more than one gauge.
+    /// </summary>
+    private HashSet<int> GetDuplicateDisplayOrders()
+    {
+        return settings.GaugeSettings.Values
+            .GroupBy(g => g.DisplayOrder)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToHashSet();
     }
 
     private async Task OnTabChanged(int item)
@@ -815,11 +838,6 @@
         state.StatusText = $"{Globals.APPLICATION_NAME} must be re-started in order for this change to take effect.";
         state.DisplayRestartMessage = true;
         await InvokeAsync(StateHasChanged);
-    }
-
-    protected override void OnInitialized()
-    {
-        _srvUserNameInput = settings.UserName;
     }
 
     private bool IncludeAlpacaTraceChanged
