@@ -21,6 +21,8 @@ namespace Sentinel.DeviceAccess
         private readonly ConcurrentDictionary<PropertyName, CacheEntry<string>> _sensorDescriptionCache = new();
         private readonly ConcurrentDictionary<PropertyName, Lock> _sensorDescriptionLocks = new();
 
+        private Lock deviceStateLock = new Lock();
+
         public ObservingConditions(Settings settings, State state, SentinelLogger logger)
         {
             ArgumentNullException.ThrowIfNull(settings);
@@ -70,23 +72,36 @@ namespace Sentinel.DeviceAccess
                 // Check whether remote access is enabled
                 CheckEnabled();
 
-                List<StateValue> stateValues = [];
+                // Return the cached result if it exists and the call time is still within the expiry window
+                if (DateTime.UtcNow.Subtract(state.LastObservingConditionsDeviceStateTime) < settings.PropertyCacheTime)
+                    return state.LastObservingConditionsDeviceState;
 
-                try { stateValues.Add(new StateValue(nameof(CloudCover), CloudCover)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(DewPoint), DewPoint)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(Humidity), Humidity)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(Pressure), Pressure)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(RainRate), RainRate)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(SkyBrightness), SkyBrightness)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(SkyQuality), SkyQuality)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(SkyTemperature), SkyTemperature)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(StarFWHM), StarFWHM)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(Temperature), Temperature)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(WindDirection), WindDirection)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(WindSpeed), WindSpeed)); } catch { }
-                try { stateValues.Add(new StateValue(nameof(WindGust), WindGust)); } catch { }
+                lock (deviceStateLock)
+                {
 
-                return stateValues;
+                    // Repeat the cache test in case another thread has already updated the cache while we were waiting for the lock
+                    if (DateTime.UtcNow.Subtract(state.LastObservingConditionsDeviceStateTime) < settings.PropertyCacheTime)
+                        return state.LastObservingConditionsDeviceState;
+
+                    state.LastObservingConditionsDeviceState = [];
+
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(CloudCover), CloudCover)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(DewPoint), DewPoint)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(Humidity), Humidity)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(Pressure), Pressure)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(RainRate), RainRate)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(SkyBrightness), SkyBrightness)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(SkyQuality), SkyQuality)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(SkyTemperature), SkyTemperature)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(StarFWHM), StarFWHM)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(Temperature), Temperature)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(WindDirection), WindDirection)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(WindSpeed), WindSpeed)); } catch { }
+                    try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(WindGust), WindGust)); } catch { }
+
+                    state.LastObservingConditionsDeviceStateTime = DateTime.Now;
+                    return state.LastObservingConditionsDeviceState;
+                }
             }
         }
 

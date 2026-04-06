@@ -43,6 +43,7 @@
         internal const int GAUGE_SMALL_TRANSTION = 260; // Gauge dimension in pixels at which the gauge transitions to the small layout.
         internal const int GAUGE_SMALL_OFFSET = 54; // Offset in pixels applied to the position of the gauge value text when the gauge is in the small layout to prevent overlap with the gauge arc.
 
+        internal const int IsSafeCacheDuration = 1; // Duration in seconds for which the result of the IsSafe check is cached to prevent excessive calls to devices that are slow to respond to IsSafe queries.
 
         internal static readonly SemaphoreSlim ConnectSemaphore = new SemaphoreSlim(1, 1);
         internal static Lock StateLock = new();

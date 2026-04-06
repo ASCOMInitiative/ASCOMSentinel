@@ -13,6 +13,7 @@ namespace Sentinel.DeviceAccess
         private readonly State state;
         private readonly SentinelLogger logger;
 
+        private static readonly TimeSpan IsSafeCacheTime = TimeSpan.FromSeconds(Globals.IsSafeCacheDuration); // Local copy of the cache duration
 
         public SafetyMonitor(Settings settings, State state, SentinelLogger logger)
         {
@@ -72,13 +73,24 @@ namespace Sentinel.DeviceAccess
         {
             get
             {
-                // Check whether remote access is enabled
+                // Check whether remote access is enabled and the real devices are connected, throw an exception if not
                 CheckEnabled();
 
+                // Check whether we're connected to the client, if not, throw an exception. 
                 if (Connected)
                 {
+                    // Return the cached IsSafe value if it's still valid to avoid the need to update it.
+                    if ((DateTime.UtcNow - state.LastIsSafeTime) < IsSafeCacheTime)
+                        return state.LastIsSafeState;
+
+                    // Update the safety state by checking all the safety monitors and observing conditions rules, and return the overall safety state.
+                    // This is done inside a lock to prevent concurrent updates to the safety state when multiple clients call IsSafe at the same time
                     lock (_safetyStateLock)
                     {
+                        // Check the cached state again in case it was updated by another thread while we were waiting for the lock.
+                        if ((DateTime.UtcNow - state.LastIsSafeTime) < IsSafeCacheTime)
+                            return state.LastIsSafeState;
+
                         state.LastSafetyState.Clear(); // Clear the last safety state list to be populated with any new safety events detected in this call
                         bool allSafe = true;
 
@@ -324,6 +336,10 @@ namespace Sentinel.DeviceAccess
                             }
                         }
 
+                        // Update the time of the last safety state update
+                        state.LastIsSafeTime = DateTime.UtcNow;
+
+                        // Return the overall safety state
                         return allSafe;
                     } // lock
                 }
@@ -384,7 +400,7 @@ namespace Sentinel.DeviceAccess
                 case Globals.SAFETY_EVENT_ACTION_NAME_LOWERCASE:
                     lock (_safetyStateLock)
                     {
-                        string json=JsonSerializer.Serialize(state.LastSafetyState, _jsonOptions);
+                        string json = JsonSerializer.Serialize(state.LastSafetyState, _jsonOptions);
                         logger.LogDebug("Action", $"Returning JSON string: {json}");
 
                         return json;

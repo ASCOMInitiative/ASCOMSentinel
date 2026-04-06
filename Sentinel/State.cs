@@ -112,6 +112,13 @@
 
         public List<SafetyState> LastSafetyState { get; set; } = [];
 
+        public bool LastIsSafeState { get; set; } = false;
+        public DateTime LastIsSafeTime { get; set; }= DateTime.MinValue;
+
+        public List<StateValue> LastObservingConditionsDeviceState = [];
+        public DateTime LastObservingConditionsDeviceStateTime { get; set; } = DateTime.MinValue;
+
+
         /// <summary>
         /// Captured at startup from Settings.RequireAdministratorLogin.
         /// Changes to the setting do not take effect until the application is restarted.
