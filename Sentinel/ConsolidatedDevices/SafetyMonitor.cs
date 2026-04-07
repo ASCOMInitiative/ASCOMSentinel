@@ -13,7 +13,7 @@ namespace Sentinel.DeviceAccess
         private readonly State state;
         private readonly SentinelLogger logger;
 
-        private static readonly TimeSpan IsSafeCacheTime = TimeSpan.FromSeconds(Globals.IsSafeCacheDuration); // Local copy of the cache duration
+        public List<SafetyState> lastSafetyState = new List<SafetyState>();
 
         public SafetyMonitor(Settings settings, State state, SentinelLogger logger)
         {
@@ -45,7 +45,7 @@ namespace Sentinel.DeviceAccess
             lock (propertyLock)
             {
                 // Return the cached result if it exists and the call time is still within the expiry window
-                if ((_propertyCache.TryGetValue(propertyName, out CacheEntry<bool>? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime)) // Value is cached and within the expiry time so return the last value
+                if ((_propertyCache.TryGetValue(propertyName, out CacheEntry<bool>? entry)) && (entry.Timestamp + settings.PropertyCacheTime > DateTime.UtcNow)) // Value is cached and within the expiry time so return the last value
                 {
                     if (entry.Exception is null) // Cache hit with a valid value so return the value without calling the device
                         return entry.Value;
@@ -80,7 +80,7 @@ namespace Sentinel.DeviceAccess
                 if (Connected)
                 {
                     // Return the cached IsSafe value if it's still valid to avoid the need to update it.
-                    if ((DateTime.UtcNow - state.LastIsSafeTime) < IsSafeCacheTime)
+                    if ((state.LastIsSafeTime + settings.PropertyCacheTime) > DateTime.UtcNow)
                         return state.LastIsSafeState;
 
                     // Update the safety state by checking all the safety monitors and observing conditions rules, and return the overall safety state.
@@ -88,10 +88,12 @@ namespace Sentinel.DeviceAccess
                     lock (_safetyStateLock)
                     {
                         // Check the cached state again in case it was updated by another thread while we were waiting for the lock.
-                        if ((DateTime.UtcNow - state.LastIsSafeTime) < IsSafeCacheTime)
+                        if ((state.LastIsSafeTime + settings.PropertyCacheTime) > DateTime.UtcNow)
                             return state.LastIsSafeState;
 
-                        state.LastSafetyState.Clear(); // Clear the last safety state list to be populated with any new safety events detected in this call
+                        state.LastSafetyState = "[]"; // Clear the last safety state string to be populated with any new safety events detected in this call
+                        lastSafetyState.Clear();
+
                         bool allSafe = true;
 
                         // Iterate over the safety monitor configurations
@@ -115,7 +117,7 @@ namespace Sentinel.DeviceAccess
                                                 {
                                                     safetyMessage = $"Safety monitor {property} reported an UNSAFE condition.";
                                                     LogWarning("IsSafe", safetyMessage);
-                                                    state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.Unsafe, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                                    lastSafetyState.Add(new SafetyState(SafetyEventCondition.Unsafe, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
                                                     allSafe = false;
                                                 }
                                             }
@@ -123,7 +125,7 @@ namespace Sentinel.DeviceAccess
                                             {
                                                 safetyMessage = $"{settings.ConfiguredDevices[property].DisplayName} ({property}) failed to connect.";
                                                 LogError("IsSafe", safetyMessage);
-                                                state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                                lastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
                                                 allSafe = false;
                                             }
                                         }
@@ -133,7 +135,7 @@ namespace Sentinel.DeviceAccess
                                             logger.LogError("IsSafe", safetyMessage);
                                             logger.LogDebug("IsSafe", $"Full exception:\r\n{ex}");
 
-                                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                            lastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
                                             allSafe = false;
                                         }
                                         break;
@@ -142,7 +144,7 @@ namespace Sentinel.DeviceAccess
                                                                         // Add a safety event to the list when the response is forced to UNSAFE
                                         safetyMessage = $"Safety monitor {property} is configured to report UNSAFE regardless of the state of the device.";
                                         LogWarning("IsSafe", safetyMessage);
-                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.ForcedToState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                        lastSafetyState.Add(new SafetyState(SafetyEventCondition.ForcedToState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
                                         allSafe = false;
                                         break;
 
@@ -150,7 +152,7 @@ namespace Sentinel.DeviceAccess
                                                                        // Add a safety event to the list when the response is forced to SAFE
                                         safetyMessage = $"Safety monitor {property} is configured to report SAFE regardless of the state of the device.";
                                         LogWarning("IsSafe", safetyMessage);
-                                        state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.ForcedToState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
+                                        lastSafetyState.Add(new SafetyState(SafetyEventCondition.ForcedToState, SafetyEventType.SafetyIssue, $"{Globals.APPLICATION_NAME} at {settings.Location}", safetyMessage)); // Add a safety event to the list for any monitor that reports unsafe
                                         break;
 
                                     default:
@@ -195,6 +197,7 @@ namespace Sentinel.DeviceAccess
                                     case PropertyName.Humidity:
                                         currentValue = observingConditionsDevice.Humidity;
                                         break;
+
                                     case PropertyName.Temperature:
                                         currentValue = observingConditionsDevice.Temperature;
                                         break;
@@ -249,7 +252,7 @@ namespace Sentinel.DeviceAccess
                                         if (currentValue < value1)
                                         {
                                             LogWarning("IsSafe", $"Observing conditions {property} value {currentValue} is less than {value1}.");
-                                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
+                                            lastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
                                                 property.ToSafetyEventType(),
                                                 $"{Globals.APPLICATION_NAME} at {settings.Location}",
                                                 $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is less than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
@@ -261,7 +264,7 @@ namespace Sentinel.DeviceAccess
                                         if (currentValue == value1)
                                         {
                                             LogWarning("IsSafe", $"Observing conditions {property} value {currentValue} is equal to {value1}.");
-                                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
+                                            lastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
                                                 property.ToSafetyEventType(),
                                                 $"{Globals.APPLICATION_NAME} at {settings.Location}",
                                                 $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is equal to {value1}.")); // Add a safety event to the list for any rule that is not satisfied
@@ -273,7 +276,7 @@ namespace Sentinel.DeviceAccess
                                         if (currentValue > value1)
                                         {
                                             LogWarning("IsSafe", $"Observing conditions {property} value {currentValue} is greater than {value1}.");
-                                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
+                                            lastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
                                                 property.ToSafetyEventType(),
                                                 $"{Globals.APPLICATION_NAME} at {settings.Location}",
                                                 $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is greater than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
@@ -292,7 +295,7 @@ namespace Sentinel.DeviceAccess
                                         if (currentValue < value2)
                                         {
                                             LogWarning("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is less than {value2}.");
-                                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
+                                            lastSafetyState.Add(new SafetyState(SafetyEventCondition.BelowLimit,
                                                 property.ToSafetyEventType(),
                                                 $"{Globals.APPLICATION_NAME} at {settings.Location}",
                                                 $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is less than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
@@ -304,7 +307,7 @@ namespace Sentinel.DeviceAccess
                                         if (currentValue == value2)
                                         {
                                             LogWarning("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is equal {value2}.");
-                                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
+                                            lastSafetyState.Add(new SafetyState(SafetyEventCondition.EqualLimit,
                                                 property.ToSafetyEventType(),
                                                 $"{Globals.APPLICATION_NAME} at {settings.Location}",
                                                 $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is equal to {value2}.")); // Add a safety event to the list for any rule that is not satisfied
@@ -316,7 +319,7 @@ namespace Sentinel.DeviceAccess
                                         if (currentValue > value2)
                                         {
                                             LogWarning("IsSafe", $"Observing conditions rule 2 violated: {property} value {currentValue} is greater than {value2}.");
-                                            state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
+                                            lastSafetyState.Add(new SafetyState(SafetyEventCondition.AboveLimit,
                                                 property.ToSafetyEventType(),
                                                 $"{Globals.APPLICATION_NAME} at {settings.Location}",
                                                 $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is greater than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
@@ -328,13 +331,16 @@ namespace Sentinel.DeviceAccess
                             catch (Exception ex)
                             {
                                 LogError("IsSafe", $"Exception getting value for {property} - {ex.Message}.");
-                                state.LastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState,
+                                lastSafetyState.Add(new SafetyState(SafetyEventCondition.DeviceInErrorState,
                                     property.ToSafetyEventType(),
                                     $"{Globals.APPLICATION_NAME} at {settings.Location}",
                                     $"Exception getting value for {property} - {ex.Message}.")); // Add a safety event to the list for any rule that is not satisfied
                                 allSafe = false; // Rule not satisfied, set allSafe to false
                             }
                         }
+
+                        // Update the cached safety state
+                        state.LastSafetyState = JsonSerializer.Serialize(lastSafetyState, _jsonOptions);
 
                         // Update the time of the last safety state update
                         state.LastIsSafeTime = DateTime.UtcNow;
@@ -398,12 +404,15 @@ namespace Sentinel.DeviceAccess
             switch (actionName)
             {
                 case Globals.SAFETY_EVENT_ACTION_NAME_LOWERCASE:
-                    lock (_safetyStateLock)
-                    {
-                        string json = JsonSerializer.Serialize(state.LastSafetyState, _jsonOptions);
-                        logger.LogDebug("Action", $"Returning JSON string: {json}");
+                    // Update the state.LastSafetyState value by calling IsSafe
+                    _ = IsSafe;
 
-                        return json;
+                    // Now return the current safety state 
+                    lock (_safetyStateLock) // Get the lock to prevent other threads from modifying the value while we read it
+                    {
+                        logger.LogDebug("Action", $"Returning JSON string: {state.LastSafetyState}");
+
+                        return state.LastSafetyState;
                     }
             }
 

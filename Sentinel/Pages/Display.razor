@@ -152,7 +152,8 @@
 
     private double GetDoubleValue(PropertyName propertyName, double defaultValue)
     {
-        if (DateTime.Now.Subtract(lastValueTime[propertyName]) < TimeSpan.FromSeconds(0.1))
+        // Return the cached value if within the cache window
+        if (lastValueTime[propertyName] + settings.PropertyCacheTime > DateTime.UtcNow)
             return lastValue[propertyName];
 
         // Check whether this device is configured and connected
@@ -161,9 +162,8 @@
             double maxValue = settings.GaugeSettings[propertyName].Maximum;
 
             lastValue[propertyName] = maxValue;
-            lastValueTime[propertyName] = DateTime.Now;
+            lastValueTime[propertyName] = DateTime.UtcNow;
             return maxValue;
-
         }
 
         double newValue = Double.NegativeInfinity;
@@ -219,7 +219,8 @@
         }
 
         lastValue[propertyName] = newValue;
-        lastValueTime[propertyName] = DateTime.Now;
+        lastValueTime[propertyName] = DateTime.UtcNow;
+
         return newValue;
     }
 

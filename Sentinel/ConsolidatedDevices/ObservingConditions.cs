@@ -73,14 +73,13 @@ namespace Sentinel.DeviceAccess
                 CheckEnabled();
 
                 // Return the cached result if it exists and the call time is still within the expiry window
-                if (DateTime.UtcNow.Subtract(state.LastObservingConditionsDeviceStateTime) < settings.PropertyCacheTime)
+                if ((state.LastObservingConditionsDeviceStateTime + settings.PropertyCacheTime) > DateTime.UtcNow)
                     return state.LastObservingConditionsDeviceState;
 
                 lock (deviceStateLock)
                 {
-
                     // Repeat the cache test in case another thread has already updated the cache while we were waiting for the lock
-                    if (DateTime.UtcNow.Subtract(state.LastObservingConditionsDeviceStateTime) < settings.PropertyCacheTime)
+                    if ((state.LastObservingConditionsDeviceStateTime + settings.PropertyCacheTime) > DateTime.UtcNow)
                         return state.LastObservingConditionsDeviceState;
 
                     state.LastObservingConditionsDeviceState = [];
@@ -99,7 +98,7 @@ namespace Sentinel.DeviceAccess
                     try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(WindSpeed), WindSpeed)); } catch { }
                     try { state.LastObservingConditionsDeviceState.Add(new StateValue(nameof(WindGust), WindGust)); } catch { }
 
-                    state.LastObservingConditionsDeviceStateTime = DateTime.Now;
+                    state.LastObservingConditionsDeviceStateTime = DateTime.UtcNow;
                     return state.LastObservingConditionsDeviceState;
                 }
             }
@@ -125,7 +124,8 @@ namespace Sentinel.DeviceAccess
             lock (propertyLock)
             {
                 // Return the cached result if it exists and the call time is still within the expiry window
-                if ((_propertyCache.TryGetValue(propertyName, out CacheEntry<double>? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime)) // Value is cached and within the expiry time so return the last value
+
+                if ((_propertyCache.TryGetValue(propertyName, out CacheEntry<double>? entry)) && (entry.Timestamp + settings.PropertyCacheTime > DateTime.UtcNow)) // Value is cached and within the expiry time so return the last value
                 {
                     if (entry.Exception is null) // Cache hit with a valid value so return the value without calling the device
                         return entry.Value;
@@ -157,7 +157,7 @@ namespace Sentinel.DeviceAccess
             lock (propertyLock)
             {
                 // Return the cached result if it exists and the call time is still within the expiry window
-                if ((_sensorDescriptionCache.TryGetValue(propertyName, out CacheEntry<string>? entry)) && (DateTime.UtcNow - entry.Timestamp < settings.PropertyCacheTime))
+                if ((_sensorDescriptionCache.TryGetValue(propertyName, out CacheEntry<string>? entry)) && (entry.Timestamp + settings.PropertyCacheTime > DateTime.UtcNow))
                 {
                     if (entry.Exception is null)
                         return entry.Value;

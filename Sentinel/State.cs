@@ -110,7 +110,7 @@
         /// </summary>
         public Lock DiscoveredDevicesLock { get; } = new();
 
-        public List<SafetyState> LastSafetyState { get; set; } = [];
+        public string LastSafetyState { get; set; } = "[]";
 
         public bool LastIsSafeState { get; set; } = false;
         public DateTime LastIsSafeTime { get; set; }= DateTime.MinValue;
@@ -171,7 +171,7 @@
                 DiscoveredObservingConditionsDevices = new List<DiscoveredDevice>();
                 DiscoveredSafetyMonitorDevices = new List<DiscoveredDevice>();
             }
-            LastSafetyState = [];
+            LastSafetyState = "[]";
             RequireAdministratorLoginAtStartup = false;
             DiscoveryHasRun = false;
             ObservingConditionsDeviceMap = new ConcurrentDictionary<PropertyName, IObservingConditionsV2>();
