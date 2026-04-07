@@ -3,10 +3,17 @@
     using ASCOM.Common.DeviceInterfaces;
     using System.Collections.Concurrent;
     using System.Reflection;
+    using System.Security.Cryptography;
     using System.Text;
 
     public class State
     {
+        private static string RandomHex10Secure()
+        {
+            byte[] bytes = new byte[5]; // 5 bytes = 40 bits = 10 hex digits
+            RandomNumberGenerator.Fill(bytes); // .NET 6+; alternatively RandomNumberGenerator.Create().GetBytes(bytes)
+            return Convert.ToHexString(bytes).ToLower(); // or .ToUpper() if you prefer uppercase
+        }
 
         #region Variables and initialisers
 
@@ -17,6 +24,7 @@
             ApplicationVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Not set";
             ApplicationFileversion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version ?? "Not set";
             InformationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Not set";
+            InstanceId = RandomHex10Secure();
         }
 
         #endregion
@@ -65,6 +73,8 @@
         #endregion
 
         #region public properties
+
+        public string InstanceId { get; set; } 
 
         public int GaugeDimension { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(GaugeDimension)); } } }
 
