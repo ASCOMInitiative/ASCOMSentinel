@@ -1,6 +1,7 @@
 ﻿using ASCOM;
 using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
+using Radzen.Blazor;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -9,6 +10,8 @@ namespace Sentinel.DeviceAccess
 {
     public class SafetyMonitor : ISafetyMonitorV3
     {
+        private bool forceIsSafeRefresh = false;
+
         private readonly Settings settings;
         private readonly State state;
         private readonly SentinelLogger logger;
@@ -80,7 +83,7 @@ namespace Sentinel.DeviceAccess
                 if (Connected)
                 {
                     // Return the cached IsSafe value if it's still valid to avoid the need to update it.
-                    if ((state.LastIsSafeTime + settings.PropertyCacheTime) > DateTime.UtcNow)
+                    if (((state.LastIsSafeTime + settings.PropertyCacheTime) > DateTime.UtcNow) & !forceIsSafeRefresh)
                         return state.LastIsSafeState;
 
                     // Update the safety state by checking all the safety monitors and observing conditions rules, and return the overall safety state.
@@ -88,13 +91,13 @@ namespace Sentinel.DeviceAccess
                     lock (_safetyStateLock)
                     {
                         // Check the cached state again in case it was updated by another thread while we were waiting for the lock.
-                        if ((state.LastIsSafeTime + settings.PropertyCacheTime) > DateTime.UtcNow)
+                        if (((state.LastIsSafeTime + settings.PropertyCacheTime) > DateTime.UtcNow)& !forceIsSafeRefresh)
                             return state.LastIsSafeState;
 
                         state.LastSafetyState = "[]"; // Clear the last safety state string to be populated with any new safety events detected in this call
                         lastSafetyState.Clear();
 
-                        bool allSafe = true;
+                        bool isSafe = true;
 
                         // Iterate over the safety monitor configurations
                         foreach (PropertyName property in Globals.SafetyMonitorNames)
@@ -112,8 +115,7 @@ namespace Sentinel.DeviceAccess
                                         {
                                             if (state.SafetyMonitorDevices[property] is not null) // The device connected OK
                                             {
-                                                bool isSafe = GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe);
-                                                if (!isSafe)
+                                                if (!GetCachedBool(property, () => state.SafetyMonitorDevices[property].IsSafe))
                                                 {
                                                     safetyMessage = $"Safety monitor {property} reported an UNSAFE condition.";
                                                     LogWarning("IsSafe", safetyMessage);
@@ -125,7 +127,7 @@ namespace Sentinel.DeviceAccess
                                                         SafetyEventCondition.Unsafe, // Event condition
                                                         safetyMessage)); // Event message
 
-                                                    allSafe = false;
+                                                    isSafe = false;
                                                 }
                                             }
                                             else // The device failed to connect so report an error
@@ -139,7 +141,7 @@ namespace Sentinel.DeviceAccess
                                                      SafetyEventType.SafetyIssue, // Event type
                                                      SafetyEventCondition.DeviceInErrorState, // Event condition
                                                      safetyMessage)); // Event message
-                                                allSafe = false;
+                                                isSafe = false;
                                             }
                                         }
                                         catch (Exception ex)  // Any error results in isSafe remaining false, and a safety event being added to the list below
@@ -156,7 +158,7 @@ namespace Sentinel.DeviceAccess
                                                 SafetyEventCondition.DeviceInErrorState, // Event condition
                                                 safetyMessage)); // Event message
 
-                                            allSafe = false;
+                                            isSafe = false;
                                         }
                                         break;
 
@@ -172,7 +174,7 @@ namespace Sentinel.DeviceAccess
                                             SafetyEventCondition.ForcedToState, // Event condition
                                             safetyMessage)); // Event message
 
-                                        allSafe = false;
+                                        isSafe = false;
                                         break;
 
                                     case SafetyMonitorState.ForceTrue: // The monitor is configured always to report a SAFE condition
@@ -187,7 +189,7 @@ namespace Sentinel.DeviceAccess
                                             SafetyEventCondition.ForcedToState, // Event condition
                                             safetyMessage)); // Event message
 
-                                        allSafe = false;
+                                        isSafe = false;
                                         break;
 
                                     default:
@@ -296,7 +298,7 @@ namespace Sentinel.DeviceAccess
                                                 SafetyEventCondition.BelowLimit, // Event condition
                                                 $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is less than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
 
-                                            allSafe = false; // Rule not satisfied, set allSafe to false
+                                            isSafe = false; // Rule not satisfied, set isSafe to false
                                         }
                                         break;
 
@@ -313,7 +315,7 @@ namespace Sentinel.DeviceAccess
                                                SafetyEventCondition.EqualLimit, // Event condition
                                                $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is equal to {value1}.")); // Add a safety event to the list for any rule that is not satisfied
 
-                                            allSafe = false; // Rule not satisfied, set allSafe to false
+                                            isSafe = false; // Rule not satisfied, set isSafe to false
                                         }
                                         break;
 
@@ -330,7 +332,7 @@ namespace Sentinel.DeviceAccess
                                                 SafetyEventCondition.AboveLimit, // Event condition
                                                 $"{property} rule 1 violated: Value {currentValue.ToRoundedString()} is greater than {value1}.")); // Add a safety event to the list for any rule that is not satisfied
 
-                                            allSafe = false; // Rule not satisfied, set allSafe to false
+                                            isSafe = false; // Rule not satisfied, set isSafe to false
                                         }
                                         break;
                                 }
@@ -354,7 +356,7 @@ namespace Sentinel.DeviceAccess
                                                 SafetyEventCondition.BelowLimit, // Event condition
                                                 $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is less than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
 
-                                            allSafe = false; // Rule not satisfied, set allSafe to false
+                                            isSafe = false; // Rule not satisfied, set isSafe to false
                                         }
                                         break;
 
@@ -371,7 +373,7 @@ namespace Sentinel.DeviceAccess
                                                 SafetyEventCondition.EqualLimit, // Event condition
                                                 $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is equal to {value2}.")); // Add a safety event to the list for any rule that is not satisfied
 
-                                            allSafe = false; // Rule not satisfied, set allSafe to false
+                                            isSafe = false; // Rule not satisfied, set isSafe to false
                                         }
                                         break;
 
@@ -388,7 +390,7 @@ namespace Sentinel.DeviceAccess
                                                 SafetyEventCondition.AboveLimit, // Event condition
                                                 $"{property} rule 2 violated: Value {currentValue.ToRoundedString()} is greater than {value2}.")); // Add a safety event to the list for any rule that is not satisfied
 
-                                            allSafe = false; // Rule not satisfied, set allSafe to false
+                                            isSafe = false; // Rule not satisfied, set isSafe to false
                                         }
                                         break;
                                 }
@@ -405,18 +407,29 @@ namespace Sentinel.DeviceAccess
                                     SafetyEventCondition.DeviceInErrorState, // Event condition
                                     $"Exception getting value for {property} - {ex.Message}.")); // Add a safety event to the list for any rule that is not satisfied
 
-                                allSafe = false; // Rule not satisfied, set allSafe to false
+                                isSafe = false; // Rule not satisfied, set isSafe to false
                             }
                         }
 
+                        // Add any external safety events notified by Action.SetSafetyState to the list of safety events for this update
+                        List<SafetyState> overallSafetyState = lastSafetyState;
+                        if (state.ExternalSafetyEvents.Count > 0)
+                        {
+                            overallSafetyState.AddRange(state.ExternalSafetyEvents.Values);
+                            isSafe = false; // If there are any external safety events then we're not safe, so set isSafe to false
+                        }
+
                         // Update the cached safety state
-                        state.LastSafetyState = JsonSerializer.Serialize(lastSafetyState, _jsonOptions);
+                        state.LastSafetyState = JsonSerializer.Serialize(overallSafetyState, _jsonOptions);
 
                         // Update the time of the last safety state update
                         state.LastIsSafeTime = DateTime.UtcNow;
 
+                        // Unset forced refresh
+                        forceIsSafeRefresh = false;
+
                         // Return the overall safety state
-                        return allSafe;
+                        return isSafe;
                     } // lock
                 }
                 throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
@@ -460,20 +473,20 @@ namespace Sentinel.DeviceAccess
             {
                 // Check whether remote access is enabled
                 CheckEnabled();
-                return [Globals.SAFETY_EVENT_ACTION_NAME];
+                return [Globals.GET_SAFETY_EVENT_ACTION_NAME, Globals.SET_SAFETY_EVENT_ACTION_NAME, Globals.CLEAR_SAFETY_EVENT_ACTION_NAME];
             }
         }
 
-        public string Action(string actionName, string actionParameters)
+        public string Action(string actionName, string actionParameter)
         {
             // Check whether remote access is enabled
             CheckEnabled();
 
-            logger.LogDebug("Action", $"Action method called: {actionName}, parameters: {actionParameters}");
+            logger.LogDebug("Action", $"Action method called: {actionName}, parameters: {actionParameter}");
             actionName = actionName.Trim().ToLowerInvariant();
             switch (actionName)
             {
-                case Globals.SAFETY_EVENT_ACTION_NAME_LOWERCASE:
+                case Globals.GET_SAFETY_EVENT_ACTION_NAME_LOWERCASE:
                     // Update the state.LastSafetyState value by calling IsSafe
                     _ = IsSafe;
 
@@ -484,9 +497,80 @@ namespace Sentinel.DeviceAccess
 
                         return state.LastSafetyState;
                     }
+
+                case Globals.SET_SAFETY_EVENT_ACTION_NAME_LOWERCASE:
+                    try
+                    {
+                        // Make sure there is some information
+                        if (string.IsNullOrEmpty(actionParameter))
+                            return JsonResponse(false, "The list of safety states was a null or empty string");
+
+                        try
+                        {
+                            // De-serialise the supplied JSON string into a list of safety states
+                            List<SafetyState>? safetyStates = JsonSerializer.Deserialize<List<SafetyState>>(actionParameter, _jsonOptions);
+
+                            // Check that the JSON string was successfully de-serialised
+                            if (safetyStates is null)
+                                return JsonResponse(false, $"The supplied JSON string could not be parsed: {actionParameter}");
+
+                            // Update the external events list with the supplied list of safety states, replacing any existing safety events with the same rule ID
+                            safetyStates.ForEach(safetyState => state.ExternalSafetyEvents[safetyState.RuleId] = safetyState);
+
+                            forceIsSafeRefresh = true;
+                            _ = IsSafe;
+
+                            return JsonResponse(true, "Safety state list updated successfully");
+                        }
+                        catch (Exception ex)
+                        {
+                            return JsonResponse(false, $"Error processing safety state list: {ex.Message}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError("Action", $"Error setting safety state: {ex.Message}");
+                        return JsonResponse(false, $"Invalid safety state JSON: {ex.Message}");
+                    }
+
+                case Globals.CLEAR_SAFETY_EVENT_ACTION_NAME_LOWERCASE:
+                    try
+                    {
+                        // Make sure there is some information
+                        if (string.IsNullOrEmpty(actionParameter))
+                            return JsonResponse(false, "The list of safety states was a null or empty string");
+
+                        try
+                        {
+                            // De-serialise the supplied JSON string into a list of safety states
+                            List<SafetyState>? safetyStates = JsonSerializer.Deserialize<List<SafetyState>>(actionParameter, _jsonOptions);
+
+                            // Check that the JSON string was successfully de-serialised
+                            if (safetyStates is null)
+                                return JsonResponse(false, $"The supplied JSON string could not be parsed: {actionParameter}");
+
+                            // Remove the supplied external events from the list based on RuleId
+                            safetyStates.ForEach(safetyState => state.ExternalSafetyEvents.TryRemove(safetyState.RuleId, out _));
+
+                            // Force an update to remove the values from the cached safety state
+                            forceIsSafeRefresh = true;
+                            _ = IsSafe;
+
+                            return JsonResponse(true, "Safety state list updated successfully");
+                        }
+                        catch (Exception ex)
+                        {
+                            return JsonResponse(false, $"Error processing safety state list: {ex.Message}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError("Action", $"Error setting safety state: {ex.Message}");
+                        return JsonResponse(false, $"Invalid safety state JSON: {ex.Message}");
+                    }
             }
 
-            throw new ActionNotImplementedException($"Action not implemented: {actionName}");
+            throw new ASCOM.NotImplementedException($"The specified action is not implemented: {actionName}");
         }
 
         public void CommandBlind(string command, bool raw = false)
@@ -620,6 +704,11 @@ namespace Sentinel.DeviceAccess
             // Check whether we are connected
             //if (!connected)
             //    throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
+        }
+
+        private static string JsonResponse(bool success, string message)
+        {
+            return JsonSerializer.Serialize<SafetyActionResponse>(new SafetyActionResponse(success, message), _jsonOptions);
         }
 
         #endregion

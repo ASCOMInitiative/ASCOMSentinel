@@ -8,12 +8,6 @@
 
     public class State
     {
-        private static string RandomHex10Secure()
-        {
-            byte[] bytes = new byte[5]; // 5 bytes = 40 bits = 10 hex digits
-            RandomNumberGenerator.Fill(bytes); // .NET 6+; alternatively RandomNumberGenerator.Create().GetBytes(bytes)
-            return Convert.ToHexString(bytes).ToLower(); // or .ToUpper() if you prefer uppercase
-        }
 
         #region Variables and initialisers
 
@@ -74,7 +68,7 @@
 
         #region public properties
 
-        public string InstanceId { get; set; } 
+        public string InstanceId { get; set; }
 
         public int GaugeDimension { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(GaugeDimension)); } } }
 
@@ -123,7 +117,7 @@
         public string LastSafetyState { get; set; } = "[]";
 
         public bool LastIsSafeState { get; set; } = false;
-        public DateTime LastIsSafeTime { get; set; }= DateTime.MinValue;
+        public DateTime LastIsSafeTime { get; set; } = DateTime.MinValue;
 
         public List<StateValue> LastObservingConditionsDeviceState = [];
         public DateTime LastObservingConditionsDeviceStateTime { get; set; } = DateTime.MinValue;
@@ -142,6 +136,8 @@
         public ConcurrentDictionary<PropertyName, ISafetyMonitorV3> SafetyMonitorDevices { get; set; } = new();
 
         public ConcurrentDictionary<int, ISwitchV3> SwitchDevices { get; set; } = new();
+
+        public ConcurrentDictionary<string, SafetyState> ExternalSafetyEvents { get; set; } = new();
 
         public IObservingConditionsV2 ObservingConditions { get; set; } = null!;
 
@@ -206,6 +202,17 @@
         }
 
         public event EventHandler? StateChanged;
+
+        #endregion
+
+        #region Support code
+
+        private static string RandomHex10Secure()
+        {
+            byte[] bytes = new byte[5]; // 5 bytes = 40 bits = 10 hex digits
+            RandomNumberGenerator.Fill(bytes); // .NET 6+; alternatively RandomNumberGenerator.Create().GetBytes(bytes)
+            return Convert.ToHexString(bytes).ToLower(); // or .ToUpper() if you prefer uppercase
+        }
 
         #endregion
 
