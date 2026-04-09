@@ -91,7 +91,7 @@ namespace Sentinel.DeviceAccess
                     lock (_safetyStateLock)
                     {
                         // Check the cached state again in case it was updated by another thread while we were waiting for the lock.
-                        if (((state.LastIsSafeTime + settings.PropertyCacheTime) > DateTime.UtcNow)& !forceIsSafeRefresh)
+                        if (((state.LastIsSafeTime + settings.PropertyCacheTime) > DateTime.UtcNow) & !forceIsSafeRefresh)
                             return state.LastIsSafeState;
 
                         state.LastSafetyState = "[]"; // Clear the last safety state string to be populated with any new safety events detected in this call
@@ -422,7 +422,8 @@ namespace Sentinel.DeviceAccess
                         // Update the cached safety state
                         state.LastSafetyState = JsonSerializer.Serialize(overallSafetyState, _jsonOptions);
 
-                        // Update the time of the last safety state update
+                        // Update the last IsSafe state and update time
+                        state.LastIsSafeState = isSafe;
                         state.LastIsSafeTime = DateTime.UtcNow;
 
                         // Unset forced refresh
@@ -503,70 +504,68 @@ namespace Sentinel.DeviceAccess
                     {
                         // Make sure there is some information
                         if (string.IsNullOrEmpty(actionParameter))
-                            return JsonResponse(false, "The list of safety states was a null or empty string");
+                            throw new InvalidValueException("The supplied list of safety states was a null or empty string");
 
-                        try
-                        {
-                            // De-serialise the supplied JSON string into a list of safety states
-                            List<SafetyState>? safetyStates = JsonSerializer.Deserialize<List<SafetyState>>(actionParameter, _jsonOptions);
+                        // De-serialise the supplied JSON string into a list of safety states
+                        List<SafetyState>? safetyStates = JsonSerializer.Deserialize<List<SafetyState>>(actionParameter, _jsonOptions);
 
-                            // Check that the JSON string was successfully de-serialised
-                            if (safetyStates is null)
-                                return JsonResponse(false, $"The supplied JSON string could not be parsed: {actionParameter}");
+                        // Check that the JSON string was successfully de-serialised
+                        if (safetyStates is null)
+                            throw new InvalidValueException($"The supplied JSON string could not be parsed: {actionParameter}");
 
-                            // Update the external events list with the supplied list of safety states, replacing any existing safety events with the same rule ID
-                            safetyStates.ForEach(safetyState => state.ExternalSafetyEvents[safetyState.RuleId] = safetyState);
+                        // Update the external events list with the supplied list of safety states, replacing any existing safety events with the same rule ID
+                        safetyStates.ForEach(safetyState => state.ExternalSafetyEvents[safetyState.RuleId] = safetyState);
 
-                            forceIsSafeRefresh = true;
-                            _ = IsSafe;
+                        forceIsSafeRefresh = true;
+                        _ = IsSafe;
 
-                            return JsonResponse(true, "Safety state list updated successfully");
-                        }
-                        catch (Exception ex)
-                        {
-                            return JsonResponse(false, $"Error processing safety state list: {ex.Message}");
-                        }
+                        return ""; // Success
+                    }
+                    catch (InvalidValueException ex)
+                    {
+                        logger.LogWarning("Action - SetSafetyState", $"Action - SetSafetyState - Client error: {ex.Message}");
+                        throw;
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("Action", $"Error setting safety state: {ex.Message}");
-                        return JsonResponse(false, $"Invalid safety state JSON: {ex.Message}");
+                        logger.LogError("Action - SetSafetyState", $"Error setting safety state: {ex.Message}");
+                        logger.LogDebug("Action - SetSafetyState", $"Full exception: {ex}");
+                        throw;
                     }
-
+            
                 case Globals.CLEAR_SAFETY_EVENT_ACTION_NAME_LOWERCASE:
                     try
                     {
                         // Make sure there is some information
                         if (string.IsNullOrEmpty(actionParameter))
-                            return JsonResponse(false, "The list of safety states was a null or empty string");
+                            throw new InvalidValueException("The supplied list of safety states was a null or empty string");
 
-                        try
-                        {
-                            // De-serialise the supplied JSON string into a list of safety states
-                            List<SafetyState>? safetyStates = JsonSerializer.Deserialize<List<SafetyState>>(actionParameter, _jsonOptions);
+                        // De-serialise the supplied JSON string into a list of safety states
+                        List<SafetyState>? safetyStates = JsonSerializer.Deserialize<List<SafetyState>>(actionParameter, _jsonOptions);
 
-                            // Check that the JSON string was successfully de-serialised
-                            if (safetyStates is null)
-                                return JsonResponse(false, $"The supplied JSON string could not be parsed: {actionParameter}");
+                        // Check that the JSON string was successfully de-serialised
+                        if (safetyStates is null)
+                            throw new InvalidValueException($"The supplied JSON string could not be parsed: {actionParameter}");
 
-                            // Remove the supplied external events from the list based on RuleId
-                            safetyStates.ForEach(safetyState => state.ExternalSafetyEvents.TryRemove(safetyState.RuleId, out _));
+                        // Remove the supplied external events from the list based on RuleId
+                        safetyStates.ForEach(safetyState => state.ExternalSafetyEvents.TryRemove(safetyState.RuleId, out _));
 
-                            // Force an update to remove the values from the cached safety state
-                            forceIsSafeRefresh = true;
-                            _ = IsSafe;
+                        // Force an update to remove the values from the cached safety state
+                        forceIsSafeRefresh = true;
+                        _ = IsSafe;
 
-                            return JsonResponse(true, "Safety state list updated successfully");
-                        }
-                        catch (Exception ex)
-                        {
-                            return JsonResponse(false, $"Error processing safety state list: {ex.Message}");
-                        }
+                        return ""; // Success
+                    }
+                    catch (InvalidValueException ex)
+                    {
+                        logger.LogWarning("Action - ClearSafetyState", $"Action - ClearSafetyState - Client error: {ex.Message}");
+                        throw;
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("Action", $"Error setting safety state: {ex.Message}");
-                        return JsonResponse(false, $"Invalid safety state JSON: {ex.Message}");
+                        logger.LogError("Action - ClearSafetyState", $"Error clearing safety state: {ex.Message}");
+                        logger.LogDebug("Action - ClearSafetyState", $"Full exception: {ex}");
+                        throw;
                     }
             }
 
@@ -704,11 +703,6 @@ namespace Sentinel.DeviceAccess
             // Check whether we are connected
             //if (!connected)
             //    throw new ASCOM.NotConnectedException($"{Globals.APPLICATION_NAME} safety monitor is not connected.");
-        }
-
-        private static string JsonResponse(bool success, string message)
-        {
-            return JsonSerializer.Serialize<SafetyActionResponse>(new SafetyActionResponse(success, message), _jsonOptions);
         }
 
         #endregion
