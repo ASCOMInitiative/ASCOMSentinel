@@ -4,13 +4,15 @@ This cross-platform application:
     <li>Consolidates a number of real COM or Alpaca ObservingConditions devices into a single virtual device.</li>
     <li>Consolidates a number of real COM or Alpaca SafetyMonitor devices into a single virtual device.</li>
     <li>Allows the user to define rules for each virtual device ObservingConditions property that can trigger the virtual safety monitor to report <code>IsSafe</code> as false.</li>
-    <li>Provides a draft <code>GetSafetyState</code> SupportedActions / Action that returns a set of reasons for why the safety monitor reports <code>IsSafe</code> as false. See below for details</li>
-    <li>Provides a draft <code>SetSafetyState</code> Action that enables clients and devices 
-    to add their own 
-    safety events to the list that the safety monitor reports based on conditions that it monitors. See below for details</li>
-     <li>Provides a draft <code>ClearSafetyState</code> Action that enables clients and devices to clear their own safety events 
-    
-     from the list. See below for details</li>
+    <li>Supports draft specifications for the following SupportedActions/Actions. See below for details:
+    <ul>
+        <li><code>GetSafetyState</code> - Returns a set of reasons identifying why the safety monitor reports <code>IsSafe</code> as false.</li>
+        <li><code>SetSafetyState</code> - Enables clients and devices to add their own 
+        safety events to the list returned by GetSafetyState.</li>
+        <li><code>ClearSafetyState</code> -Enables clients and devices to clear their own safety events     
+         from the list.</li>
+   </ul>
+   
    <li>Employs caching on virtual device properties to support heavy client loads and protect back-end devices.</li>
     <li>Provides an optional two-level user / administrator security model to support use in community environments.</li>
     <li>Provides a graphical depiction of current observing conditions values as reported by the virtual device.</li>
@@ -18,7 +20,7 @@ This cross-platform application:
 
 <p style="color:darkorange"><b>This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.</b></p>
 
-<p style="color:lightgreen"><b>All feedback on features, usefulness and operation is welcome, please send this as a GitHub Issue.</p>
+<p style="color:lightgreen"><b>All feedback on features, usefulness and operation is welcome, please send this as [GitHub Issues](https://github.com/ASCOMInitiative/ASCOMSentinel/issues).</p>
 
 ## The GetSafetyState Action
 <p>The virtual safety monitor provides a <code>GetSafetyState</code> Action that returns a JSON object as a serialised string.</p>
