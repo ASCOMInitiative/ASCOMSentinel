@@ -20,7 +20,7 @@ This cross-platform application:
 
 <p style="color:darkorange"><b>This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.</b></p>
 
-<p style="color:lightgreen"><b>All feedback on features, usefulness and operation is welcome, please send this as [GitHub Issues](https://github.com/ASCOMInitiative/ASCOMSentinel/issues).</p>
+<p style="color:lightgreen"><b>All feedback on features, usefulness and operation is welcome, please send this as <a href=https://github.com/ASCOMInitiative/ASCOMSentinel/issues>GitHub Issues</a>.</p>
 
 ## The GetSafetyState Action
 <p>The virtual safety monitor provides a <code>GetSafetyState</code> Action that returns a JSON object as a serialised string.</p>
