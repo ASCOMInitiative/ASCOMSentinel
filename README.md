@@ -5,9 +5,13 @@ This cross-platform application:
     <li>Consolidates a number of real COM or Alpaca SafetyMonitor devices into a single virtual device.</li>
     <li>Allows the user to define rules for each virtual device ObservingConditions property that can trigger the virtual safety monitor to report <code>IsSafe</code> as false.</li>
     <li>Provides a draft <code>GetSafetyState</code> SupportedActions / Action that returns a set of reasons for why the safety monitor reports <code>IsSafe</code> as false. See below for details</li>
-    <li>Provides draft <code>SetSafetyState</code> and<code>ClearSafetyState</code> Actions that enable a client device to add and clear
-    safety events to /from the list that the safety monitor maintains itslef.returns a set of reasons for why the safety monitor reports <code>IsSafe</code> as false. See below for details</li>
-    <li>Employs caching on virtual device properties to support heavy client loads and protect back-end devices.</li>
+    <li>Provides a draft <code>SetSafetyState</code> Action that enables clients and devices 
+    to add their own 
+    safety events to the list that the safety monitor reports based on conditions that it monitors. See below for details</li>
+     <li>Provides a draft <code>ClearSafetyState</code> Action that enables clients and devices to clear their own safety events 
+    
+     from the list. See below for details</li>
+   <li>Employs caching on virtual device properties to support heavy client loads and protect back-end devices.</li>
     <li>Provides an optional two-level user / administrator security model to support use in community environments.</li>
     <li>Provides a graphical depiction of current observing conditions values as reported by the virtual device.</li>
 </ul>
