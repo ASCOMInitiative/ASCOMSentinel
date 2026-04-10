@@ -85,8 +85,9 @@
     <PackageReference Include="ASCOM.Com.Components" Version="3.1.0" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <!-- <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants> -->
+  <PropertyGroup><!-- <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants> -->
+  
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
 </Project>

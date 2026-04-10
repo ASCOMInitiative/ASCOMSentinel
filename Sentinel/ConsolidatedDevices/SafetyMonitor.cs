@@ -516,6 +516,7 @@ namespace Sentinel.DeviceAccess
                         // Update the external events list with the supplied list of safety states, replacing any existing safety events with the same rule ID
                         safetyStates.ForEach(safetyState => state.ExternalSafetyEvents[safetyState.RuleId] = safetyState);
 
+                        // Force a refresh of the safety state to ensure the new events are included in the cached safety state
                         forceIsSafeRefresh = true;
                         _ = IsSafe;
 
