@@ -9,38 +9,44 @@ namespace SafetyMonitor
     /// </summary>
     public class SafetyEvent
     {
-        /// <summary>
-        /// The name of the application, device, or driver that generated the event.
-        /// </summary>
-        public string Source { get; set; } = string.Empty;
+		/// <summary>
+		/// The name of the application, device, or driver that generated the event.
+		/// </summary>
+		/// <exception cref="ASCOM.InvalidValueException">Thrown if the source is null or empty.</exception>
+		public string Source { get; set; } = string.Empty;
+
+		/// <summary>
+		/// A short name for what is being monitored e.g. "Supply Voltage" or "Wind Speed".
+		/// </summary>
+		/// <exception cref="ASCOM.InvalidValueException">Thrown if the name is null or empty.</exception>
+		public string Name { get; set; } = string.Empty;
+
+		/// <summary>
+		/// A unique ID, defined by the event source, to identify the event that triggered this safety condition.
+		/// </summary>
+		/// <exception cref="ASCOM.InvalidValueException">Thrown if the message is null or empty.</exception>
+		/// <remarks>
+		/// <para>
+		/// This field allows applications to update or remove an event that has already been sent to the safety monitor e.g. if the wind speed changes but the safety rule violation remains.
+		/// This avoids the need to manage multiple events for the same condition.</para>
+		/// <para>Values should be chosen to minimise the chance of replicating IDs used by other sources. A GUID is recommended.</para>
+		/// </remarks>
+		public string Id { get; set; } = string.Empty;
 
         /// <summary>
-        /// A short name for what is being monitored e.g. "Supply Voltage" or "Wind Speed".
+        /// The type of safety event that occurred.
         /// </summary>
-        public string EventName { get; set; } = string.Empty;
-
-        /// <summary>
-        /// A unique ID, defined by the event source, to identify the monitor that triggered this event e.g. a GUID.
-        /// </summary>
-        /// <remarks>
-        /// This field allows applications to update or remove an event that has already been sent to the safety monitor e.g. if the wind speed changes but the safety rule violation remains.
-        /// This avoids the need to manage multiple events for the same condition.
-        /// </remarks>
-        public string EventId { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The type of safety event that triggered the condition.
-        /// </summary>
-        public SafetyTrigger EventType { get; set; }
+        public EventType Type { get; set; }
 
         /// <summary>
         /// The condition that triggered the event.
         /// </summary>
-        public SafetyCondition EventCondition { get; set; }
+        public TriggerCondition Trigger { get; set; }
 
         /// <summary>
         /// A message providing additional context about the safety event.
         /// </summary>
+        /// <exception cref="ASCOM.InvalidValueException">Thrown if the message is null or empty.</exception>
         public string Message { get; set; } = string.Empty;
 
         /// <summary>
@@ -58,7 +64,7 @@ namespace SafetyMonitor
         /// <param name="eventCondition">The condition that triggered the safety event.</param>
         /// <param name="message">A message providing additional context about the safety event.</param>
         /// <remarks>The EventTimeUtc property is automatically set to the current UTC time when the event is created.</remarks>
-        public SafetyEvent(string eventSource, string ruleName, string ruleId, SafetyTrigger eventType, SafetyEventCondition eventCondition, string message)
+        public SafetyEvent(string eventSource, string ruleName, string ruleId, EventType eventType, TriggerCondition eventCondition, string message)
         {
             ArgumentNullException.ThrowIfNull(eventSource, nameof(eventSource));
             ArgumentNullException.ThrowIfNull(ruleName, nameof(ruleName));
@@ -66,10 +72,10 @@ namespace SafetyMonitor
             ArgumentNullException.ThrowIfNull(message, nameof(message));
 
             Source = eventSource;
-            EventName = ruleName;
-            EventId = ruleId;
-            EventType = eventType;
-            EventCondition = eventCondition;
+            Name = ruleName;
+            Id = ruleId;
+            Type = eventType;
+            Trigger = eventCondition;
             Message = message;
             EventTimeUtc = DateTime.UtcNow;
         }

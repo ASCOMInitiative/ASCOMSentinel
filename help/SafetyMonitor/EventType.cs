@@ -8,7 +8,7 @@ namespace SafetyMonitor
 	/// Identifies the environmental or operational factor that has caused a safety condition
 	/// to be evaluated as outside acceptable limits.
 	/// </summary>
-	public enum SafetyCriterion
+	public enum EventType
 	{
 		/// <summary>
 		/// Cloud cover is outside defined limits.

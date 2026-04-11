@@ -7,7 +7,7 @@
 	/// Please choose the value that gives the most information about the state of the property. If you have conditions that require other states, please request them on the:
 	/// <see href="https://ascomtalk.groups.io/g/Developer/topics">ASCOM Developers Forum</see>.
 	/// </remarks>
-	public enum SafetyCondition
+	public enum TriggerCondition
 	{
 		/// <summary>
 		/// The property has fallen below the safety threshold defined for this property.

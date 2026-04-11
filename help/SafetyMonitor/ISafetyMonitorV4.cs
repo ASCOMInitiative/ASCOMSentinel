@@ -12,7 +12,7 @@
         /// An enumerable collection of <see cref="SafetyEvent"/> objects. Must return an empty collection when no events are active (must not return null).
         /// </returns>
         /// <remarks>
-        /// <para>The returned list must only contain entries with unique <see cref="SafetyEvent.EventId" /> values.</para>
+        /// <para>The returned list must only contain entries with unique <see cref="SafetyEvent.Id" /> values.</para>
         /// <para>See <see href="GetSafetyEventsImplementation.htm">Implementation Notes</see> for information on how clients, Alpaca devices and drivers should implement this method.</para>
         /// </remarks>
         public IEnumerable<SafetyEvent> SafetyEvents { get; }
