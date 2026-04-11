@@ -1,4 +1,4 @@
-﻿namespace SafetyMonitorInterfaceProposal
+﻿namespace SafetyMonitor
 {
     internal class Program
     {

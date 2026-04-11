@@ -6,6 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <Product>Safety Monitor Interface Update v0.10</Product>
+    <InformationalVersion>0.1</InformationalVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ASCOM.Exception.Library" Version="7.0.1" />
+  </ItemGroup>
 
 </Project>
