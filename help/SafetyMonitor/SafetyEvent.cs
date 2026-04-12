@@ -12,71 +12,80 @@ namespace SafetyMonitor
 		/// <summary>
 		/// The name of the application, device, or driver that generated the event.
 		/// </summary>
-		/// <exception cref="ASCOM.InvalidValueException">Thrown if the source is null or empty.</exception>
-		public string Source { get; set; } = string.Empty;
+		/// <exception cref="ASCOM.InvalidValueException">Thrown if Source is null or an empty string.</exception>
+		public string Source { get; set; }
 
 		/// <summary>
-		/// A short name for what is being monitored e.g. "Supply Voltage" or "Wind Speed".
+		/// A short name for what is being monitored e.g. "Supply Voltage", "Perimeter Alarm", "Wind Speed".
 		/// </summary>
-		/// <exception cref="ASCOM.InvalidValueException">Thrown if the name is null or empty.</exception>
-		public string Name { get; set; } = string.Empty;
+		/// <exception cref="ASCOM.InvalidValueException">Thrown if Name is null or an empty string.</exception>
+		public string Name { get; set; }
 
 		/// <summary>
-		/// A unique ID, defined by the event source, to identify the event that triggered this safety condition.
+		/// A unique ID that identifies the event that triggered this safety condition.
 		/// </summary>
-		/// <exception cref="ASCOM.InvalidValueException">Thrown if the message is null or empty.</exception>
+		/// <exception cref="ASCOM.InvalidValueException">Thrown if Id is null or an empty string.</exception>
 		/// <remarks>
 		/// <para>
-		/// This field allows applications to update or remove an event that has already been sent to the safety monitor e.g. if the wind speed changes but the safety rule violation remains.
-		/// This avoids the need to manage multiple events for the same condition.</para>
-		/// <para>Values should be chosen to minimise the chance of replicating IDs used by other sources. A GUID is recommended.</para>
+		/// This field enables client applications to safely add a new event, update an existing event or remove an event from the list provided by <see cref="ISafetyMonitorV4.SafetyEvents">ISafetyMonitorV4.SafetyEvents</see> .
+		/// </para>
+		/// <para>
+		/// Safety monitors that implement this method should ensure that their update mechanic enforces Id as a unique key. so that, for example, if the wind speed changes but the trigger condition is still met, 
+		/// the existing event is updated rather than a new event being added to the list.
+		/// </para>
+		/// <para>
+		/// Values should be chosen to minimise the chance of replicating IDs used by other sources. A GUID is recommended.
+		/// </para>
 		/// </remarks>
-		public string Id { get; set; } = string.Empty;
+		public string Id { get; set; }
 
         /// <summary>
         /// The type of safety event that occurred.
         /// </summary>
-        public EventType Type { get; set; }
+        public SafetyEventType Type { get; set; }
 
         /// <summary>
-        /// The condition that triggered the event.
+        /// The condition that triggered the safety event.
         /// </summary>
-        public TriggerCondition Trigger { get; set; }
+        public SafetyEventTrigger Trigger { get; set; }
 
-        /// <summary>
-        /// A message providing additional context about the safety event.
-        /// </summary>
-        /// <exception cref="ASCOM.InvalidValueException">Thrown if the message is null or empty.</exception>
-        public string Message { get; set; } = string.Empty;
+		/// <summary>
+		/// A description of the event and why it was triggered.
+		/// </summary>
+		/// <exception cref="ASCOM.InvalidValueException">Thrown if Description is null or an empty string.</exception>
+		public string Description { get; set; }
 
         /// <summary>
         /// The UTC time at which the event occurred.
         /// </summary>
-        public DateTime EventTimeUtc { get; set; }
+        /// <remarks>
+        /// Should default to DateTime.UtcNow.
+        /// </remarks>
+        public DateTime EventTimeUtc { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Initializes a new instance of the SafetyEvent class with the specified event source, rule name, rule ID, type, condition, message, and time.
         /// </summary>
-        /// <param name="eventSource">The component that generated the event.</param>
-        /// <param name="ruleName">A human-readable name for the rule that triggered this event.</param>
-        /// <param name="ruleId">A unique ID, defined by the event source, to identify the rule that triggered this event.</param>
-        /// <param name="eventType">The category or type of the safety event.</param>
-        /// <param name="eventCondition">The condition that triggered the safety event.</param>
-        /// <param name="message">A message providing additional context about the safety event.</param>
-        /// <remarks>The EventTimeUtc property is automatically set to the current UTC time when the event is created.</remarks>
-        public SafetyEvent(string eventSource, string ruleName, string ruleId, EventType eventType, TriggerCondition eventCondition, string message)
+        /// <param name="source">The component that generated the event.</param>
+        /// <param name="name">A human-readable name for the rule that triggered this event.</param>
+        /// <param name="id">A unique ID, defined by the event source, to identify the rule that triggered this event. See <see cref="Id"/> for more details.</param>
+        /// <param name="type">The type of safety event.</param>
+        /// <param name="trigger">The condition that triggered the safety event.</param>
+        /// <param name="description">A description providing additional context about the safety event.</param>
+        /// <remarks>The EventTimeUtc property should be automatically set to the current UTC time when the event is created.</remarks>
+        public SafetyEvent(string source, string name, string id, SafetyEventType type, SafetyEventTrigger trigger, string description)
         {
-            ArgumentNullException.ThrowIfNull(eventSource, nameof(eventSource));
-            ArgumentNullException.ThrowIfNull(ruleName, nameof(ruleName));
-            ArgumentNullException.ThrowIfNull(ruleId, nameof(ruleId));
-            ArgumentNullException.ThrowIfNull(message, nameof(message));
+            ArgumentNullException.ThrowIfNull(source, nameof(source));
+            ArgumentNullException.ThrowIfNull(name, nameof(name));
+            ArgumentNullException.ThrowIfNull(id, nameof(id));
+            ArgumentNullException.ThrowIfNull(description, nameof(description));
 
-            Source = eventSource;
-            Name = ruleName;
-            Id = ruleId;
-            Type = eventType;
-            Trigger = eventCondition;
-            Message = message;
+            Source = source;
+            Name = name;
+            Id = id;
+            Type = type;
+            Trigger = trigger;
+            Description = description;
             EventTimeUtc = DateTime.UtcNow;
         }
     }

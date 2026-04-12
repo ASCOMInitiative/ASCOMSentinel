@@ -2,13 +2,9 @@
 namespace SafetyMonitor
 {
 	/// <summary>
-	/// Specifies the types of safety-related environmental events that can be monitored or reported.
+	/// The type of environmental or operational factor that became unsafe.
 	/// </summary>
-	/// <summary>
-	/// Identifies the environmental or operational factor that has caused a safety condition
-	/// to be evaluated as outside acceptable limits.
-	/// </summary>
-	public enum EventType
+	public enum SafetyEventType
 	{
 		/// <summary>
 		/// Cloud cover is outside defined limits.
@@ -66,7 +62,7 @@ namespace SafetyMonitor
 		WindDirection = 10,
 
 		/// <summary>
-		/// Wind gust is outside defined limits.
+		/// Wind gust speed is outside defined limits.
 		/// </summary>
 		WindGust = 11,
 
@@ -76,24 +72,73 @@ namespace SafetyMonitor
 		WindSpeed = 12,
 
 		/// <summary>
-		/// A safety issue has been detected.
+		/// A safety-related issue has been detected.
 		/// </summary>
-		SafetyIssue = 13,
+		Safety = 13,
 
 		/// <summary>
 		/// A security-related issue has been detected.
 		/// </summary>
-		SecurityIssue = 14,
+		Security = 14,
 
 		/// <summary>
 		/// A power-related issue has been detected.
 		/// </summary>
-		PowerIssue = 15,
+		Power = 15,
 
 		/// <summary>
-		/// Some other type of safety event has been detected.
+		/// A reserved value for future enum growth
 		/// </summary>
-		/// <remarks>Please suggest a more specific type if possible so it can be added to the list at a future point.</remarks>
+		Reserved1=16,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved2 = 17,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved3 = 18,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved4 = 19,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved5 = 20,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved6 = 21,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved7 = 22,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved8 = 23,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved9 = 24,
+
+		/// <summary>
+		/// A reserved value for future enum growth
+		/// </summary>
+		Reserved10 = 25,
+
+		/// <summary>
+		/// Some other type of issue has been detected.
+		/// </summary>
 		Other = 1000
 	}
 }
