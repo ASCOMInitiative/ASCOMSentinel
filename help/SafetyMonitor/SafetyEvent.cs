@@ -27,11 +27,11 @@ namespace SafetyMonitor
 		/// <exception cref="ASCOM.InvalidValueException">Thrown if Id is null or an empty string.</exception>
 		/// <remarks>
 		/// <para>
-		/// This field enables client applications to safely add a new event, update an existing event or remove an event from the list provided by <see cref="ISafetyMonitorV4.SafetyEvents">ISafetyMonitorV4.SafetyEvents</see> .
+		/// This field enables client applications to update an existing event or remove it from the list provided by <see cref="ISafetyMonitorV4.SafetyEvents">ISafetyMonitorV4.SafetyEvents</see> .
 		/// </para>
 		/// <para>
-		/// Safety monitors that implement this method should ensure that their update mechanic enforces Id as a unique key. so that, for example, if the wind speed changes but the trigger condition is still met, 
-		/// the existing event is updated rather than a new event being added to the list.
+		/// Safety monitors that implement this method must ensure that their update mechanic enforces Id as a unique key. This is to ensure that an existing record in the safety monitor's list will be updated if, 
+        /// for example, the wind speed changes and but the trigger condition is still met.
 		/// </para>
 		/// <para>
 		/// Values should be chosen to minimise the chance of replicating IDs used by other sources. A GUID is recommended.
