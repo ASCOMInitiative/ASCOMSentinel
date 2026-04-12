@@ -23,12 +23,12 @@
         // Suppressible messages
         internal const string DISCOVERY_PACKET_MESSAGE = "Received a discovery packet from"; // Message that is logged when a discovery packet is received, which can be suppressed in the settings.
 
-        internal const string GET_SAFETY_EVENT_ACTION_NAME = "GetSafetyState";
-        internal const string GET_SAFETY_EVENT_ACTION_NAME_LOWERCASE = "getsafetystate"; // Lowercase version of the action name for comparison when strict casing is disabled
-        internal const string SET_SAFETY_EVENT_ACTION_NAME = "SetExternalEvents";
-        internal const string SET_SAFETY_EVENT_ACTION_NAME_LOWERCASE = "setexternalevents"; // Lowercase version of the action name for comparison when strict casing is disabled
-        internal const string CLEAR_SAFETY_EVENT_ACTION_NAME = "ClearExternalEvents";
-        internal const string CLEAR_SAFETY_EVENT_ACTION_NAME_LOWERCASE = "clearexternalevents"; // Lowercase version of the action name for comparison when strict casing is disabled
+        internal const string SAFETY_EVENTS_ACTION_NAME = "SafetyEvents";
+        internal const string SAFETY_EVENTS_ACTION_NAME_LOWERCASE = "safetyevents"; // Lowercase version of the action name for comparison when strict casing is disabled
+        internal const string SET_EXTERNAL_EVENTS_ACTION_NAME = "SetExternalEvents";
+        internal const string SET_EXTERNAL_EVENTS_ACTION_NAME_LOWERCASE = "setexternalevents"; // Lowercase version of the action name for comparison when strict casing is disabled
+        internal const string CLEAR_EXTERNAL_EVENTS_ACTION_NAME = "ClearExternalEvents";
+        internal const string CLEAR_EXTERNAL_EVENTS_ACTION_NAME_LOWERCASE = "clearexternalevents"; // Lowercase version of the action name for comparison when strict casing is disabled
 
         internal const string NOT_SET = "Not configured";
 

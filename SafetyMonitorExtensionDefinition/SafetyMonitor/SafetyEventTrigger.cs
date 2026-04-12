@@ -39,7 +39,7 @@
 		/// <summary>
 		/// The monitored condition is unsafe.
 		/// </summary>
-		UnsafeState = 6,
+		Unsafe = 6,
 
 		/// <summary>
 		/// The property has been forced to a specific state or value and should be treated as unsafe.
@@ -48,9 +48,9 @@
 		ForcedState = 7,
 
 		/// <summary>
-		/// The device is in an error state.
+		/// The device is in an error condition.
 		/// </summary>
-		ErrorState = 8,
+		ErrorCondition = 8,
 
 		/// <summary>
 		/// A reserved value for future enum growth

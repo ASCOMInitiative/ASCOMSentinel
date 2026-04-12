@@ -117,7 +117,7 @@ namespace Sentinel.DeviceAccess
         }
 
         /// <summary>Reads a device property value, re-throwing NotImplementedException as-is and wrapping all other exceptions in a NotImplementedException.</summary>
-        /// <remarks>Results (including exceptions) are cached for <see cref="CacheExpiry"/>. Each property has its own lock so concurrent reads of different properties do not block each other.</remarks>
+        /// <remarks>Results (including exceptions) are cached for <see cref="Settings.PropertyCacheTime"/>. Each property has its own lock so concurrent reads of different properties do not block each other.</remarks>
         private double GetCachedDouble(PropertyName propertyName, Func<double> getValue)
         {
             Lock propertyLock = _propertyLocks.GetOrAdd(propertyName, _ => new Lock());

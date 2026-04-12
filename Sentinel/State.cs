@@ -68,6 +68,9 @@
 
         #region public properties
 
+        /// <summary>
+        /// Gets or sets the unique instance identifier for this State object.
+        /// </summary>
         public string InstanceId { get; set; }
 
         public int GaugeDimension { get; set { if (field != value) { field = value; RaiseChangeEvent(nameof(GaugeDimension)); } } }
@@ -137,7 +140,7 @@
 
         public ConcurrentDictionary<int, ISwitchV3> SwitchDevices { get; set; } = new();
 
-        public ConcurrentDictionary<string, SafetyState> ExternalSafetyEvents { get; set; } = new();
+        public ConcurrentDictionary<string, SafetyEvent> ExternalSafetyEvents { get; set; } = new();
 
         public IObservingConditionsV2 ObservingConditions { get; set; } = null!;
 

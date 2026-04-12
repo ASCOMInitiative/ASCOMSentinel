@@ -15,7 +15,7 @@
         /// <exception cref="ASCOM.DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 
         /// <remarks>
         /// <para>The returned list must only contain entries with unique <see cref="SafetyEvent.Id" /> values.</para>
-        /// <para>See <see href="GetSafetyEventsImplementation.htm">Implementation Notes</see> for information on how clients, Alpaca devices and drivers should implement this method.</para>
+        /// <para>See <see href="SafetyEvents.htm">Implementation Notes</see> for information on how clients, Alpaca devices and drivers should implement this method.</para>
         /// <p style="color:red;"><b>This is a mandatory property and must be implemented.</b></p>
         /// </remarks>
         public IEnumerable<SafetyEvent> SafetyEvents { get; }
@@ -31,6 +31,7 @@
         /// If an event already exists in the safety monitor's external events list, based on its EventId, the stored value will be updated with the revised information. 
         /// i.e. the list returned by <see cref="SafetyEvents"/> will not contain entries with duplicate <see cref="SafetyEvent.Id"/> values.
         /// </para>
+        /// <para>See <see href="SetExternalEvents.htm">Implementation Notes</see> for information on how clients, Alpaca devices and drivers should implement this method.</para>
         /// <p style="color:red;"><b>This is a mandatory method and must be implemented.</b></p>
         /// </remarks>
         public void SetExternalEvents(IEnumerable<SafetyEvent> safetyEventList);
@@ -43,6 +44,7 @@
         /// <exception cref="ASCOM.DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 
         /// <param name="safetyEventIdList">An enumerable list of <see cref="SafetyEvent.Id">safety event ID strings</see> to be cleared from the current safety event list.</param>
         /// <remarks>
+        /// <para>See <see href="ClearExternalEvents.htm">Implementation Notes</see> for information on how clients, Alpaca devices and drivers should implement this method.</para>
         /// <p style="color:red;"><b>This is a mandatory method and must be implemented.</b></p>
         /// </remarks>
         public void ClearExternalEvents(IEnumerable<string> safetyEventIdList);

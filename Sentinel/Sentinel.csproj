@@ -87,7 +87,7 @@
 
   <PropertyGroup><!-- <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants> -->
   
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
   </PropertyGroup>
 
 </Project>
