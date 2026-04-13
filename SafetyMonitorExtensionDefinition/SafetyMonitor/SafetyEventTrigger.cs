@@ -101,6 +101,49 @@
 		/// A reserved value for future enum growth
 		/// </summary>
 		Reserved10 = 18,
-	}
+
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined1 = 19,
+
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined2 = 20,
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined3 = 21,
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined4 = 22,
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined5 = 23,
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined6 = 24,
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined7 = 25,
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined8 = 26,
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined9 = 27,
+        /// <summary>
+        /// A user-defined trigger for local use within an observatory.
+        /// </summary>
+        LocallyDefined10 = 28
+
+    }
 
 }

@@ -15,11 +15,11 @@
     <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual Studio adds them anyway -->
     <AssemblyName>help</AssemblyName>
     <RootNamespace>help</RootNamespace>
-    <Name>help</Name>
+    <Name>InterfaceDescription</Name>
     <!-- SHFB properties -->
     <FrameworkVersion>.NET Core/.NET Standard/.NET 5.0+</FrameworkVersion>
     <OutputPath>.\Help\</OutputPath>
-    <HtmlHelpName>help</HtmlHelpName>
+    <HtmlHelpName>proposal</HtmlHelpName>
     <Language>en-US</Language>
     <TransformComponentArguments>
       <Argument Key="RobotsMetadata" Value="" />

@@ -6,6 +6,18 @@
     public interface ISafetyMonitorV4
     {
         /// <summary>
+        /// Indicates whether the safety monitor supports management of externally generated safety events via the <see cref="SetExternalEvents"/> and <see cref="ClearExternalEvents"/> methods. 
+        /// </summary>
+        /// <returns>True if the safety monitor supports management of external events; otherwise, false.</returns>
+        /// <remarks>
+        /// <p style="color:red;"><b>This is a mandatory property and must be implemented.</b></p>
+        /// <para>
+        /// When true, both <see cref="SetExternalEvents"/> and <see cref="ClearExternalEvents"/> must be functionally implemented. When false, both methods must report a not implemented error.
+        /// </para>
+        /// </remarks>
+        public bool CanManageExternalEvents { get; }
+
+        /// <summary>
         /// Returns a list of safety events
         /// </summary>
         /// <returns>
@@ -24,7 +36,8 @@
         /// Adds a list of <see cref="SafetyEvent"/> objects to the list returned by <see cref="SafetyEvents"/>.
         /// </summary>
         /// <param name="safetyEventList">An enumerable list of <see cref="SafetyEvent"/> objects to be added to the current safety event list.</param>
-        /// <exception cref="ASCOM.NotConnectedException">If the device is not connected.</exception>
+        /// <exception cref="ASCOM.MethodNotImplementedException">when the device does not support management of external events.</exception>
+        /// <exception cref="ASCOM.NotConnectedException">When the device is not connected.</exception>
         /// <exception cref="ASCOM.DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 
         /// <remarks>
         /// <para>
@@ -32,20 +45,21 @@
         /// i.e. the list returned by <see cref="SafetyEvents"/> will not contain entries with duplicate <see cref="SafetyEvent.Id"/> values.
         /// </para>
         /// <para>See <see href="SetExternalEvents.htm">Implementation Notes</see> for information on how clients, Alpaca devices and drivers should implement this method.</para>
-        /// <p style="color:red;"><b>This is a mandatory method and must be implemented.</b></p>
+        /// <p style="color:red;"><b>This is an optional method and can report a not implemented error.</b></p>
         /// </remarks>
         public void SetExternalEvents(IEnumerable<SafetyEvent> safetyEventList);
 
         /// <summary>
         /// Removes a list of <see cref="SafetyEvent"/> objects from the list returned by <see cref="SafetyEvents"/>.
         /// </summary>
+        /// <exception cref="ASCOM.MethodNotImplementedException">When the device does not support management of external events.</exception>
         /// <exception cref="ASCOM.InvalidValueException">One or more safety event ids are not recognised.</exception>
-        /// <exception cref="ASCOM.NotConnectedException">If the device is not connected.</exception>
+        /// <exception cref="ASCOM.NotConnectedException">When the device is not connected.</exception>
         /// <exception cref="ASCOM.DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 
         /// <param name="safetyEventIdList">An enumerable list of <see cref="SafetyEvent.Id">safety event ID strings</see> to be cleared from the current safety event list.</param>
         /// <remarks>
         /// <para>See <see href="ClearExternalEvents.htm">Implementation Notes</see> for information on how clients, Alpaca devices and drivers should implement this method.</para>
-        /// <p style="color:red;"><b>This is a mandatory method and must be implemented.</b></p>
+        /// <p style="color:red;"><b>This is an optional method and can report a not implemented error.</b></p>
         /// </remarks>
         public void ClearExternalEvents(IEnumerable<string> safetyEventIdList);
     }
