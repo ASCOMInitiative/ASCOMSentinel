@@ -1,6 +1,7 @@
 ﻿namespace Sentinel
 {
     using ASCOM.Common.DeviceInterfaces;
+    using SafetyMonitorExtension;
     using System.Collections.Concurrent;
     using System.Reflection;
     using System.Security.Cryptography;

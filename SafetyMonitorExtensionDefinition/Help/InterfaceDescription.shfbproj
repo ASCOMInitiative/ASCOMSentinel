@@ -47,9 +47,9 @@
       <Argument Key="AlwaysShowTopLevelAutoOutline" Value="False" />
     </TransformComponentArguments>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\SafetyMonitor\bin\Debug\net10.0\SafetyMonitor.xml" xmlns="" />
-      <DocumentationSource sourceFile="..\SafetyMonitor\bin\Debug\net10.0\SafetyMonitor.dll" xmlns="" />
       <DocumentationSource sourceFile="..\SafetyMonitor\bin\Debug\net10.0\ASCOM.Exceptions.xml" />
+      <DocumentationSource sourceFile="..\SafetyMonitor\bin\Debug\net10.0\SafetyMonitoExtension.dll" />
+      <DocumentationSource sourceFile="..\SafetyMonitor\bin\Debug\net10.0\SafetyMonitoExtension.xml" />
     </DocumentationSources>
     <HelpFileFormat>Website</HelpFileFormat>
     <SyntaxFilters>C#, Visual Basic</SyntaxFilters>
@@ -67,22 +67,43 @@
     <RootNamespaceContainer>False</RootNamespaceContainer>
     <NamespaceGrouping>False</NamespaceGrouping>
     <MaximumGroupParts>2</MaximumGroupParts>
-    <Preliminary>True</Preliminary>
+    <Preliminary>False</Preliminary>
     <CopyrightHref>https://ascom-standards.org</CopyrightHref>
     <CopyrightText>Copyright ASCOM Initiative %28c%29 2026</CopyrightText>
     <SdkLinkTarget>Blank</SdkLinkTarget>
     <VisibleItems>InheritedMembers, Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" />
-      <NamespaceSummaryItem name="SafetyMonitor" isDocumented="True">Proposed additions to the Safety Monitor interface</NamespaceSummaryItem>
-    </NamespaceSummaries>
+<NamespaceSummaryItem name="SafetyMonitor" isDocumented="False">Proposed additions to the Safety Monitor interface</NamespaceSummaryItem>
+<NamespaceSummaryItem name="SafetyMonitorExtension" isDocumented="True">Proposed additions to the Safety Monitor interface</NamespaceSummaryItem></NamespaceSummaries>
     <ComponentConfigurations>
     </ComponentConfigurations>
     <PlugInConfigurations>
     </PlugInConfigurations>
     <ApiFilter>
-      <Filter entryType="Namespace" fullName="ASCOM" isExposed="False" />
+      <Filter entryType="Namespace" fullName="ASCOM.DeviceInterface" isExposed="True">
+  <Filter entryType="Class" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3" filterName="ISafetyMonitorV3" isExposed="True">
+    <Filter entryType="Method" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.Action" filterName="Action" isExposed="False" />
+    <Filter entryType="Method" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.CommandBlind" filterName="CommandBlind" isExposed="False" />
+    <Filter entryType="Method" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.CommandBool" filterName="CommandBool" isExposed="False" />
+    <Filter entryType="Method" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.CommandString" filterName="CommandString" isExposed="False" />
+    <Filter entryType="Method" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.Connect" filterName="Connect" isExposed="False" />
+    <Filter entryType="Method" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.Disconnect" filterName="Disconnect" isExposed="False" />
+    <Filter entryType="Method" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.Dispose" filterName="Dispose" isExposed="False" />
+    <Filter entryType="Method" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.SetupDialog" filterName="SetupDialog" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.Connected" filterName="Connected" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.Connecting" filterName="Connecting" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.Description" filterName="Description" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.DeviceState" filterName="DeviceState" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.DriverInfo" filterName="DriverInfo" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.DriverVersion" filterName="DriverVersion" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.InterfaceVersion" filterName="InterfaceVersion" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.Name" filterName="Name" isExposed="False" />
+    <Filter entryType="Property" fullName="ASCOM.DeviceInterface.ISafetyMonitorV3.SupportedActions" filterName="SupportedActions" isExposed="False" />
+  </Filter>
+</Filter>
     </ApiFilter>
+    <FooterText>&amp;lt%3bp style=&amp;quot%3bcolor:red%3b&amp;quot%3b&amp;gt%3b&amp;lt%3bb&amp;gt%3bPreliminary documentation - Subject to change.&amp;lt%3b/b&amp;gt%3b&amp;lt%3b/p&amp;gt%3b</FooterText>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->

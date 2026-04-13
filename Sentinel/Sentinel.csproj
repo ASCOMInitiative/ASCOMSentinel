@@ -83,6 +83,7 @@
     <PackageReference Include="ASCOM.Tools" Version="3.1.0" />
     <PackageReference Include="Radzen.Blazor" Version="10.2.0" />
     <PackageReference Include="ASCOM.Com.Components" Version="3.1.0" />
+    <PackageReference Include="SafetyMonitorDraftComponents" Version="0.1.0-rc.1" />
   </ItemGroup>
 
   <PropertyGroup><!-- <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants> -->

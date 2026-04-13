@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="help/InterfaceDescription.shfbproj" Type="7cf6df6d-3b04-46f8-a40b-537d21bca0b4" Id="fbae1297-2576-4195-a187-50ce1a45f67f">
-    <BuildDependency Project="SafetyMonitor/InterfaceDefinition.csproj" />
+    <BuildDependency Project="SafetyMonitor/SafetyMonitoExtension.csproj" />
   </Project>
-  <Project Path="SafetyMonitor/InterfaceDefinition.csproj" />
+  <Project Path="SafetyMonitor/SafetyMonitoExtension.csproj" />
 </Solution>

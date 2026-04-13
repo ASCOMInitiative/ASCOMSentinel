@@ -1,6 +1,6 @@
 ﻿---
 uid: SetExternalEvents
-title: SetExternalEvents ethod Implementation Notes
+title: SetExternalEvents Method Implementation Notes
 tocTitle: SetExternalEvents
 # linkText: Optional Text to Use For Links
 # keywords: keyword, term 1, term 2, "term, with comma"

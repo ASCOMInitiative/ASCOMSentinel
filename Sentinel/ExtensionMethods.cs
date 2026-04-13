@@ -1,4 +1,5 @@
 ﻿using ASCOM;
+using SafetyMonitorExtension;
 using System.Runtime.CompilerServices;
 
 namespace Sentinel

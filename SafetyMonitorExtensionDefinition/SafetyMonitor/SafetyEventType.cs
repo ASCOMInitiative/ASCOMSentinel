@@ -1,5 +1,5 @@
 ﻿
-namespace SafetyMonitor
+namespace SafetyMonitorExtension
 {
     /// <summary>
     /// The type of environmental or operational factor that became unsafe.
@@ -182,10 +182,5 @@ namespace SafetyMonitor
         /// A user-defined event for local use within an observatory.
         /// </summary>
         LocallyDefined10 = 36,
-
-        /// <summary>
-        /// Some other type of issue has been detected.
-        /// </summary>
-        Other = 37
     }
 }

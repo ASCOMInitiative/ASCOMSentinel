@@ -2,6 +2,7 @@
 using ASCOM.Common;
 using ASCOM.Common.DeviceInterfaces;
 using Radzen.Blazor;
+using SafetyMonitorExtension;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -585,14 +586,14 @@ namespace Sentinel.DeviceAccess
                             throw new InvalidValueException("The supplied list of safety states was a null or empty string");
 
                         // De-serialise the supplied JSON string into a list of safety states
-                        List<SafetyEvent>? safetyStates = JsonSerializer.Deserialize<List<SafetyEvent>>(actionParameter, _jsonOptions);
+                        List<string>? safetyStates = JsonSerializer.Deserialize<List<string>>(actionParameter, _jsonOptions);
 
                         // Check that the JSON string was successfully de-serialised
                         if (safetyStates is null)
                             throw new InvalidValueException($"The supplied JSON string could not be parsed: {actionParameter}");
 
                         // Remove the supplied external events from the list based on ID
-                        safetyStates.ForEach(safetyState => state.ExternalSafetyEvents.TryRemove(safetyState.Id, out _));
+                        safetyStates.ForEach(safetyState => state.ExternalSafetyEvents.TryRemove(safetyState, out _));
 
                         // Force an update to remove the values from the cached safety state
                         forceIsSafeRefresh = true;
