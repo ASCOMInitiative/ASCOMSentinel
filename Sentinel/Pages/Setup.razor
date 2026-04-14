@@ -408,7 +408,7 @@
                             </RadzenCard>
                         </div>
                         If a property shows as <span style="color:red;">@Globals.NOT_SET</span>, the composite device will return a not implemented error.
-                        <div style="margin-top:16px;margin-bottom:24px;">
+                        <div style="margin-top:16px;margin-bottom:0px;">
                             <span>Devices are colour coded as follows: </span>
                             <span style="color:dodgerblue;font-weight:bold;">Discovered Alpaca devices</span>
                             <span> - </span>
@@ -676,11 +676,17 @@
     private List<AscomDevice> safetyMonitorDevicesAlpaca { get; set; } = new();
     private List<AscomDevice> switchDevicesAlpaca { get; set; } = new();
 
+    private string _srvUserNameInput = "";
+    private string _srvPassword = string.Empty;
+    private string _srvPassword2 = string.Empty;
+
 #if WINDOWS
     private List<ASCOM.Com.ASCOMRegistration> ObservingConditionsDevicesCom { get; set; } = new();
     private List<AscomDevice> SwitchDevicesCom { get; set; } = new();
     private List<ASCOM.Com.ASCOMRegistration> SafetyMonitorDevicesCom { get; set; } = new();
 #endif
+
+    #region Lifecycle methods and event handlers
 
     protected override void OnInitialized()
     {
@@ -719,54 +725,6 @@
         }
     }
 
-    private void OnLocationChange(string value, string name)
-    {
-        SrvLocation = value;
-    }
-
-    /// <summary>
-    /// Returns the set of display order values that are shared by more than one gauge.
-    /// </summary>
-    private HashSet<int> GetDuplicateDisplayOrders()
-    {
-        return settings.GaugeSettings.Values
-            .GroupBy(g => g.DisplayOrder)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
-            .ToHashSet();
-    }
-
-    private async Task OnTabChanged(int item)
-    {
-        state.StatusText = string.Empty;
-        if ((!state.DiscoveryHasRun) && ((item == 1) || (item == 2)))
-        {
-            await StartDiscovery();
-        }
-    }
-
-    private async Task OnObservingConditionsDeviceChanged(object discoveredDevice, PropertyName propertyName)
-    {
-        state.DisplayReconnectMessage = true;
-
-        if (((DiscoveredDevice)discoveredDevice).SentinelDeviceType == SentinelDeviceType.NotSet)
-        {
-            state.ObservingConditionsDeviceMap.TryRemove(propertyName, out _);
-            settings.RaiseChangeEvent();
-        }
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
-    {
-        settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
-        settings.Save();
-
-        state.DisplayReconnectMessage = true;
-        await InvokeAsync(StateHasChanged);
-    }
-
     /// <summary>
     /// This method will be called when the window resizes.
     /// It is ONLY called when the user stops dragging the window's edge. (It is already throttled to protect your app from performance nightmares)
@@ -790,6 +748,58 @@
         {
             logger.LogError("OnResize", $"Exception: \r\n{ex}");
         }
+    }
+
+    private async Task OnTabChanged(int item)
+    {
+        state.StatusText = string.Empty;
+        if ((!state.DiscoveryHasRun) && ((item == 1) || (item == 2)))
+        {
+            await StartDiscovery();
+        }
+    }
+
+    #endregion
+
+    #region Change handlers for settings changes
+
+    private void OnLocationChange(string value, string name)
+    {
+        SrvLocation = value;
+    }
+
+    /// <summary>
+    /// Returns the set of display order values that are shared by more than one gauge.
+    /// </summary>
+    private HashSet<int> GetDuplicateDisplayOrders()
+    {
+        return settings.GaugeSettings.Values
+            .GroupBy(g => g.DisplayOrder)
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToHashSet();
+    }
+
+    private async Task OnObservingConditionsDeviceChanged(object discoveredDevice, PropertyName propertyName)
+    {
+        state.DisplayReconnectMessage = true;
+
+        if (((DiscoveredDevice)discoveredDevice).SentinelDeviceType == SentinelDeviceType.NotSet)
+        {
+            state.ObservingConditionsDeviceMap.TryRemove(propertyName, out _);
+            settings.RaiseChangeEvent();
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnSafetyMonitorDeviceChanged(DiscoveredDevice device, PropertyName propertyName)
+    {
+        settings.SafetyMonitorSettings[propertyName] = SafetyMonitorState.Enabled;
+        settings.Save();
+
+        state.DisplayReconnectMessage = true;
+        await InvokeAsync(StateHasChanged);
     }
 
     private bool StartBrowserOnLaunch
@@ -971,6 +981,10 @@
         }
     }
 
+    #endregion
+
+    #region Alpaca discovery
+
     private async Task StartDiscovery()
     {
         try
@@ -1022,8 +1036,8 @@
                 state.DiscoveredSafetyMonitorDevices.Clear();
 
                 // Add not configured and manual configuration observing conditions list entries.
-                state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice());
-                state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManualObservingConditions });
+                state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice()); // Not configured entry
+                state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice() { SentinelDeviceType = SentinelDeviceType.ManualObservingConditions }); // Manually configured device entry
 
                 // Add all manually configured observing conditions devices to the list
                 List<DiscoveredDevice> uniqueObservingConditionsDevices = settings.ConfiguredDevices.Values
@@ -1071,7 +1085,7 @@
                 foreach (AscomDevice device in observingConditionsDevicesAlpaca)
                 {
                     // Exclude our observing conditions device from the list
-                    if (device.AscomDeviceName != $"{Globals.OBSERVING_CONDITIONS_NAME} ({settings.Location})")
+                    if (device.UniqueId != settings.UniqueIdObservingConditions)
                     {
                         logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                         state.DiscoveredObservingConditionsDevices.Add(new DiscoveredDevice
@@ -1109,7 +1123,7 @@
                 foreach (AscomDevice device in safetyMonitorDevicesAlpaca)
                 {
                     // Exclude our safety monitor device from the list
-                    if (device.AscomDeviceName != $"{Globals.SAFETY_MONITOR_NAME} ({settings.Location})")
+                    if (device.UniqueId != settings.UniqueIdSafetyMonitor)
                     {
                         logger.LogDebug("", $"DiscoveredDevices - Adding {device.AscomDeviceType}, {device.AscomDeviceName} {device.HostName}");
                         state.DiscoveredSafetyMonitorDevices.Add(new DiscoveredDevice
@@ -1169,6 +1183,7 @@
         }
     }
 
+    #endregion
 
     #region Server settings
 
@@ -1269,10 +1284,6 @@
     }
 
     private bool SrvDisableAuth => !SrvRequireAuthorization;
-
-    private string _srvUserNameInput = "";
-    private string _srvPassword = string.Empty;
-    private string _srvPassword2 = string.Empty;
 
     private void CommitUserNameOnEnter(KeyboardEventArgs e)
     {
