@@ -9,18 +9,18 @@ Today's safety monitor interface is basic, it simply provides a boolean IsSafe p
 is safe. No information is provided about why the condition is unsafe, or what the monitored condition is. 
 
 We have received community feedback about enabling SafetyMonitor devices to provide context about the source of the unsafe condition, 
-and this revision is a response to that feedback.
+and this interface revision is a response to that feedback.
 
 This proposal extends the safety monitor interface in two ways:
 - Provides safety event descriptions to clients about why monitored conditions are not safe. *(Must be implemented.)*
-- Enables clients and drivers to add their own safety event descriptions and make the safety monitor report <code>IsSafe = false.</code>
+- Enables clients and drivers/devices to add their own safety event descriptions and make the safety monitor report <code>IsSafe = false.</code>
 *(Optional implementation.)*
 
 The <code>IsSafe</code> property is unchanged so these additions are backward compatible with existing clients.
 
 The proposed interface is described in the [SafetyMonitorExtension](bc4fa0b1-a8e7-4e7f-43d7-4c21a5070578.htm) section 
 to the left and may change in the light of feedback. To enable the interface to be trialled immediately,
-we propose an interim approach implemented through the Action / SupportedActions mechanic that all Platform 6 interface clients, 
+we propose an interim approach implemented through the Action / SupportedActions mechanic that all Platform 6 and later clients, 
 drivers and devices support.
 
 ## Interim Approach using Action / SupportedActions
@@ -50,8 +50,21 @@ The Action behaviours are as follows:
 - **Action Parameters**: <code>string.Empty</code>
 - **Returns**: A JSON encoded string containing an array of <code>SafetyEvent</code> objects .
 
-This is an example of the expected JSON response:
-<pre>
+<code language="JSON" title="Examples of SafetyEvents JSON responses">
+//Example 1 - One event active
+[
+    {
+        "Source":"ASCOM Sentinel at My Observatory",
+        "Name":"Observing conditions SkyBrightness",
+        "Id":"723e775aab_SkyBrightness",
+        "Type":"SkyBrightness",
+        "Trigger":"AboveThreshold",
+        "Description":"SkyBrightness rule 1 violated: Value 85.83 is greater than 0.25.",
+        "EventTimeUtc":"2026-04-15T08:05:03.2139641Z"
+    }
+]
+ 
+ // Example 2 - Two events active
 [
     {
         "Source":"ASCOM Sentinel at My Observatory",
@@ -72,13 +85,14 @@ This is an example of the expected JSON response:
         "EventTimeUtc":"2026-04-15T08:05:03.2147037Z"
     }
 ]
-</pre>
+</code>
 
-The response has been whitespace formatted for readability, but the actual response should be a single line of JSON text without unnecessary whitespace.
+*The response has been whitespace formatted for readability, but the actual response should be a single line of JSON text without unnecessary whitespace.*
 
 ### SetExternalEvents Action (optional)
 - **Action Name**: <code>SetExternalEvents</code>
-- **Action Parameters**: JSON encoded string containing an array of <code>SafetyEvent</code> objects to add to the device's list of external safety events.
+- **Action Parameters**: JSON encoded string containing an array of <code>SafetyEvent</code> objects to add to the device's list of external safety events. 
+The example JSON string above would be a valid parameter value for this action.
 - **Returns**: <code>string.Empty</code>
 
 ### ClearExternalEvents Action (optional)
@@ -86,15 +100,31 @@ The response has been whitespace formatted for readability, but the actual respo
 - **Action Parameters**: JSON encoded string containing an array of <code>SafetyEvent.Id</code> string values identifying the event IDs
 to be removed from the device's list of external safety events.
 - **Returns**: <code>string.Empty</code>
- 
+
+<code language="JSON" title="Examples of ClearExternalEvents JSON parameter values">
+// Example 1 - Clear one event
+[
+    "F9D431A2-3FE6-46BE-B7C0-53EA34948934"
+]
+  
+// Example 2 - Clear two events
+[
+    "F9D431A2-3FE6-46BE-B7C0-53EA34948934",
+    "8C528476-658E-49D3-9CD0-D772F3451DA2"
+]
+</code>
+
+*The parameter has been whitespace formatted for readability, but the actual parameter should be a single line of JSON text without unnecessary whitespace.*
+
 ## Test Support
 Three areas of support are available to enable the proposed interface to be trialled immediately:
 
-- **Client Testing** - The new [ASCOM Sentinel](https://github.com/ASCOMInitiative/ASCOMSentinel) 
+- **Testing Clients** - The new [ASCOM Sentinel](https://github.com/ASCOMInitiative/ASCOMSentinel) 
 (link to [Latest Release](https://github.com/ASCOMInitiative/ASCOMSentinel/releases)) application provides a reference implementation 
 of the revised SafetyMonitor interface that clients can use to trial the interface. 
-- **Alpaca Devices and COM Driver Testing** - The latest version of [Conform Universal](https://github.com/ASCOMInitiative/ConformU/releases) 
-behaves as a reference client and displays safety events returned by Alpaca and COM driver implementations.
-- **Development** - A NuGet package containing the class and enum definitions required to implement the 
+- **Testing Alpaca Devices and COM Drivers** - The latest version of [Conform Universal](https://github.com/ASCOMInitiative/ConformU/releases) 
+behaves as a reference client and displays safety events returned by Alpaca and COM driver implementations through <code>SafetyEvents</code>. 
+It also exercises the <code>SetExternalEvents</code> and <code>ClearExternalEvents</code> actions to allow testing of these optional features.
+- **Code Definitions** - A NuGet package containing the class and enum definitions required to implement the 
 proposed interface is available from our MyGet feed. You will need to add this URL: https://www.myget.org/F/ascom-initiative/api/v3/index.json
-as a package source in your development tooling in order to install the package, which is named <code>ISafetyMonitorV4Components</code>.
+as a package source in your development tooling in order to see the package, which is named <code>ISafetyMonitorV4Components</code>.
