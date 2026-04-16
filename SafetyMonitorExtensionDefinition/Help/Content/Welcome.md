@@ -19,9 +19,11 @@ This proposal extends the safety monitor interface in two ways:
 The <code>IsSafe</code> property is unchanged so these additions are backward compatible with existing clients.
 
 The proposed interface is described in the [SafetyMonitorExtension](bc4fa0b1-a8e7-4e7f-43d7-4c21a5070578.htm) section 
-to the left and may change in the light of feedback. To enable the interface to be trialled immediately,
+to the left and may change in the light of feedback. 
+
+**To enable the interface to be trialled immediately,
 we propose an interim approach implemented through the Action / SupportedActions mechanic that all Platform 6 and later clients, 
-drivers and devices support.
+drivers and devices support.**
 
 ## Interim Approach using Action / SupportedActions
 
@@ -48,73 +50,23 @@ The Action behaviours are as follows:
 ### SafetyEvents Action (mandatory)
 - **Action Name**: <code>SafetyEvents</code>
 - **Action Parameters**: <code>string.Empty</code>
-- **Returns**: A JSON encoded string containing an array of <code>SafetyEvent</code> objects .
+- **Returns**: A string containing a JSON encoded array of <code>SafetyEvent</code> objects .
 
-<code language="JSON" title="Examples of SafetyEvents JSON responses">
-//Example 1 - One event active
-[
-    {
-        "Source":"ASCOM Sentinel at My Observatory",
-        "Name":"Observing conditions SkyBrightness",
-        "Id":"723e775aab_SkyBrightness",
-        "Type":"SkyBrightness",
-        "Trigger":"AboveThreshold",
-        "Description":"SkyBrightness rule 1 violated: Value 85.83 is greater than 0.25.",
-        "EventTimeUtc":"2026-04-15T08:05:03.2139641Z"
-    }
-]
- 
- // Example 2 - Two events active
-[
-    {
-        "Source":"ASCOM Sentinel at My Observatory",
-        "Name":"Observing conditions SkyBrightness",
-        "Id":"723e775aab_SkyBrightness",
-        "Type":"SkyBrightness",
-        "Trigger":"AboveThreshold",
-        "Description":"SkyBrightness rule 1 violated: Value 85.83 is greater than 0.25.",
-        "EventTimeUtc":"2026-04-15T08:05:03.2139641Z"
-    },
-    {
-        "Source":"ASCOM Sentinel at My Observatory",
-        "Name":"Observing conditions StarFWHM",
-        "Id":"723e775aab_StarFWHM",
-        "Type":"StarFWHM",
-        "Trigger":"AboveThreshold",
-        "Description":"StarFWHM rule 1 violated: Value 1.03 is greater than 0.8.",
-        "EventTimeUtc":"2026-04-15T08:05:03.2147037Z"
-    }
-]
-</code>
-
-*The response has been whitespace formatted for readability, but the actual response should be a single line of JSON text without unnecessary whitespace.*
+See [SafetyEvents Action Implementation Notes](SafetyEvents.htm) for more information.
 
 ### SetExternalEvents Action (optional)
 - **Action Name**: <code>SetExternalEvents</code>
-- **Action Parameters**: JSON encoded string containing an array of <code>SafetyEvent</code> objects to add to the device's list of external safety events. 
-The example JSON string above would be a valid parameter value for this action.
-- **Returns**: <code>string.Empty</code>
+- **Action Parameters**: A string containing a JSON encoded array of <code>SafetyEvent</code> objects to add to the device's list of external safety events. 
+- **Returns**: ""
+
+See [SetExternalEvents Action Implementation Notes](SetExternalEvents.htm) for more information.
 
 ### ClearExternalEvents Action (optional)
 - **Action Name**: <code>ClearExternalEvents</code>
-- **Action Parameters**: JSON encoded string containing an array of <code>SafetyEvent.Id</code> string values identifying the event IDs
-to be removed from the device's list of external safety events.
-- **Returns**: <code>string.Empty</code>
+- **Action Parameters**: A string containing a JSON encoded array of <code>SafetyEvent.Id</code> string values that identify the events to be removed from the device's list of external safety events.
+- **Returns**: ""
 
-<code language="JSON" title="Examples of ClearExternalEvents JSON parameter values">
-// Example 1 - Clear one event
-[
-    "F9D431A2-3FE6-46BE-B7C0-53EA34948934"
-]
-  
-// Example 2 - Clear two events
-[
-    "F9D431A2-3FE6-46BE-B7C0-53EA34948934",
-    "8C528476-658E-49D3-9CD0-D772F3451DA2"
-]
-</code>
-
-*The parameter has been whitespace formatted for readability, but the actual parameter should be a single line of JSON text without unnecessary whitespace.*
+See [ClearExternalEvents Action Implementation Notes](ClearExternalEvents.htm) for more information.
 
 ## Test Support
 Three areas of support are available to enable the proposed interface to be trialled immediately:
