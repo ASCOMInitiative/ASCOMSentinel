@@ -130,6 +130,7 @@
     <Folder Include="Content\VersionHistory" />
     <Folder Include="icons" />
     <Folder Include="media" />
+    <Folder Include="css" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Content\Implementation Notes\ClearExternalEvents.md" />
@@ -138,6 +139,7 @@
     <None Include="Content\VersionHistory\v0.1.0.0.md" />
     <None Include="Content\VersionHistory\VersionHistory.md" />
     <None Include="Content\Welcome.md" />
+    <Content Include="css\presentationStyle.css" />
     <Content Include="icons\favicon.ico" />
   </ItemGroup>
   <ItemGroup>
