@@ -77,7 +77,7 @@ namespace SafetyMonitorExtension
         /// Removes one or more external safety events from the list returned by <see cref="SafetyEvents"/>.
         /// </summary>
         /// <exception cref="ASCOM.MethodNotImplementedException">When the device does not support management of external events.</exception>
-        /// <exception cref="ASCOM.InvalidValueException">One or more safety event ids are not recognised.</exception>
+        /// <exception cref="ASCOM.InvalidOperationException">One or more safety event ids are not recognised.</exception>
         /// <exception cref="ASCOM.NotConnectedException">When the device is not connected.</exception>
         /// <exception cref="ASCOM.DriverException">An error occurred that is not described by one of the more specific ASCOM exceptions. Include sufficient detail in the message 
         /// text to enable the issue to be accurately diagnosed by someone other than yourself.</exception> 

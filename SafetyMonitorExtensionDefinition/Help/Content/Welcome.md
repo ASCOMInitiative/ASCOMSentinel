@@ -19,7 +19,8 @@ This proposal extends the safety monitor interface in two ways:
 The <code>IsSafe</code> property is unchanged so these additions are backward compatible with existing clients.
 
 The proposed interface is described in the [SafetyMonitorExtension](bc4fa0b1-a8e7-4e7f-43d7-4c21a5070578.htm) section 
-to the left and may change in the light of feedback. 
+to the left and the Alpaca interface implementation is described here: [Alpaca Implementation](https://ascom-standards.org/isafetymonitorv4api).
+Both may change in the light of feedback.
 
 **To enable the interface to be trialled immediately,
 we propose an interim approach implemented through the Action / SupportedActions mechanic that all Platform 6 and later clients, 
