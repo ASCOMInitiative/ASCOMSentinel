@@ -19,8 +19,8 @@ tocTitle: SetExternalEvents
         "Source":"ASCOM Sentinel at My Observatory",
         "Name":"Observing conditions SkyBrightness",
         "Id":"723e775aab_SkyBrightness",
-        "Type":"SkyBrightness",
-        "Trigger":"AboveThreshold",
+        "Type":6,
+        "Trigger":3,
         "Description":"SkyBrightness rule 1 violated: Value 85.83 is greater than 0.25.",
         "EventTimeUtc":"2026-04-15T08:05:03.2139641Z"
     }
@@ -32,8 +32,8 @@ tocTitle: SetExternalEvents
         "Source":"ASCOM Sentinel at My Observatory",
         "Name":"Observing conditions SkyBrightness",
         "Id":"723e775aab_SkyBrightness",
-        "Type":"SkyBrightness",
-        "Trigger":"AboveThreshold",
+        "Type":6,
+        "Trigger":3,
         "Description":"SkyBrightness rule 1 violated: Value 85.83 is greater than 0.25.",
         "EventTimeUtc":"2026-04-15T08:05:03.2139641Z"
     },
@@ -41,8 +41,8 @@ tocTitle: SetExternalEvents
         "Source":"ASCOM Sentinel at My Observatory",
         "Name":"Observing conditions StarFWHM",
         "Id":"723e775aab_StarFWHM",
-        "Type":"StarFWHM",
-        "Trigger":"AboveThreshold",
+        "Type":9,
+        "Trigger":3,
         "Description":"StarFWHM rule 1 violated: Value 1.03 is greater than 0.8.",
         "EventTimeUtc":"2026-04-15T08:05:03.2147037Z"
     }

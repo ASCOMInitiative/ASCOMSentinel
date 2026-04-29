@@ -2,10 +2,9 @@
 uid: VersionHistory
 title: Version History
 ---
-The topics in this section describe the various changes made to the [TODO: Project Title] over the life of
-the project.
+### Version 0.1.0
+Original release.
 
-Select a version below to see a description of its changes.
-
-- [](@v0-1-0-0)
-
+### Version 0.2.0
+- Added Alpaca API implementation definitions.
+- Updated all JSON examples to use numeric Type and Trigger values instead of strings for consistency with existing Alpaca API use.

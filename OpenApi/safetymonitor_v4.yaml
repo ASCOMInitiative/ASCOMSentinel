@@ -447,9 +447,9 @@ paths:
     put:
       summary: Removes one or more external safety events from the list returned by SafetyEvents.
       description: |
-        "See this link for the canonical definition, which may include further information and implementation requirements: [ClearExternalEvents](https://ascom-standards.org/isafetymonitorv4/html/c1caf351-8be7-fd13-d41f-0060f1c8e4f3.htm)"
+        See this link for the canonical definition, which may include further information and implementation requirements: [ClearExternalEvents](https://ascom-standards.org/isafetymonitorv4/html/c1caf351-8be7-fd13-d41f-0060f1c8e4f3.htm)
        
-        "`Note` **This call requires an application/json request body  not an application/x-www-form-urlencoded request body.**"
+        `Note` **This call requires an application/json request body  not an application/x-www-form-urlencoded request body.**
       parameters:
         - $ref: '#/components/parameters/device_number'
       tags:
@@ -516,9 +516,9 @@ paths:
     put:
       summary: Adds a list of SafetyEvent objects to the list returned by SafetyEvents.
       description: |
-        "See this link for the canonical definition, which may include further information and implementation requirements: [SetExternalEvents](https://ascom-standards.org/isafetymonitorv4/html/e697c85a-0129-722c-40a2-d8c91a72b930.htm)"
+        See this link for the canonical definition, which may include further information and implementation requirements: [SetExternalEvents](https://ascom-standards.org/isafetymonitorv4/html/e697c85a-0129-722c-40a2-d8c91a72b930.htm)
             
-        "`Note` **This call requires an application/json request body  not an application/x-www-form-urlencoded request body.**"
+        `Note` **This call requires an application/json request body  not an application/x-www-form-urlencoded request body.**
       parameters:
         - $ref: '#/components/parameters/device_number'
       tags:
@@ -707,8 +707,8 @@ components:
                     description: Returns an array of SafetyEvent objects descibing issues that currently make it unsafe to continue observing.
                     type: array
                     uniqueItems: true
-                    minitems: 0
                     items:
+                      minItems: 0
                       $ref: '#/components/schemas/SafetyEvent'
 
     MethodResponse:
@@ -1148,25 +1148,6 @@ components:
                     maximum: 100
                     description: Returned percentage value between 0 and 100.
   schemas:
-    AxisRate:
-      description: Axis rate object
-      type: object
-      properties:
-        Maximum:
-          description: >-
-            The maximum rate (degrees per second). This must always be a positive
-            number. It indicates the maximum rate in either direction about the
-            axis.
-          type: number
-        Minimum:
-          description: >-
-            The minimum rate (degrees per second). This must always be a positive
-            number. It indicates the maximum rate in either direction about the
-            axis.
-          type: number
-      required:
-        - Maximum
-        - Minimum
     AlpacaRequest:
       type: object
       properties:
@@ -1215,239 +1196,9 @@ components:
         ErrorMessage:
           type: string
           description: Empty string for a successful transaction, or a message describing the issue that was encountered. If an error message is returned, a non zero error number must also be returned.
-    DriveRate:
-      description: Integer value corresponding to one of the standard drive rates.
-      type: integer
-      format: int32
-      oneOf:
-        - title: Sidereal
-          description: Sidereal tracking rate (15.041 arcseconds per second).
-          const: 0
-        - title: Lunar
-          description: Lunar tracking rate (14.685 arcseconds per second).
-          const: 1
-        - title: Solar
-          description: Solar tracking rate (15.0 arcseconds per second).
-          const: 2
-        - title: King
-          description: King tracking rate (15.0369 arcseconds per second).
-          const: 3
-    TelescopeAxis:
-      description: The axis about which rate information is desired.
-      type: integer
-      format: int32
-      oneOf:
-        - title: Primary
-          const: 0
-        - title: Secondary
-          const: 1
-        - title: Tertiary
-          const: 2
-    RightAscension:
-      type: number
-      description: Right Ascension coordinate (0.0 to 23.99999999 hours)
-      example: 3.0
-      minimum: 0.0
-      maximum: 23.9999999999
-    Declination:
-      description: Declination coordinate (-90.0 to +90.0 degrees)
-      type: number
-      example: 0.0
-      minimum: -90.0
-      maximum: 90.0
-    PierSide:
-      type: integer
-      format: int32
-      description: Returned side of pier
-      oneOf:
-        - title: East
-          description: Normal pointing state - Mount on the East side of pier (looking West).
-          const: 0
-        - title: West
-          description: Through the pole pointing state - Mount on the West side of pier (looking East).
-          const: 1
-        - title: Unknown
-          description: Unknown or indeterminate.
-          const: -1
-    TelescopeUTCDate:
-      type: string
-      # The described date format is the same as the standard OpenAPI format.
-      # https://swagger.io/docs/specification/data-models/data-types/
-      format: date-time
-      pattern: '^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?Z$'
-      description: >-
-        The UTC date/time of the telescope's internal clock in ISO 8601 format including fractional seconds.
-        The general format (in Microsoft custom date format style) is yyyy-MM-ddTHH:mm:ss.fffffffZ, e.g. 2016-03-04T17:45:31.1234567Z or 2016-11-14T07:03:08.1234567Z.
-        Please note the compulsary trailing Z indicating the 'Zulu', UTC time zone.
-    LastExposureStartTime:
-      type: string
-      # Custom format for FITS standard date-time.
-      # Not defined in standard OpenAPI, but used by downstream tooling processing this YAML.
-      format: date-time-fits
-      pattern: '^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?$'
-      description: >-
-        The UTC date/time of exposure start in the FITS-standard CCYY-MM-DDThh:mm:ss[.sss...] format.
-    CameraState:
-      description: Camera state
-      type: integer
-      format: int32
-      oneOf:
-        - title: Idle
-          description: At idle state, available to start exposure.
-          const: 0
-        - title: Waiting
-          description: Exposure started but waiting (for shutter, trigger, filter wheel, etc.).
-          const: 1
-        - title: Exposing
-          description: Exposure currently in progress.
-          const: 2
-        - title: Reading
-          description: Sensor array is being read out (digitized).
-          const: 3
-        - title: Download
-          description: Downloading data to host.
-          const: 4
-        - title: Error
-          description: Camera error condition serious enough to prevent further operations.
-          const: 5
-    GuideDirection:
-      description: The direction in which the guide-rate motion is to be made.
-      type: integer
-      format: int32
-      oneOf:
-        - title: North
-          const: 0
-        - title: South
-          const: 1
-        - title: East
-          const: 2
-        - title: West
-          const: 3
-    SensorType:
-      description: The type of sensor in the camera.
-      type: integer
-      format: int32
-      oneOf:
-        - title: Monochrome
-          description: Single-plane monochrome sensor.
-          const: 0
-        - title: Color
-          description: Multiple-plane color sensor.
-          const: 1
-        - title: RGGB
-          description: Single-plane Bayer matrix RGGB sensor.
-          const: 2
-        - title: CMYG
-          description: Single-plane Bayer matrix CMYG sensor.
-          const: 3
-        - title: CMYG2
-          description: Single-plane Bayer matrix CMYG2 sensor.
-          const: 4
-        - title: LRGB
-          description: Single-plane Bayer matrix LRGB sensor.
-          const: 5
-    ShutterState:
-      description: Indicates the current state of the shutter or roof.
-      type: integer
-      format: int32
-      oneOf:
-        - title: Open
-          description: The shutter or roof is open.
-          const: 0
-        - title: Closed
-          description: The shutter or roof is closed.
-          const: 1
-        - title: Opening
-          description: The shutter or roof is opening.
-          const: 2
-        - title: Closing
-          description: The shutter or roof is closing.
-          const: 3
-        - title: Error
-          description: The shutter or roof has encountered a problem.
-          const: 4
-    CalibratorStatus:
-      description: Describes the state of a calibration device.
-      type: integer
-      format: int32
-      oneOf:
-        - title: NotPresent
-          description: This device does not have a calibration capability.
-          const: 0
-        - title: Off
-          description: The calibrator is off.
-          const: 1
-        - title: NotReady
-          description: The calibrator is stabilising or is not yet in the commanded state.
-          const: 2
-        - title: Ready
-          description: The calibrator is ready for use.
-          const: 3
-        - title: Unknown
-          description: The calibrator state is unknown.
-          const: 4
-        - title: Error
-          description: The calibrator encountered an error when changing state.
-          const: 5
-    CoverStatus:
-      description: Describes the state of a telescope cover.
-      type: integer
-      format: int32
-      oneOf:
-        - title: NotPresent
-          description: This device does not have a cover that can be closed independently.
-          const: 0
-        - title: Closed
-          description: The cover is closed.
-          const: 1
-        - title: Moving
-          description: The cover is moving to a new position.
-          const: 2
-        - title: Open
-          description: The cover is open.
-          const: 3
-        - title: Unknown
-          description: The state of the cover is unknown.
-          const: 4
-        - title: Error
-          description: The device encountered an error when changing state.
-          const: 5
-    AlignmentMode:
-      description: The alignment mode (geometry) of the mount.
-      type: integer
-      format: int32
-      oneOf:
-        - title: AltAz
-          description: Altitude-Azimuth type mount.
-          const: 0
-        - title: Polar
-          description: Polar (equatorial) mount other than German equatorial.
-          const: 1
-        - title: GermanPolar
-          description: German equatorial type mount.
-          const: 2
-    EquatorialCoordinateType:
-      description: The equatorial coordinate system used by the mount.
-      type: integer
-      format: int32
-      oneOf:
-        - title: Other
-          description: Custom or unknown equinox and/or reference frame.
-          const: 0
-        - title: Topocentric
-          description: Topocentric coordinates.
-          const: 1
-        - title: J2000
-          description: J2000 equator/equinox.
-          const: 2
-        - title: J2050
-          description: J2050 equator/equinox.
-          const: 3
-        - title: B1950
-          description: B1950 equinox, FK4 reference frame.
-          const: 4
     SafetyEvent:
-      description: A SafetyEvent object representing a safety issue in the observatory
+      title: SafetyEvent
+      description: "**SafetyEvent Object** - Represents a safety issue in the observatory."
       type: object
       properties:
         Description:
@@ -1483,6 +1234,7 @@ components:
       description: The condition that triggered the safety event.
       type: integer
       format: int32
+      exclusiveMinimum: 0
       oneOf:
         - title: ValueNotSet
           description: Uninitialised value placeholder. This value should never be used in practice and is reserved to help identify uninitialised variables.
@@ -1578,6 +1330,7 @@ components:
       description: The type of environmental or operational factor that became unsafe.
       type: integer
       format: int32
+      exclusiveMinimum: 0
       oneOf:
         - title: ValueNotSet
           description: Uninitialised value placeholder. This value should never be used in practice and is reserved to help identify uninitialised variables.
@@ -1691,17 +1444,21 @@ components:
           description: A user-defined event for local use within an observatory.
           const: 36
     SafetyEventIdList:
-      description: An array of SafetyEvent.ID strings.
+      title: SafetyEventIdList
+      description: Array of SafetyEvent.ID strings.
       type: array
+      uniqueItems: true
       items:
         type: string
-        minitems: 1
-        description: A unique ID identifying this safety event.      
+        description: Unique string ID identifying a safety event.      
+        minItems: 1
     SafetyEventList:
-      description: An array of SafetyEvent objects.
+      title: SafetyEventList
+      description: Array of SafetyEvent objects.
       type: array
+      uniqueItems: true
       items:
-        minitems: 1
+        minItems: 1
         $ref: '#/components/schemas/SafetyEvent'
         
         
