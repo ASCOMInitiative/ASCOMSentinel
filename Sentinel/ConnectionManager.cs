@@ -155,9 +155,6 @@ namespace Sentinel
                 {
                     logger.LogMessage("Connect", $"Connecting to {observingConditionsCount} observing conditions device{(observingConditionsCount == 1 ? "" : "s")} and {safetyMonitorCount} safety monitor device{(safetyMonitorCount == 1 ? "" : "s")}...");
 
-                    // Set client retries to 0 for all Alpaca clients to ensure that we get a timely response when a device is not responding. This will not affect COM clients since they do not use the AlpacaClient class.
-                    ASCOM.Alpaca.Clients.AlpacaClient.SetClientRetries(0);
-
                     // Define a dictionary to hold the unique device instances
                     Dictionary<DiscoveredDevice, IObservingConditionsV2> observingConditionsDeviceInstances = new();
 
@@ -185,7 +182,8 @@ namespace Sentinel
                                     Logger = settings.IncludeAlpacaTrace ? logger : null,
                                     UserAgentProductName = "Sentinel",
                                     UserAgentProductVersion = "0.1",
-                                    ClientNumber = 10 + (uint)uniqueObservingConditionsDevices.IndexOf(device)
+                                    ClientNumber = 10 + (uint)uniqueObservingConditionsDevices.IndexOf(device),
+                                    NumberOfRetries = 0
                                 });
 
                                 observingConditionsDeviceInstances[device] = alpacaDevice;
@@ -307,7 +305,8 @@ namespace Sentinel
                                     Logger = settings.IncludeAlpacaTrace ? logger : null,
                                     UserAgentProductName = "Sentinel",
                                     UserAgentProductVersion = "0.1",
-                                    ClientNumber = device.Key.ToDeviceNumber()
+                                    ClientNumber = device.Key.ToDeviceNumber(),
+                                    NumberOfRetries = 0
                                 });
 
                                 state.SafetyMonitorDevices[device.Key] = alpacaDevice;
