@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="NuGet.config" />
+  </Folder>
   <Project Path="Sentinel.Tests/Sentinel.Tests.csproj" />
   <Project Path="Sentinel/Sentinel.csproj" />
 </Solution>
