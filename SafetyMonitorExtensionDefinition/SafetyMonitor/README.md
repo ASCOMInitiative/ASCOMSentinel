@@ -5,3 +5,11 @@ The interface changes are designed to provide a standardized way for safety moni
 
 In addition, the changes enable external clients and devices to register unsafe conditions with the safety monitor thus avoiding the need to 
 implement a SafetyMonitor interface themselves.
+
+## Change History
+### Version 0.1.0
+- Original release.
+
+### Version 0.2.0
+- Added Alpaca API implementation definitions.
+- Updated all JSON examples to use numeric Type and Trigger values instead of strings for consistency with existing Alpaca API use.

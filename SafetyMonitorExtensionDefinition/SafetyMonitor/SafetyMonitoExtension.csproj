@@ -6,9 +6,9 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
     <Product>Safety Monitor Interface Update Components</Product>
-    <InformationalVersion>0.1</InformationalVersion>
+    <InformationalVersion>0.2</InformationalVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>ISafetyMonitorV4Components</PackageId>
     <Title>Draft ASCOM safety monitor extension proposal</Title>
@@ -16,7 +16,7 @@
     <Description>The draft ASCOM ISafetyMonitorV4 interface and associated classes and enums.</Description>
     <PackageIcon>Bug72.jpg</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <PackageProjectUrl>https://ascom-standards.org</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ASCOMInitiative/ASCOMSentinel</RepositoryUrl>
     <PackageTags>ASCOM;SafetyMonitor;ISafetyMonitorV4</PackageTags>
