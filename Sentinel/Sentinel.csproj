@@ -81,7 +81,7 @@
     <PackageReference Include="ASCOM.Alpaca.Components" Version="4.0.0-rc.1" />
     <PackageReference Include="ASCOM.Alpaca.Razor" Version="0.6.0-alpha02" />
     <PackageReference Include="ASCOM.Tools" Version="4.0.0-rc.1" />
-    <PackageReference Include="ISafetyMonitorV4Components" Version="0.1.0" />
+    <PackageReference Include="ISafetyMonitorV4Components" Version="0.2.0" />
     <PackageReference Include="Radzen.Blazor" Version="10.3.2" />
     <PackageReference Include="ASCOM.Com.Components" Version="4.0.0-rc.1" />
   </ItemGroup>
