@@ -5,7 +5,7 @@ using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
 namespace Sentinel
 {
-    public class AppLogger : TraceLogger, IAppLogger
+    public class AppLogger : TraceLogger, IAppLogger, ITraceLogger, ILogger
     {
         private readonly State state;
         private readonly Settings settings;

@@ -4,7 +4,7 @@
 @inject Settings settings;
 @inject AppLogger logger;
 
-<PageTitle>Help1</PageTitle>
+<PageTitle>Help</PageTitle>
 
 <style>
     .vs-code-block {
@@ -40,6 +40,12 @@
         color: #ce9178;
     }
 </style>
+
+<p>
+    <b>Version</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @Update.VersionDisplayString
+    <br />
+    <b>Copyright</b>&nbsp; © 2026-@(DateTime.Now.Year) Peter Simpson (ASCOM Initiative)
+</p>
 
 <h2 style="margin-top:0px;">Introduction</h2>
 @Globals.APPLICATION_NAME is a cross-platform application that:

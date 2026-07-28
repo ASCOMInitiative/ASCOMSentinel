@@ -47,6 +47,9 @@
         internal const int GAUGE_SMALL_TRANSTION = 260; // Gauge dimension in pixels at which the gauge transitions to the small layout.
         internal const int GAUGE_SMALL_OFFSET = 54; // Offset in pixels applied to the position of the gauge value text when the gauge is in the small layout to prevent overlap with the gauge arc.
 
+        internal const string GITHUB_OWNER = "ASCOMInitiative";
+        internal const string GITHUB_REPOSITORY = "ASCOMSentinel";
+
         internal static readonly SemaphoreSlim ConnectSemaphore = new SemaphoreSlim(1, 1);
         internal static Lock StateLock = new();
 

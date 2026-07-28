@@ -100,6 +100,20 @@ namespace Sentinel
             }
             logger.Newlines(1);
 
+            // Start a task to check whether any updates are available, if configured to do so.
+            // The update check is started here to give the maximum time to get a result before the UI is first displayed
+            if (settings.UpdateCheck)
+            {
+                _ = Task.Run(() =>
+                {
+                    try
+                    {
+                        Update.CheckForUpdates(logger).Wait();
+                    }
+                    catch { } // Ignore exceptions here
+                });
+            }
+
             var builder = WebApplication.CreateBuilder(args ?? []);
 
             // Configure Kestrel to listen on the saved server port unless the user explicitly provided --urls on the command line.

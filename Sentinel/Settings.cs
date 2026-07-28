@@ -299,6 +299,8 @@ namespace Sentinel
             { PropertyName.WindSpeed, new GaugeConfiguration(PropertyName.WindSpeed, 0, 50, 5, 15, 10, 1) }
         };
 
+        public bool UpdateCheck { get; set; } = true;
+
         public int GaugeDimension { get; set; } = Globals.GAUGE_DIMENSION_DEFAULT;
         public bool LogDiscoveryMessages { get; set; } = true;
         public bool StartBrowserOnLaunch { get; set; } = true;
