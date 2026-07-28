@@ -12,7 +12,7 @@ namespace Sentinel
         /// the method will not disconnect if already connected — preventing multiple browser
         /// tabs from racing to connect and inadvertently toggling the state.
         /// </summary>
-        internal static async Task ChangeConnectedStateAsync(State state, Settings settings, SentinelLogger logger, Func<Task> invokeStateHasChanged, bool connectOnly = false)
+        internal static async Task ChangeConnectedStateAsync(State state, Settings settings, AppLogger logger, Func<Task> invokeStateHasChanged, bool connectOnly = false)
         {
             lock (Globals.StateLock)
             {
@@ -52,7 +52,7 @@ namespace Sentinel
         /// <summary>
         /// Disconnects all ObservingConditions
         /// </summary>
-        internal static void Disconnect(State state, SentinelLogger logger)
+        internal static void Disconnect(State state, AppLogger logger)
         {
             logger.LogMessage("Disconnect", $"Disconnecting from devices...");
 
@@ -97,7 +97,7 @@ namespace Sentinel
         /// <summary>
         /// Connects to all configured ObservingConditions and SafetyMonitor devices.
         /// </summary>
-        internal static async Task ConnectAsync(State state, Settings settings, SentinelLogger logger)
+        internal static async Task ConnectAsync(State state, Settings settings, AppLogger logger)
         {
             await Globals.ConnectSemaphore.WaitAsync();
             try

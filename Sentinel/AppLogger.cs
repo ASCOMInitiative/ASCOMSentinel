@@ -7,19 +7,19 @@ using LogLevel = ASCOM.Common.Interfaces.LogLevel;
 
 namespace Sentinel
 {
-    public class SentinelLogger : TraceLogger, ITraceLogger, ILogger
+    public class AppLogger : TraceLogger, ITraceLogger, ILogger
     {
         State state;
         Settings settings;
 
-        public SentinelLogger(State state, Settings settings) : base("Sentinel", true)
+        public AppLogger(State state, Settings settings) : base("Sentinel", true)
         {
             this.state = state;
             this.settings = settings;
             SetMinimumLoggingLevel(settings.LogLevel);
         }
 
-        public SentinelLogger(string logFileName, State state, Settings settings) : base("Sentinel", true)
+        public AppLogger(string logFileName, State state, Settings settings) : base("Sentinel", true)
         {
             this.state = state;
             this.settings = settings;

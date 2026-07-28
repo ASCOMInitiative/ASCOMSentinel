@@ -23,7 +23,7 @@ public class ObservingConditionsTests
 
     private readonly Settings _settings;
     private readonly State _state;
-    private readonly SentinelLogger _logger;
+    private readonly AppLogger _logger;
     private readonly FakeWeatherDevice _fakeDevice;
     private readonly ObservingConditions _sut;
 
@@ -34,7 +34,7 @@ public class ObservingConditionsTests
         _settings.PropertyCacheTime = TimeSpan.FromMilliseconds(CacheWindowMs);
 
         _state = new State();
-        _logger = new SentinelLogger(_state, _settings);
+        _logger = new AppLogger(_state, _settings);
         _state.Connected=true;
         _state.Online=true;
 

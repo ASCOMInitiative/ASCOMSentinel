@@ -18,7 +18,7 @@ namespace Sentinel.DeviceAccess
 
         private readonly Settings settings;
         private readonly State state;
-        private readonly SentinelLogger logger;
+        private readonly AppLogger logger;
 
         /// <summary>
         /// Holds the most recently computed local safety events before external events are merged.
@@ -31,7 +31,7 @@ namespace Sentinel.DeviceAccess
         /// <param name="settings">Application settings.</param>
         /// <param name="state">Shared runtime state.</param>
         /// <param name="logger">Application logger.</param>
-        public SafetyMonitor(Settings settings, State state, SentinelLogger logger)
+        public SafetyMonitor(Settings settings, State state, AppLogger logger)
         {
             ArgumentNullException.ThrowIfNull(settings);
             ArgumentNullException.ThrowIfNull(state);

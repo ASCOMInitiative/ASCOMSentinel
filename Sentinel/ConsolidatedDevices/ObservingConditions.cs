@@ -8,7 +8,7 @@ namespace Sentinel.DeviceAccess
     {
         private readonly Settings settings;
         private readonly State state;
-        private readonly SentinelLogger logger;
+        private readonly AppLogger logger;
 
         // Record defining a cache entry for double and string results (e.g. property values and SensorDescription values)
         private record CacheEntry<T>(T Value, Exception? Exception, DateTime Timestamp);
@@ -23,7 +23,7 @@ namespace Sentinel.DeviceAccess
 
         private Lock deviceStateLock = new Lock();
 
-        public ObservingConditions(Settings settings, State state, SentinelLogger logger)
+        public ObservingConditions(Settings settings, State state, AppLogger logger)
         {
             ArgumentNullException.ThrowIfNull(settings);
             ArgumentNullException.ThrowIfNull(state);

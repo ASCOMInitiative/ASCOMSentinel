@@ -23,7 +23,7 @@ namespace Sentinel
 
         internal static State state = new();
         internal static Settings settings = new Settings(string.Empty);
-        internal static SentinelLogger logger = new(state, settings);
+        internal static AppLogger logger = new(state, settings);
 
         internal static IHostApplicationLifetime? applicationLifetime;
         internal static bool RestartRequested;
@@ -182,7 +182,7 @@ namespace Sentinel
             });
 
             // Add a Logger singleton
-            builder.Services.AddSingleton<SentinelLogger>(provider =>
+            builder.Services.AddSingleton<AppLogger>(provider =>
             {
                 return logger;
             });

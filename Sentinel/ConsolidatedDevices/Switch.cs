@@ -6,9 +6,9 @@ namespace Sentinel.DeviceAccess
     {
         private readonly Settings settings;
         private readonly State state;
-        private readonly SentinelLogger logger;
+        private readonly AppLogger logger;
 
-        public Switch(Settings settings, State state, SentinelLogger logger)
+        public Switch(Settings settings, State state, AppLogger logger)
         {
             ArgumentNullException.ThrowIfNull(settings);
             ArgumentNullException.ThrowIfNull(state);

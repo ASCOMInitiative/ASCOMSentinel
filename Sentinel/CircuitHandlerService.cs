@@ -8,11 +8,11 @@ namespace Sentinel
     /// </summary>
     public class CircuitHandlerService : CircuitHandler
     {
-        private readonly SentinelLogger logger;
+        private readonly AppLogger logger;
         private readonly Lock _lock = new();
         private readonly List<string> _connections = [];
 
-        public CircuitHandlerService(SentinelLogger logger)
+        public CircuitHandlerService(AppLogger logger)
         {
             this.logger = logger;
         }
