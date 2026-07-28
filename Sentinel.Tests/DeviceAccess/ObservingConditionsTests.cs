@@ -34,7 +34,7 @@ public class ObservingConditionsTests
         _settings.PropertyCacheTime = TimeSpan.FromMilliseconds(CacheWindowMs);
 
         _state = new State();
-        _logger = new AppLogger(_state, _settings);
+        _logger = new AppLogger("Sentinel", _state, _settings);
         _state.Connected=true;
         _state.Online=true;
 

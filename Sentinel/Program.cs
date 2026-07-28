@@ -23,7 +23,7 @@ namespace Sentinel
 
         internal static State state = new();
         internal static Settings settings = new Settings(string.Empty);
-        internal static AppLogger logger = new(state, settings);
+        internal static AppLogger logger = new AppLogger("Sentinel", state, settings);
 
         internal static IHostApplicationLifetime? applicationLifetime;
         internal static bool RestartRequested;
@@ -37,7 +37,7 @@ namespace Sentinel
 
             logger.LogMessage("Main", $"{ServerName} version {state.InformationalVersion}");
             logger.LogMessage("Main", $"Running on: {RuntimeInformation.OSDescription}.");
-            logger.LogBlankLine();
+            logger.Newlines(1);
             logger.LogWarning("Main", "This application is currently considered experimental and should only be used in conjunction with independent safety mechanics that will assure human and equipment safety.");
 
             //If already running start browser
@@ -98,7 +98,7 @@ namespace Sentinel
             {
                 Console.WriteLine($"http://localhost:{settings.ServerPort}");
             }
-            logger.LogBlankLine();
+            logger.Newlines(1);
 
             var builder = WebApplication.CreateBuilder(args ?? []);
 
