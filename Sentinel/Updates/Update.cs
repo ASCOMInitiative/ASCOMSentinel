@@ -8,12 +8,36 @@ namespace Sentinel
 {
     internal class Update
     {
-        #region Public properties
+        #region Update state
+
+        /// <summary>
+        /// True if the client is running the latest release version
+        /// </summary>
+        public static bool UpToDate { get; set; } = true;
 
         /// <summary>
         /// True if a newer release version is available
         /// </summary>
         public static bool HasNewerRelease { get; set; } = false;
+
+        /// <summary>
+        /// True if the client has a version that is ahead of the latest main release
+        /// </summary>
+        public static bool AheadOfRelease { get; set; } = false;
+
+        /// <summary>
+        /// True if a new preview version is available
+        /// </summary>
+        public static bool HasNewerPreview { get; set; } = false;
+
+        /// <summary>
+        /// True if the client has a version that is ahead of the latest preview release
+        /// </summary>
+        public static bool AheadOfPreview { get; set; } = false;
+
+        #endregion
+
+        #region Update metadata
 
         /// <summary>
         /// Latest release name
@@ -28,11 +52,6 @@ namespace Sentinel
         /// Download URL for the latest release version
         /// </summary>
         public static string ReleaseUrl { get; set; } = "";
-
-        /// <summary>
-        /// True if a new preview version is available
-        /// </summary>
-        public static bool HasNewerPreview { get; set; } = false;
 
         /// <summary>
         /// Latest preview version
@@ -50,37 +69,14 @@ namespace Sentinel
         public static string PreviewURL { get; set; } = "";
 
         /// <summary>
-        /// True if the client is running the latest release version
+        /// List of releases
         /// </summary>
-        public static bool UpToDate { get; set; } = true;
-
-        /// <summary>
-        /// True if the client has a version that is ahead of the latest preview release
-        /// </summary>
-        public static bool AheadOfPreview { get; set; } = false;
-
-        /// <summary>
-        /// True if the client has a version that is ahead of the latest main release
-        /// </summary>
-        public static bool AheadOfRelease { get; set; } = false;
+        public static IReadOnlyList<Octokit.Release> Releases { get; set; } = [];
 
         /// <summary>
         /// True if some releases have been retrieved from GitHub
         /// </summary>
         public static bool HasReleases { get => Releases.Count > 0; }
-
-        /// <summary>
-        /// List of releases
-        /// </summary>
-        public static IReadOnlyList<Octokit.Release> Releases { get; set; } = [];
-
-        public static string VersionString
-        {
-            get
-            {
-                return $"{Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}";
-            }
-        }
 
         public static string VersionDisplayString
         {
@@ -206,28 +202,28 @@ namespace Sentinel
 
                         bool latestPreOk = SemVersion.TryParse(latestPreRelease?.TagName, SemVersionStyles.AllowV, out SemVersion? latestPreReleaseVersion);
 
-                        logger?.LogDebug("Update.SetProperties", $"Update - Latest release: {latestVersion}, Latest pre-release: {latestPreReleaseVersion}");
+                        logger?.LogDebug("Update.SetProperties", $"Update - Installed version: {installedVersion}, Latest release: {latestVersion}, Latest pre-release: {latestPreReleaseVersion}");
+                        logger?.LogDebug("Update.SetProperties", $"Update - ComparePrecedence(installedVersion, latestVersion): {SemVersion.ComparePrecedence(installedVersion, latestVersion)}");
+                        logger?.LogDebug("Update.SetProperties", $"Update - ComparePrecedence(installedVersion, latestPreReleaseVersion): {SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion)}");
 
-                        if ((SemVersion.ComparePrecedence(installedVersion, latestVersion) == 0) || (SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == 0))
-                        {
-                            UpToDate = true;
-                        }
+                        UpToDate = (SemVersion.ComparePrecedence(installedVersion, latestVersion) == 0) || (SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == 0);
 
                         if (latestVersion != null)
                         {
-                            if (SemVersion.ComparePrecedence(installedVersion, latestVersion) == -1)  //(installedRelease < latestrelease)
+                            if (SemVersion.ComparePrecedence(installedVersion, latestVersion) == -1)  //(installedRelease < latestRelease)
                             {
                                 HasNewerRelease = true;
                                 LatestReleaseVersion = latestRelease?.TagName ?? "";
                                 LatestReleaseName = latestRelease?.Name ?? "";
                                 ReleaseUrl = latestRelease?.HtmlUrl ?? "";
                             }
+                            else
+                                HasNewerRelease = false;
 
-                            if (SemVersion.ComparePrecedence(installedVersion, latestVersion) == 1)  //(installedRelease > latestrelease)
-                            {
-                                logger?.LogDebug("Update.SetProperties", $"Update - Setting AheadOfRelease True");
+                            if (SemVersion.ComparePrecedence(installedVersion, latestVersion) == 1)  //(installedRelease > latestRelease)
                                 AheadOfRelease = true;
-                            }
+                            else
+                                AheadOfRelease = false;
                         }
                         else
                         {
@@ -236,20 +232,23 @@ namespace Sentinel
 
                         if (latestPreReleaseVersion != null)
                         {
-                            logger?.LogDebug("Update.SetProperties", $"Update - (SemVersion.ComparePrecedence(currentversion, latestprerelease) == -1) && (SemVersion.ComparePrecedence(latestrelease, latestprerelease) == -1): {(SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == -1) && (SemVersion.ComparePrecedence(latestVersion, latestPreReleaseVersion) == -1)}");
-                            if ((SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == -1) && (SemVersion.ComparePrecedence(latestVersion, latestPreReleaseVersion) == -1)) //installedRelease < latestprerelease && latestrelease < latestprerelease
+                            logger?.LogDebug("Update.SetProperties", $"Update - Installed Release < Latest PreRelease: {SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == -1}, Latest Release < Latest PreRelease: {SemVersion.ComparePrecedence(latestVersion, latestPreReleaseVersion) == -1}");
+                            if ((SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == -1) && (SemVersion.ComparePrecedence(latestVersion, latestPreReleaseVersion) == -1)) //installedRelease < latestPreRelease && latestRelease < latestPreRelease
                             {
                                 HasNewerPreview = true;
                                 LatestPreviewVersion = latestPreRelease?.TagName ?? "";
                                 LatestPreviewName = latestPreRelease?.Name ?? "";
                                 PreviewURL = latestPreRelease?.HtmlUrl ?? "";
                             }
+                            else
+                                HasNewerPreview = false;
 
-                            logger?.LogDebug("Update.SetProperties", $"Update - (SemVersion.ComparePrecedence(currentversion, latestprerelease) == -1) && (SemVersion.ComparePrecedence(latestrelease, latestprerelease) == 1): {(SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == 1) && (SemVersion.ComparePrecedence(latestVersion, latestPreReleaseVersion) == -1)}");
-                            if ((SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == 1) && (SemVersion.ComparePrecedence(latestVersion, latestPreReleaseVersion) == -1)) //(installedRelease > latestprerelease && latestrelease < latestprerelease)
-                            {
+
+                            logger?.LogDebug("Update.SetProperties", $"Update - Installed Release > Latest PreRelease: {SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == 1}, Latest Release < Latest PreRelease: {SemVersion.ComparePrecedence(latestVersion, latestPreReleaseVersion) == -1}");
+                            if ((SemVersion.ComparePrecedence(installedVersion, latestPreReleaseVersion) == 1) && (SemVersion.ComparePrecedence(latestVersion, latestPreReleaseVersion) == -1)) //(installedRelease > latestPreRelease && latestRelease < latestPreRelease)
                                 AheadOfPreview = true;
-                            }
+                            else
+                                AheadOfPreview = false;
                         }
                         logger?.LogDebug("Update.SetProperties", $"Update - UpToDate: {UpToDate}, HasNewerRelease: {HasNewerRelease}, HasNewerPreview: {HasNewerPreview}, AheadOfPreview: {AheadOfPreview}, LatestVersion: {LatestReleaseVersion}, URL: {ReleaseUrl}, LatestPreviewVersion: {LatestPreviewVersion}, PreviewURL: {PreviewURL}");
                     }
@@ -262,6 +261,14 @@ namespace Sentinel
             catch (Exception ex)
             {
                 logger?.LogDebug("Update.SetProperties", $"Update - Exception: {ex}");
+            }
+        }
+
+        private static string VersionString
+        {
+            get
+            {
+                return $"{Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion}";
             }
         }
 

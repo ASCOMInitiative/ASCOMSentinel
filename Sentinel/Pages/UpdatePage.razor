@@ -90,7 +90,7 @@ else
                 Task.WaitAll(getReleasesTask);
                 if (getReleasesTask.IsCompletedSuccessfully)
                 {
-                    if (Update.Releases.Count > 0)
+                    if (Update.HasReleases)
                     {
                         foreach (Release release in Update.Releases)
                         {
